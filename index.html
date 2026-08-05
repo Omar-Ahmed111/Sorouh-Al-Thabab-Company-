@@ -359,7 +359,7 @@ function quotePreview(t,doc){
   <div class="doc-table-wrap"><table class="doc-table"><thead><tr><th>م</th><th>${t.itemLabel}</th><th>الوحدة</th><th>الكمية</th><th>السعر</th><th>الضريبة</th><th>الإجمالي</th></tr></thead><tbody>${doc.items.map((it,i)=>{const b=(Number(it.qty)||0)*(Number(it.price)||0),v=b*((doc.taxPercent||15)/100);return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td><td>${it.unit||'—'}</td><td>${it.qty||0}</td><td>${money(it.price)}</td><td>${money(v)}</td><td>${money(b+v)}</td></tr>`;}).join('')}</tbody></table></div>
   <div class="total-bar"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>
   ${(t.terms&&(doc.priceTerms||doc.deliveryTerms))?`<div class="notes-box" style="margin-top:14px;"><b style="color:var(--navy)">شروط التنفيذ</b><ul>${doc.priceTerms?'<li>'+doc.priceTerms+'</li>':''}${doc.deliveryTerms?'<li>'+doc.deliveryTerms+'</li>':''}</ul></div>`:''}
-  ${bankBox()}<div class="notes-box" style="padding-bottom:6px;">🔔 العرض ساري لمدة أسبوع. يلتزم العميل بتجهيز الموقع.</div>${footerBar()}</div>`;
+  ${bankBox()}<div class="notes-box" style="padding-bottom:6px;">🔔 العرض ساري لمدة أسبوع. يلتزم العميل بتجهيز الموقع. 🛎يلتزم العميل بتجهيز الموقع/div>${footerBar()}</div>`;
 }
 
 function receiptPreview(doc){
