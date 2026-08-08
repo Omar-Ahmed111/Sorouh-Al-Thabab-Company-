@@ -9,6 +9,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <style>
+/* --- نفس الـ CSS السابق مع تعديل العلامة المائية فقط --- */
 :root {
   --navy: #0B1F4D;
   --navy-2: #132a63;
@@ -100,17 +101,17 @@ input, select, textarea { font-family: inherit; }
   position: relative;
 }
 
-/* العلامة المائية - مكبرة وواضحة */
+/* ===== العلامة المائية - مكبرة لتغطي 80% من الصفحة ===== */
 .watermark {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  opacity: 0.12;
+  opacity: 0.10;
   pointer-events: none;
   z-index: 10;
-  width: 70%;
-  max-width: 500px;
+  width: 80%;
+  max-width: 700px;
   height: auto;
 }
 .watermark img {
@@ -119,6 +120,7 @@ input, select, textarea { font-family: inherit; }
   display: block;
 }
 
+/* باقي الـ CSS مثل السابق */
 .doc-header { background: #fff; padding: 18px 26px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; gap: 20px; position: relative; z-index: 2; }
 .doc-header .logo-area { flex-shrink: 0; }
 .doc-header .logo-area .logo-img { height: 120px; width: auto; border-radius: 10px; object-fit: contain; background: #fff; padding: 5px; border: 1px solid #ddd; display: block; }
@@ -231,11 +233,11 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 #preview .doc-sheet .bank-logo-img, #print-area .doc-sheet .bank-logo-img { height: 50px !important; width: auto !important; filter: none !important; opacity: 1 !important; }
 #preview .doc-sheet .price-per-cubic-box, #print-area .doc-sheet .price-per-cubic-box { background: #f0f7ff !important; border-color: #F97316 !important; }
 #preview .doc-sheet .price-per-cubic-box .value, #print-area .doc-sheet .price-per-cubic-box .value { color: #F97316 !important; }
-/* العلامة المائية في الطباعة */
+/* العلامة المائية في الطباعة - مكبرة 80% */
 #preview .doc-sheet .watermark, #print-area .doc-sheet .watermark {
-  opacity: 0.12 !important;
-  width: 70% !important;
-  max-width: 500px !important;
+  opacity: 0.10 !important;
+  width: 80% !important;
+  max-width: 700px !important;
 }
 
 @media print {
@@ -248,7 +250,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 </style>
 </head>
 <body>
-
+<!-- نفس هيكل HTML مع تحديث العلامة المائية في الـ JS -->
 <div id="topbar">
   <div class="brand"><span class="dot"></span> صروح الثبات — نظام العروض</div>
   <nav id="nav">
@@ -262,304 +264,304 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 <div id="toast"></div>
 
 <script>
-  // ============================= DATA LAYER =============================
-  const DEFAULT_SETTINGS = {
-    companyLine1: 'صروح الثبات',
-    companyLine2: 'الخرسانة الجاهزة',
-    slogan: 'جَودة تُبنَى عليها الثقة',
-    taxNumber: '314629964600003',
-    address: 'الرياض - المملكة العربية السعودية',
-    phone: '050 834 6559',
-    email: 'sales@suroohgroup.com',
-    website: 'www.suroohgroup.com',
-    whatsappNumber: '966508346559',
-    bankName: 'مصرف الراجحي',
-    bankNameEn: 'alrajhi bank',
-    accountNumber: '660000010006089725820',
-    iban: 'SA4480000660608019725820',
-    year: '2026',
-    startNumber: 1,
-    nextNumber: 1,
-    fixedNotes: '🔔 العرض ساري لمدة أسبوع. يلتزم العميل بتجهيز الموقع.',
-    fixedFields: {
-      location: true,
-      taxNumberClient: true,
-      paymentMethod: false,
-      project: false,
-      materialType: false,
-      taxPercent: true,
-      workDescription: false,
-      preparedBy: false,
-      location2: false
-    },
-    fixedValues: {
-      location: 'الرياض - المملكة العربية السعودية',
-      taxNumberClient: '314629964600003',
-      paymentMethod: 'تحويل بنكي',
-      project: '',
-      materialType: 'خرسانة جاهزة',
-      taxPercent: 15,
-      workDescription: '',
-      preparedBy: '',
-      location2: ''
-    }
-  };
-
-  function roundToTwo(num) {
-    return Math.round((num || 0) * 100) / 100;
+// ============================= DATA LAYER =============================
+const DEFAULT_SETTINGS = {
+  companyLine1: 'صروح الثبات',
+  companyLine2: 'الخرسانة الجاهزة',
+  slogan: 'جَودة تُبنَى عليها الثقة',
+  taxNumber: '314629964600003',
+  address: 'الرياض - المملكة العربية السعودية',
+  phone: '050 834 6559',
+  email: 'sales@suroohgroup.com',
+  website: 'www.suroohgroup.com',
+  whatsappNumber: '966508346559',
+  bankName: 'مصرف الراجحي',
+  bankNameEn: 'alrajhi bank',
+  accountNumber: '660000010006089725820',
+  iban: 'SA4480000660608019725820',
+  year: '2026',
+  startNumber: 1,
+  nextNumber: 1,
+  fixedNotes: '🔔 العرض ساري لمدة أسبوع. يلتزم العميل بتجهيز الموقع.',
+  fixedFields: {
+    location: true,
+    taxNumberClient: true,
+    paymentMethod: false,
+    project: false,
+    materialType: false,
+    taxPercent: true,
+    workDescription: false,
+    preparedBy: false,
+    location2: false
+  },
+  fixedValues: {
+    location: 'الرياض - المملكة العربية السعودية',
+    taxNumberClient: '314629964600003',
+    paymentMethod: 'تحويل بنكي',
+    project: '',
+    materialType: 'خرسانة جاهزة',
+    taxPercent: 15,
+    workDescription: '',
+    preparedBy: '',
+    location2: ''
   }
+};
 
-  function loadSettings() {
-    try {
-      const r = localStorage.getItem('sthabat_settings');
-      if (r) return { ...DEFAULT_SETTINGS, ...JSON.parse(r) };
-    } catch (e) {}
-    return { ...DEFAULT_SETTINGS };
-  }
+function roundToTwo(num) {
+  return Math.round((num || 0) * 100) / 100;
+}
 
-  function saveSettings(s) {
-    localStorage.setItem('sthabat_settings', JSON.stringify(s));
-  }
+function loadSettings() {
+  try {
+    const r = localStorage.getItem('sthabat_settings');
+    if (r) return { ...DEFAULT_SETTINGS, ...JSON.parse(r) };
+  } catch (e) {}
+  return { ...DEFAULT_SETTINGS };
+}
 
-  function loadDocs() {
-    try {
-      const r = localStorage.getItem('sthabat_documents');
-      if (r) return JSON.parse(r);
-    } catch (e) {}
-    return [];
-  }
+function saveSettings(s) {
+  localStorage.setItem('sthabat_settings', JSON.stringify(s));
+}
 
-  function saveDocs(l) {
-    localStorage.setItem('sthabat_documents', JSON.stringify(l));
-  }
+function loadDocs() {
+  try {
+    const r = localStorage.getItem('sthabat_documents');
+    if (r) return JSON.parse(r);
+  } catch (e) {}
+  return [];
+}
 
-  let SETTINGS = loadSettings();
-  let DOCS = loadDocs();
+function saveDocs(l) {
+  localStorage.setItem('sthabat_documents', JSON.stringify(l));
+}
 
-  function nextDocNumber() {
-    const n = SETTINGS.nextNumber || SETTINGS.startNumber || 1;
-    return 'Q-' + SETTINGS.year + '-' + String(n).padStart(3, '0');
-  }
+let SETTINGS = loadSettings();
+let DOCS = loadDocs();
 
-  function commitDocNumber() {
-    SETTINGS.nextNumber = (SETTINGS.nextNumber || SETTINGS.startNumber || 1) + 1;
-    saveSettings(SETTINGS);
-  }
+function nextDocNumber() {
+  const n = SETTINGS.nextNumber || SETTINGS.startNumber || 1;
+  return 'Q-' + SETTINGS.year + '-' + String(n).padStart(3, '0');
+}
 
-  function uid() {
-    return 'd' + Date.now() + Math.random().toString(36).slice(2, 7);
-  }
+function commitDocNumber() {
+  SETTINGS.nextNumber = (SETTINGS.nextNumber || SETTINGS.startNumber || 1) + 1;
+  saveSettings(SETTINGS);
+}
 
-  function todayStr() {
-    return new Date().toLocaleDateString('en-GB');
-  }
+function uid() {
+  return 'd' + Date.now() + Math.random().toString(36).slice(2, 7);
+}
 
-  function money(n) {
-    return (roundToTwo(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+function todayStr() {
+  return new Date().toLocaleDateString('en-GB');
+}
 
-  function toast(m) {
-    const t = document.getElementById('toast');
-    t.textContent = m;
-    t.classList.add('show');
-    clearTimeout(window._toastT);
-    window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
-  }
+function money(n) {
+  return (roundToTwo(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
 
-  function getWhatsAppLink(doc) {
-    const number = SETTINGS.whatsappNumber || '966508346559';
-    const t = TYPES[doc.type];
-    const customerName = doc.customerName || doc.receivedFrom || 'عميل';
-    const total = t.kind === 'quote' ? money(computeTotals(doc).grand) : money(doc.amount);
-    const message = `مرحباً، أتقدم لكم بعرض سعر رقم ${doc.number}\n` +
-                   `العميل: ${customerName}\n` +
-                   `التاريخ: ${doc.date}\n` +
-                   `الإجمالي: ${total} ريال\n` +
-                   `للاطلاع على التفاصيل الكاملة يرجى فتح المرفق`;
-    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
-  }
+function toast(m) {
+  const t = document.getElementById('toast');
+  t.textContent = m;
+  t.classList.add('show');
+  clearTimeout(window._toastT);
+  window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
+}
 
-  function numberToArabicWords(num) {
-    num = Math.floor(Number(num) || 0);
-    if (num === 0) return 'صفر ريال سعودي فقط لا غير';
-    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر',
-      'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'
-    ];
-    const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-    const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+function getWhatsAppLink(doc) {
+  const number = SETTINGS.whatsappNumber || '966508346559';
+  const t = TYPES[doc.type];
+  const customerName = doc.customerName || doc.receivedFrom || 'عميل';
+  const total = t.kind === 'quote' ? money(computeTotals(doc).grand) : money(doc.amount);
+  const message = `مرحباً، أتقدم لكم بعرض سعر رقم ${doc.number}\n` +
+                 `العميل: ${customerName}\n` +
+                 `التاريخ: ${doc.date}\n` +
+                 `الإجمالي: ${total} ريال\n` +
+                 `للاطلاع على التفاصيل الكاملة يرجى فتح المرفق`;
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
 
-    function threeDigits(n) {
-      let s = '';
-      const h = Math.floor(n / 100),
-        r = n % 100;
-      if (h > 0) s += hundreds[h];
-      if (r > 0) {
-        if (s) s += ' و';
-        if (r < 20) s += ones[r];
-        else {
-          const t = Math.floor(r / 10),
-            o = r % 10;
-          s += (o > 0 ? ones[o] + ' و' : '') + tens[t];
-        }
+function numberToArabicWords(num) {
+  num = Math.floor(Number(num) || 0);
+  if (num === 0) return 'صفر ريال سعودي فقط لا غير';
+  const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر',
+    'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'
+  ];
+  const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+  const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+  function threeDigits(n) {
+    let s = '';
+    const h = Math.floor(n / 100),
+      r = n % 100;
+    if (h > 0) s += hundreds[h];
+    if (r > 0) {
+      if (s) s += ' و';
+      if (r < 20) s += ones[r];
+      else {
+        const t = Math.floor(r / 10),
+          o = r % 10;
+        s += (o > 0 ? ones[o] + ' و' : '') + tens[t];
       }
-      return s;
     }
-
-    function group(n, s, d, p) {
-      if (n === 0) return '';
-      if (n === 1) return s;
-      if (n === 2) return d;
-      if (n >= 3 && n <= 10) return threeDigits(n) + ' ' + p;
-      return threeDigits(n) + ' ' + s;
-    }
-    const m = Math.floor(num / 1000000),
-      th = Math.floor((num % 1000000) / 1000),
-      rest = num % 1000;
-    let parts = [];
-    if (m > 0) parts.push(group(m, 'مليون', 'مليونان', 'ملايين'));
-    if (th > 0) parts.push(group(th, 'ألف', 'ألفان', 'آلاف'));
-    if (rest > 0) parts.push(threeDigits(rest));
-    return (parts.filter(Boolean).join(' و') || 'صفر') + ' ريال سعودي فقط لا غير';
+    return s;
   }
 
-  const TYPES = {
-    concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', itemLabel: 'نوع الخرسانة', icon: '🚛',
-      desc: 'خرسانة جاهزة بمقاومات وأنواع أسمنت مختلفة', kind: 'quote', isConcrete: true },
-    interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
-      desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
-    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
-      kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة' },
-    general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
-      desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
-    claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
-      kind: 'quote' },
-    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
-      kind: 'receipt' }
-  };
-
-  // ============================= ROUTER =============================
-  function go(r) { location.hash = r; }
-  window.addEventListener('hashchange', render);
-  window.addEventListener('DOMContentLoaded', () => {
-    if (!location.hash) location.hash = '#/dashboard';
-    render();
-  });
-
-  function render() {
-    const hash = location.hash.replace('#/', '') || 'dashboard';
-    const parts = hash.split('/');
-    document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
-    const app = document.getElementById('app');
-    if (parts[0] === 'dashboard') { setActive('dashboard');
-      app.innerHTML = renderDashboard();
-      bindDashboard(); } else if (parts[0] === 'archive') { setActive('archive');
-      app.innerHTML = renderArchive();
-      bindArchive(); } else if (parts[0] === 'settings') { setActive('settings');
-      app.innerHTML = renderSettings();
-      bindSettings(); } else if (parts[0] === 'form') { app.innerHTML = renderForm(parts[1], parts[2]);
-      bindForm(parts[1], parts[2]); } else if (parts[0] === 'view') { app.innerHTML = renderViewPage(parts[1]);
-      bindViewPage(parts[1]); } else { app.innerHTML = renderDashboard();
-      bindDashboard(); }
-    window.scrollTo(0, 0);
+  function group(n, s, d, p) {
+    if (n === 0) return '';
+    if (n === 1) return s;
+    if (n === 2) return d;
+    if (n >= 3 && n <= 10) return threeDigits(n) + ' ' + p;
+    return threeDigits(n) + ' ' + s;
   }
+  const m = Math.floor(num / 1000000),
+    th = Math.floor((num % 1000000) / 1000),
+    rest = num % 1000;
+  let parts = [];
+  if (m > 0) parts.push(group(m, 'مليون', 'مليونان', 'ملايين'));
+  if (th > 0) parts.push(group(th, 'ألف', 'ألفان', 'آلاف'));
+  if (rest > 0) parts.push(threeDigits(rest));
+  return (parts.filter(Boolean).join(' و') || 'صفر') + ' ريال سعودي فقط لا غير';
+}
 
-  function setActive(n) {
-    const b = document.querySelector('#nav button[data-r="' + n + '"]');
-    if (b) b.classList.add('active');
-  }
-  document.getElementById('nav').addEventListener('click', e => {
-    const b = e.target.closest('button[data-r]');
-    if (b) go('#/' + b.dataset.r);
-  });
+const TYPES = {
+  concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', itemLabel: 'نوع الخرسانة', icon: '🚛',
+    desc: 'خرسانة جاهزة بمقاومات وأنواع أسمنت مختلفة', kind: 'quote', isConcrete: true },
+  interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
+    desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
+  block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
+    kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة' },
+  general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
+    desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
+  claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
+    kind: 'quote' },
+  receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
+    kind: 'receipt' }
+};
 
-  // ============================= DASHBOARD =============================
-  function renderDashboard() {
-    const total = DOCS.length,
-      quotes = DOCS.filter(d => TYPES[d.type].kind === 'quote').length,
-      receipts = DOCS.filter(d => TYPES[d.type].kind === 'receipt').length;
-    const cards = Object.values(TYPES).map(t => `<div class="doc-card" data-new="${t.key}"><div class="icon">${t.icon}</div><h3>${t.title}</h3><p>${t.desc}</p><span class="go">إنشاء جديد ←</span></div>`).join('');
-    return `<h1 class="page-title">أهلاً بك 👋</h1><p class="page-sub">اختر نوع المستند. الرقم التالي: <b style="color:var(--navy)">${nextDocNumber()}</b></p>
+// ============================= ROUTER =============================
+function go(r) { location.hash = r; }
+window.addEventListener('hashchange', render);
+window.addEventListener('DOMContentLoaded', () => {
+  if (!location.hash) location.hash = '#/dashboard';
+  render();
+});
+
+function render() {
+  const hash = location.hash.replace('#/', '') || 'dashboard';
+  const parts = hash.split('/');
+  document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
+  const app = document.getElementById('app');
+  if (parts[0] === 'dashboard') { setActive('dashboard');
+    app.innerHTML = renderDashboard();
+    bindDashboard(); } else if (parts[0] === 'archive') { setActive('archive');
+    app.innerHTML = renderArchive();
+    bindArchive(); } else if (parts[0] === 'settings') { setActive('settings');
+    app.innerHTML = renderSettings();
+    bindSettings(); } else if (parts[0] === 'form') { app.innerHTML = renderForm(parts[1], parts[2]);
+    bindForm(parts[1], parts[2]); } else if (parts[0] === 'view') { app.innerHTML = renderViewPage(parts[1]);
+    bindViewPage(parts[1]); } else { app.innerHTML = renderDashboard();
+    bindDashboard(); }
+  window.scrollTo(0, 0);
+}
+
+function setActive(n) {
+  const b = document.querySelector('#nav button[data-r="' + n + '"]');
+  if (b) b.classList.add('active');
+}
+document.getElementById('nav').addEventListener('click', e => {
+  const b = e.target.closest('button[data-r]');
+  if (b) go('#/' + b.dataset.r);
+});
+
+// ============================= DASHBOARD =============================
+function renderDashboard() {
+  const total = DOCS.length,
+    quotes = DOCS.filter(d => TYPES[d.type].kind === 'quote').length,
+    receipts = DOCS.filter(d => TYPES[d.type].kind === 'receipt').length;
+  const cards = Object.values(TYPES).map(t => `<div class="doc-card" data-new="${t.key}"><div class="icon">${t.icon}</div><h3>${t.title}</h3><p>${t.desc}</p><span class="go">إنشاء جديد ←</span></div>`).join('');
+  return `<h1 class="page-title">أهلاً بك 👋</h1><p class="page-sub">اختر نوع المستند. الرقم التالي: <b style="color:var(--navy)">${nextDocNumber()}</b></p>
   <div class="stats-row"><div class="stat"><div class="n">${total}</div><div class="l">إجمالي المستندات</div></div><div class="stat"><div class="n">${quotes}</div><div class="l">عروض / مطالبات</div></div><div class="stat"><div class="n">${receipts}</div><div class="l">سندات استلام</div></div></div>
   <div class="grid">${cards}</div>`;
-  }
+}
 
-  function bindDashboard() {
-    document.querySelectorAll('.doc-card').forEach(c => c.addEventListener('click', () => go('#/form/' + c.dataset.new +
-      '/new')));
-  }
+function bindDashboard() {
+  document.querySelectorAll('.doc-card').forEach(c => c.addEventListener('click', () => go('#/form/' + c.dataset.new +
+    '/new')));
+}
 
-  // ============================= FORM =============================
-  function blankDoc(type) {
-    const t = TYPES[type];
-    const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
-    const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
+// ============================= FORM =============================
+function blankDoc(type) {
+  const t = TYPES[type];
+  const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
+  const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
 
-    const base = {
-      id: uid(),
-      type,
-      number: nextDocNumber(),
-      createdAt: Date.now(),
-      status: 'pending',
-      date: todayStr()
+  const base = {
+    id: uid(),
+    type,
+    number: nextDocNumber(),
+    createdAt: Date.now(),
+    status: 'pending',
+    date: todayStr()
+  };
+
+  if (t.kind === 'quote') {
+    return {
+      ...base,
+      customerName: '',
+      contact: '',
+      taxNumberClient: fixedFields.taxNumberClient ? (fixedVals.taxNumberClient || '') : '',
+      paymentMethod: fixedFields.paymentMethod ? (fixedVals.paymentMethod || '') : '',
+      location: fixedFields.location ? (fixedVals.location || '') : '',
+      project: fixedFields.project ? (fixedVals.project || '') : '',
+      materialType: fixedFields.materialType ? (fixedVals.materialType || '') : '',
+      taxPercent: fixedFields.taxPercent ? (fixedVals.taxPercent || 15) : 15,
+      workDescription: fixedFields.workDescription ? (fixedVals.workDescription || '') : '',
+      preparedBy: fixedFields.preparedBy ? (fixedVals.preparedBy || '') : '',
+      location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
+      priceTerms: '',
+      deliveryTerms: '',
+      items: [emptyItem()]
     };
-
-    if (t.kind === 'quote') {
-      return {
-        ...base,
-        customerName: '',
-        contact: '',
-        taxNumberClient: fixedFields.taxNumberClient ? (fixedVals.taxNumberClient || '') : '',
-        paymentMethod: fixedFields.paymentMethod ? (fixedVals.paymentMethod || '') : '',
-        location: fixedFields.location ? (fixedVals.location || '') : '',
-        project: fixedFields.project ? (fixedVals.project || '') : '',
-        materialType: fixedFields.materialType ? (fixedVals.materialType || '') : '',
-        taxPercent: fixedFields.taxPercent ? (fixedVals.taxPercent || 15) : 15,
-        workDescription: fixedFields.workDescription ? (fixedVals.workDescription || '') : '',
-        preparedBy: fixedFields.preparedBy ? (fixedVals.preparedBy || '') : '',
-        location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
-        priceTerms: '',
-        deliveryTerms: '',
-        items: [emptyItem()]
-      };
-    }
-    return { ...base, receivedFrom: '', amount: '', amountFor: '', paymentMethod: 'تحويل بنكي', txnRef: '', bankName: '',
-      notes: '', receiverName: '', receiverDate: todayStr(), payerName: '', payerDate: todayStr() };
   }
+  return { ...base, receivedFrom: '', amount: '', amountFor: '', paymentMethod: 'تحويل بنكي', txnRef: '', bankName: '',
+    notes: '', receiverName: '', receiverDate: todayStr(), payerName: '', payerDate: todayStr() };
+}
 
-  function emptyItem() {
-    return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
-  }
+function emptyItem() {
+  return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
+}
 
-  function getDoc(type, id) {
-    if (id === 'new') return blankDoc(type);
-    return DOCS.find(d => d.id === id) || blankDoc(type);
-  }
+function getDoc(type, id) {
+  if (id === 'new') return blankDoc(type);
+  return DOCS.find(d => d.id === id) || blankDoc(type);
+}
 
-  function renderForm(type, id) {
-    const t = TYPES[type];
-    if (!t) return '<p>نوع غير معروف</p>';
-    const doc = getDoc(type, id);
-    window._currentDoc = JSON.parse(JSON.stringify(doc));
-    return `<h1 class="page-title">${t.title}</h1><p class="page-sub">رقم المستند: <b style="color:var(--orange)">${doc.number}</b> — ${id==='new'?'مستند جديد':'تعديل'}</p>
+function renderForm(type, id) {
+  const t = TYPES[type];
+  if (!t) return '<p>نوع غير معروف</p>';
+  const doc = getDoc(type, id);
+  window._currentDoc = JSON.parse(JSON.stringify(doc));
+  return `<h1 class="page-title">${t.title}</h1><p class="page-sub">رقم المستند: <b style="color:var(--orange)">${doc.number}</b> — ${id==='new'?'مستند جديد':'تعديل'}</p>
   <div class="form-wrap"><div id="form-panels">${t.kind==='quote'?quoteFormPanels(t,window._currentDoc):receiptFormPanels(window._currentDoc)}</div>
   <div><div class="panel" style="padding:14px;"><h4>معاينة حية</h4><div id="preview">${t.kind==='quote'?quotePreview(t,window._currentDoc):receiptPreview(window._currentDoc)}</div></div></div></div>`;
+}
+
+function quoteFormPanels(t, doc) {
+  const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
+  const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
+  
+  let qtyLabel = 'الكمية';
+  let priceLabel = 'سعر المتر';
+  let priceWithTaxLabel = '';
+  
+  if (t.isConcrete) {
+    qtyLabel = 'الكمية متر مكعب';
+    priceLabel = 'سعر المتر قبل الضريبة';
+    priceWithTaxLabel = 'سعر المتر شامل الضريبة';
   }
 
-  function quoteFormPanels(t, doc) {
-    const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
-    
-    let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
-    
-    if (t.isConcrete) {
-      qtyLabel = 'الكمية متر مكعب';
-      priceLabel = 'سعر المتر قبل الضريبة';
-      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
-    }
-
-    return `<div class="panel"><h4>بيانات العميل</h4>
+  return `<div class="panel"><h4>بيانات العميل</h4>
     <div class="field"><label>تاريخ العرض</label><input data-f="date" value="${doc.date}"></div>
     <div class="field"><label>اسم العميل${fixedLabel('customerName')}</label><input data-f="customerName" value="${doc.customerName}" placeholder="اسم العميل أو المنشأة"></div>
     <div class="field"><label>جهة الاتصال${fixedLabel('contact')}</label><input data-f="contact" value="${doc.contact}"></div>
@@ -583,32 +585,32 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <button class="btn-pdf" id="download-pdf-form">📥 تحميل PDF</button>
     <button class="btn-secondary" id="save-print">🖨️ حفظ وطباعة</button>
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
-  }
+}
 
-  function itemRow(it, i, isConcrete) {
-    const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
-    const price = roundToTwo(parseFloat(it.price) || 0);
-    const priceWithTax = roundToTwo(parseFloat(it.priceWithTax) || 0);
-    const qty = roundToTwo(parseFloat(it.qty) || 0);
-    
-    let displayPrice = price;
-    let displayPriceWithTax = priceWithTax;
-    
-    if (priceWithTax > 0 && price === 0) {
-      displayPrice = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
-      it.price = displayPrice;
-    }
-    
-    const totalBeforeTax = roundToTwo(qty * displayPrice);
-    const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-    const totalWithTax = roundToTwo(totalBeforeTax + tax);
-    
-    if (priceWithTax === 0 && price > 0) {
-      displayPriceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-      it.priceWithTax = displayPriceWithTax;
-    }
-    
-    return `<tr data-id="${it.id}">
+function itemRow(it, i, isConcrete) {
+  const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
+  const price = roundToTwo(parseFloat(it.price) || 0);
+  const priceWithTax = roundToTwo(parseFloat(it.priceWithTax) || 0);
+  const qty = roundToTwo(parseFloat(it.qty) || 0);
+  
+  let displayPrice = price;
+  let displayPriceWithTax = priceWithTax;
+  
+  if (priceWithTax > 0 && price === 0) {
+    displayPrice = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
+    it.price = displayPrice;
+  }
+  
+  const totalBeforeTax = roundToTwo(qty * displayPrice);
+  const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+  const totalWithTax = roundToTwo(totalBeforeTax + tax);
+  
+  if (priceWithTax === 0 && price > 0) {
+    displayPriceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+    it.priceWithTax = displayPriceWithTax;
+  }
+  
+  return `<tr data-id="${it.id}">
       <td>${i+1}</td>
       <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
       <td><input data-if="unit" value="${it.unit||''}"></td>
@@ -619,10 +621,10 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
       <td><button class="rm" data-rm="${it.id}">×</button></td>
     </tr>`;
-  }
+}
 
-  function receiptFormPanels(doc) {
-    return `<div class="panel"><h4>بيانات السند</h4>
+function receiptFormPanels(doc) {
+  return `<div class="panel"><h4>بيانات السند</h4>
     <div class="field"><label>التاريخ</label><input data-f="date" value="${doc.date}"></div>
     <div class="field"><label>استلمنا من السيد</label><input data-f="receivedFrom" value="${doc.receivedFrom}"></div>
     <div class="field"><label>مبلغ وقدره (ريال)</label><input data-f="amount" type="number" value="${doc.amount}"></div>
@@ -640,69 +642,69 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <button class="btn-pdf" id="download-pdf-form">📥 تحميل PDF</button>
     <button class="btn-secondary" id="save-print">🖨️ حفظ وطباعة</button>
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
+}
+
+function computeTotals(doc) {
+  let s = 0,
+    v = 0;
+  doc.items.forEach(it => {
+    const price = roundToTwo(parseFloat(it.price) || 0);
+    const qty = roundToTwo(parseFloat(it.qty) || 0);
+    const b = roundToTwo(qty * price);
+    s += b;
+    v += roundToTwo(b * ((doc.taxPercent || 15) / 100));
+  });
+  return { subtotal: roundToTwo(s), vat: roundToTwo(v), grand: roundToTwo(s + v) };
+}
+
+function quotePreview(t, doc) {
+  const tot = computeTotals(doc);
+  const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
+  const fixedNotes = SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
+  
+  let qtyLabel = 'الكمية';
+  let priceLabel = 'سعر المتر';
+  let priceWithTaxLabel = '';
+  
+  if (t.isConcrete) {
+    qtyLabel = 'الكمية متر مكعب';
+    priceLabel = 'سعر المتر قبل الضريبة';
+    priceWithTaxLabel = 'سعر المتر شامل الضريبة';
   }
 
-  function computeTotals(doc) {
-    let s = 0,
-      v = 0;
+  function infoLineWithGreen(k, v, fieldKey) {
+    const isGreen = fixedFields[fieldKey] === true;
+    const greenClass = isGreen ? 'green-static' : '';
+    return `<div class="info-line"><span class="k">${k}</span><span class="v ${greenClass}">${v&&v.length?v:'—'}</span></div>`;
+  }
+
+  let pricePerCubic = 0;
+  if (t.isConcrete && doc.items.length > 0) {
+    let totalQty = 0;
+    let totalPriceWithTax = 0;
     doc.items.forEach(it => {
-      const price = roundToTwo(parseFloat(it.price) || 0);
       const qty = roundToTwo(parseFloat(it.qty) || 0);
-      const b = roundToTwo(qty * price);
-      s += b;
-      v += roundToTwo(b * ((doc.taxPercent || 15) / 100));
+      const price = roundToTwo(parseFloat(it.price) || 0);
+      totalQty += qty;
+      const totalBeforeTax = roundToTwo(qty * price);
+      const tax = roundToTwo(totalBeforeTax * ((doc.taxPercent || 15) / 100));
+      totalPriceWithTax += roundToTwo(totalBeforeTax + tax);
     });
-    return { subtotal: roundToTwo(s), vat: roundToTwo(v), grand: roundToTwo(s + v) };
+    pricePerCubic = totalQty > 0 ? roundToTwo(totalPriceWithTax / totalQty) : 0;
   }
 
-  function quotePreview(t, doc) {
-    const tot = computeTotals(doc);
-    const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedNotes = SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
-    
-    let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
-    
-    if (t.isConcrete) {
-      qtyLabel = 'الكمية متر مكعب';
-      priceLabel = 'سعر المتر قبل الضريبة';
-      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
-    }
-
-    function infoLineWithGreen(k, v, fieldKey) {
-      const isGreen = fixedFields[fieldKey] === true;
-      const greenClass = isGreen ? 'green-static' : '';
-      return `<div class="info-line"><span class="k">${k}</span><span class="v ${greenClass}">${v&&v.length?v:'—'}</span></div>`;
-    }
-
-    let pricePerCubic = 0;
-    if (t.isConcrete && doc.items.length > 0) {
-      let totalQty = 0;
-      let totalPriceWithTax = 0;
-      doc.items.forEach(it => {
-        const qty = roundToTwo(parseFloat(it.qty) || 0);
-        const price = roundToTwo(parseFloat(it.price) || 0);
-        totalQty += qty;
-        const totalBeforeTax = roundToTwo(qty * price);
-        const tax = roundToTwo(totalBeforeTax * ((doc.taxPercent || 15) / 100));
-        totalPriceWithTax += roundToTwo(totalBeforeTax + tax);
-      });
-      pricePerCubic = totalQty > 0 ? roundToTwo(totalPriceWithTax / totalQty) : 0;
-    }
-
-    let pricePerCubicHTML = '';
-    if (t.isConcrete) {
-      pricePerCubicHTML = `<div class="price-per-cubic-box">
+  let pricePerCubicHTML = '';
+  if (t.isConcrete) {
+    pricePerCubicHTML = `<div class="price-per-cubic-box">
         <span class="label">💰 سعر المتر المكعب شامل الضريبة</span>
         <span class="value">${money(pricePerCubic)} ريال</span>
       </div>`;
-    }
+  }
 
-    // العلامة المائية الجديدة مكبرة
-    const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/SwcCtjN7/1786194500918.png" alt="علامة مائية"></div>`;
+  // ===== العلامة المائية الجديدة - مكبرة 80% =====
+  const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
 
-    return `<div class="doc-sheet">
+  return `<div class="doc-sheet">
   ${watermarkHTML}
   <div class="doc-header">
     <div class="logo-area">
@@ -760,11 +762,11 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   ${bankBox()}
   <div class="notes-box" style="padding-bottom:6px;">${fixedNotes}</div>
   ${footerBar()}</div>`;
-  }
+}
 
-  function receiptPreview(doc) {
-    const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/SwcCtjN7/1786194500918.png" alt="علامة مائية"></div>`;
-    return `<div class="doc-sheet">
+function receiptPreview(doc) {
+  const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
+  return `<div class="doc-sheet">
   ${watermarkHTML}
   <div class="doc-header">
     <div class="logo-area">
@@ -797,15 +799,15 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <div class="sg"><h5>المستلم</h5><div class="sl"><span>الاسم</span><span>${doc.receiverName||'—'}</span></div><div class="sl"><span>التاريخ</span><span>${doc.receiverDate||'—'}</span></div><div class="sl"><span>التوقيع</span><span>____________</span></div></div>
     <div class="sg"><h5>المسلّم</h5><div class="sl"><span>الاسم</span><span>${doc.payerName||'—'}</span></div><div class="sl"><span>التاريخ</span><span>${doc.payerDate||'—'}</span></div><div class="sl"><span>التوقيع</span><span>____________</span></div></div>
   </div>${footerBar()}</div>`;
-  }
+}
 
-  function infoLine(k, v) {
-    return `<div class="info-line"><span class="k">${k}</span><span class="v">${v&&v.length?v:'—'}</span></div>`;
-  }
+function infoLine(k, v) {
+  return `<div class="info-line"><span class="k">${k}</span><span class="v">${v&&v.length?v:'—'}</span></div>`;
+}
 
-  function bankBox() {
-    const bankLogo = `<img src="https://i.ibb.co/DDx8LMgN/1774895219377-mmurvu75.png" alt="مصرف الراجحي" class="bank-logo-img">`;
-    return `<div class="bank-box">
+function bankBox() {
+  const bankLogo = `<img src="https://i.ibb.co/DDx8LMgN/1774895219377-mmurvu75.png" alt="مصرف الراجحي" class="bank-logo-img">`;
+  return `<div class="bank-box">
       <div class="item">
         <span class="k">البنك</span>
         <span class="v">
@@ -821,210 +823,210 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       <div class="item"><span class="k">رقم الحساب</span><span class="v">${SETTINGS.accountNumber}</span></div>
       <div class="item"><span class="k">الآيبان</span><span class="v">${SETTINGS.iban}</span></div>
     </div>`;
-  }
+}
 
-  function footerBar() {
-    return `<div class="doc-footer">
+function footerBar() {
+  return `<div class="doc-footer">
       <div class="quality">✔ ملتزمون بالجودة</div>
       <div class="contact-item">✉️ ${SETTINGS.email}</div>
       <div class="contact-item">🌐 ${SETTINGS.website}</div>
       <div class="contact-item">📞 ${SETTINGS.phone}</div>
     </div>`;
+}
+
+// ---- form bindings ----
+function bindForm(type, id) {
+  const t = TYPES[type],
+    doc = window._currentDoc;
+
+  function refreshPreview() {
+    document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
   }
 
-  // ---- form bindings ----
-  function bindForm(type, id) {
-    const t = TYPES[type],
-      doc = window._currentDoc;
+  function calculateFromPrice(item, taxPercent) {
+    const qty = roundToTwo(parseFloat(item.qty) || 0);
+    const price = roundToTwo(parseFloat(item.price) || 0);
+    const totalBeforeTax = roundToTwo(qty * price);
+    const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+    const totalWithTax = roundToTwo(totalBeforeTax + tax);
+    const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+    return { totalBeforeTax, tax, totalWithTax, priceWithTax };
+  }
 
-    function refreshPreview() {
-      document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
+  function calculateFromPriceWithTax(item, taxPercent) {
+    const qty = roundToTwo(parseFloat(item.qty) || 0);
+    const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
+    if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
+    const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
+    const totalBeforeTax = roundToTwo(qty * price);
+    const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+    const totalWithTax = roundToTwo(totalBeforeTax + tax);
+    return { price, totalBeforeTax, tax, totalWithTax };
+  }
+
+  document.getElementById('form-panels').addEventListener('input', e => {
+    const f = e.target.dataset.f;
+    if (f) {
+      doc[f] = e.target.value;
+      refreshPreview();
+      return;
     }
-
-    function calculateFromPrice(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const price = roundToTwo(parseFloat(item.price) || 0);
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-      return { totalBeforeTax, tax, totalWithTax, priceWithTax };
-    }
-
-    function calculateFromPriceWithTax(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
-      if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
-      const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      return { price, totalBeforeTax, tax, totalWithTax };
-    }
-
-    document.getElementById('form-panels').addEventListener('input', e => {
-      const f = e.target.dataset.f;
-      if (f) {
-        doc[f] = e.target.value;
-        refreshPreview();
-        return;
+    const ifld = e.target.dataset.if;
+    if (ifld) {
+      const tr = e.target.closest('tr'),
+        itemId = tr.dataset.id,
+        item = doc.items.find(x => x.id === itemId);
+      
+      let newVal = e.target.value;
+      if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax') {
+        newVal = parseFloat(newVal) || 0;
       }
-      const ifld = e.target.dataset.if;
-      if (ifld) {
-        const tr = e.target.closest('tr'),
-          itemId = tr.dataset.id,
-          item = doc.items.find(x => x.id === itemId);
-        
-        let newVal = e.target.value;
-        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax') {
-          newVal = parseFloat(newVal) || 0;
-        }
-        item[ifld] = newVal;
+      item[ifld] = newVal;
 
-        const taxPercent = doc.taxPercent || 15;
+      const taxPercent = doc.taxPercent || 15;
 
-        if (ifld === 'price') {
-          const result = calculateFromPrice(item, taxPercent);
-          item.priceWithTax = result.priceWithTax;
-          item.totalWithTax = result.totalWithTax;
-          const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-          if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
-          const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
-        }
+      if (ifld === 'price') {
+        const result = calculateFromPrice(item, taxPercent);
+        item.priceWithTax = result.priceWithTax;
+        item.totalWithTax = result.totalWithTax;
+        const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+        if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+        const totalInput = tr.querySelector('.item-total');
+        if (totalInput) totalInput.value = result.totalWithTax;
+        const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+        if (taxCell) taxCell.textContent = money(result.tax);
+      }
 
-        if (ifld === 'priceWithTax') {
-          const result = calculateFromPriceWithTax(item, taxPercent);
-          item.price = result.price;
-          item.totalWithTax = result.totalWithTax;
+      if (ifld === 'priceWithTax') {
+        const result = calculateFromPriceWithTax(item, taxPercent);
+        item.price = result.price;
+        item.totalWithTax = result.totalWithTax;
+        const priceInput = tr.querySelector('.item-price');
+        if (priceInput) priceInput.value = result.price;
+        const totalInput = tr.querySelector('.item-total');
+        if (totalInput) totalInput.value = result.totalWithTax;
+        const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+        if (taxCell) taxCell.textContent = money(result.tax);
+      }
+
+      if (ifld === 'qty') {
+        const qty = roundToTwo(parseFloat(item.qty) || 0);
+        const price = roundToTwo(parseFloat(item.price) || 0);
+        const result = calculateFromPrice(item, taxPercent);
+        item.totalWithTax = result.totalWithTax;
+        item.priceWithTax = result.priceWithTax;
+        const totalInput = tr.querySelector('.item-total');
+        if (totalInput) totalInput.value = result.totalWithTax;
+        const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+        if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+        const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+        if (taxCell) taxCell.textContent = money(result.tax);
+      }
+
+      if (ifld === 'totalWithTax') {
+        const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
+        const qty = roundToTwo(parseFloat(item.qty) || 1);
+        if (qty > 0) {
+          const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
+          const price = roundToTwo(totalBeforeTax / qty);
+          const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+          item.price = price;
+          item.priceWithTax = priceWithTax;
           const priceInput = tr.querySelector('.item-price');
-          if (priceInput) priceInput.value = result.price;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
-          const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
-        }
-
-        if (ifld === 'qty') {
-          const qty = roundToTwo(parseFloat(item.qty) || 0);
-          const price = roundToTwo(parseFloat(item.price) || 0);
-          const result = calculateFromPrice(item, taxPercent);
-          item.totalWithTax = result.totalWithTax;
-          item.priceWithTax = result.priceWithTax;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
+          if (priceInput) priceInput.value = price;
           const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-          if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+          if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
+          const tax = roundToTwo(totalWithTax - totalBeforeTax);
           const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
+          if (taxCell) taxCell.textContent = money(tax);
         }
-
-        if (ifld === 'totalWithTax') {
-          const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
-          const qty = roundToTwo(parseFloat(item.qty) || 1);
-          if (qty > 0) {
-            const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
-            const price = roundToTwo(totalBeforeTax / qty);
-            const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-            item.price = price;
-            item.priceWithTax = priceWithTax;
-            const priceInput = tr.querySelector('.item-price');
-            if (priceInput) priceInput.value = price;
-            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-            if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
-            const tax = roundToTwo(totalWithTax - totalBeforeTax);
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-            if (taxCell) taxCell.textContent = money(tax);
-          }
-        }
-
-        refreshPreview();
-      }
-    });
-
-    document.getElementById('form-panels').addEventListener('click', e => {
-      if (e.target.id === 'add-row') {
-        doc.items.push(emptyItem());
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
-        refreshPreview();
-      }
-      const rmId = e.target.dataset.rm;
-      if (rmId) {
-        doc.items = doc.items.filter(x => x.id !== rmId);
-        if (!doc.items.length) doc.items.push(emptyItem());
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
-        refreshPreview();
-      }
-      if (e.target.id === 'save-doc') {
-        persistDoc(doc);
-        toast('✅ تم الحفظ');
-        go('#/archive');
-      }
-      if (e.target.id === 'save-print') {
-        persistDoc(doc);
-        toast('✅ تم الحفظ');
-        setTimeout(() => go('#/view/' + doc.id + '?print=1'), 150);
-      }
-      if (e.target.id === 'cancel-form') {
-        go('#/dashboard');
       }
 
-      if (e.target.id === 'download-pdf-form') {
-        refreshPreview();
-        const defaultName = doc.number + ' - ' + (doc.customerName || doc.receivedFrom || 'مستند');
-        const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
-        if (fileName === null) return;
-        const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
-
-        const btn = e.target;
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ جاري التجهيز...';
-        btn.disabled = true;
-
-        const element = document.querySelector('#preview .doc-sheet');
-        const opt = {
-          margin: [5, 5, 5, 5],
-          filename: finalName + '.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 3, useCORS: true, letterRendering: true },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).save().then(() => {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-          toast('✅ تم تحميل: ' + finalName + '.pdf');
-        }).catch(err => {
-          console.error(err);
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-          toast('❌ حدث خطأ أثناء إنشاء PDF');
-        });
-      }
-    });
-  }
-
-  function persistDoc(doc) {
-    const isNew = !DOCS.find(d => d.id === doc.id);
-    if (isNew) {
-      commitDocNumber();
-      DOCS.unshift(doc);
-    } else {
-      DOCS = DOCS.map(d => d.id === doc.id ? doc : d);
+      refreshPreview();
     }
-    saveDocs(DOCS);
-  }
+  });
 
-  // ============================= VIEW PAGE =============================
-  function renderViewPage(id) {
-    const doc = DOCS.find(d => d.id === id);
-    if (!doc) return '<p>غير موجود</p>';
-    const t = TYPES[doc.type],
-      html = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
-    const whatsappLink = getWhatsAppLink(doc);
-    return `<div class="actions-bar" style="margin-bottom:16px;">
+  document.getElementById('form-panels').addEventListener('click', e => {
+    if (e.target.id === 'add-row') {
+      doc.items.push(emptyItem());
+      document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
+      refreshPreview();
+    }
+    const rmId = e.target.dataset.rm;
+    if (rmId) {
+      doc.items = doc.items.filter(x => x.id !== rmId);
+      if (!doc.items.length) doc.items.push(emptyItem());
+      document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
+      refreshPreview();
+    }
+    if (e.target.id === 'save-doc') {
+      persistDoc(doc);
+      toast('✅ تم الحفظ');
+      go('#/archive');
+    }
+    if (e.target.id === 'save-print') {
+      persistDoc(doc);
+      toast('✅ تم الحفظ');
+      setTimeout(() => go('#/view/' + doc.id + '?print=1'), 150);
+    }
+    if (e.target.id === 'cancel-form') {
+      go('#/dashboard');
+    }
+
+    if (e.target.id === 'download-pdf-form') {
+      refreshPreview();
+      const defaultName = doc.number + ' - ' + (doc.customerName || doc.receivedFrom || 'مستند');
+      const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
+      if (fileName === null) return;
+      const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
+
+      const btn = e.target;
+      const originalText = btn.innerHTML;
+      btn.innerHTML = '⏳ جاري التجهيز...';
+      btn.disabled = true;
+
+      const element = document.querySelector('#preview .doc-sheet');
+      const opt = {
+        margin: [5, 5, 5, 5],
+        filename: finalName + '.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 3, useCORS: true, letterRendering: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().set(opt).from(element).save().then(() => {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        toast('✅ تم تحميل: ' + finalName + '.pdf');
+      }).catch(err => {
+        console.error(err);
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        toast('❌ حدث خطأ أثناء إنشاء PDF');
+      });
+    }
+  });
+}
+
+function persistDoc(doc) {
+  const isNew = !DOCS.find(d => d.id === doc.id);
+  if (isNew) {
+    commitDocNumber();
+    DOCS.unshift(doc);
+  } else {
+    DOCS = DOCS.map(d => d.id === doc.id ? doc : d);
+  }
+  saveDocs(DOCS);
+}
+
+// ============================= VIEW PAGE =============================
+function renderViewPage(id) {
+  const doc = DOCS.find(d => d.id === id);
+  if (!doc) return '<p>غير موجود</p>';
+  const t = TYPES[doc.type],
+    html = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
+  const whatsappLink = getWhatsAppLink(doc);
+  return `<div class="actions-bar" style="margin-bottom:16px;">
     <button class="btn-pdf" id="do-download-pdf">📥 تحميل PDF</button>
     <button class="btn-secondary" id="do-print">🖨️ طباعة مباشرة</button>
     <button class="btn-ghost" id="do-edit">✏️ تعديل</button>
@@ -1032,148 +1034,148 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <a href="${whatsappLink}" target="_blank" class="btn-whatsapp">💬 واتساب</a>
     <button class="btn-ghost" id="back-archive">↩ رجوع</button></div>
   <div id="print-area">${html}</div>`;
-  }
+}
 
-  function bindViewPage(id) {
-    const doc = DOCS.find(d => d.id === id);
+function bindViewPage(id) {
+  const doc = DOCS.find(d => d.id === id);
 
-    document.getElementById('do-download-pdf').addEventListener('click', () => {
-      const defaultName = doc.number + ' - ' + (doc.customerName || doc.receivedFrom || 'مستند');
-      const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
-      if (fileName === null) return;
-      const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
+  document.getElementById('do-download-pdf').addEventListener('click', () => {
+    const defaultName = doc.number + ' - ' + (doc.customerName || doc.receivedFrom || 'مستند');
+    const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
+    if (fileName === null) return;
+    const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
 
-      const btn = document.getElementById('do-download-pdf'),
-        orig = btn.innerHTML;
-      btn.innerHTML = '⏳ جاري التجهيز...';
-      btn.disabled = true;
-      const element = document.querySelector('.doc-sheet');
-      const opt = { margin: [5, 5, 5, 5], filename: finalName + '.pdf', image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true, letterRendering: true }, jsPDF: { unit: 'mm', format: 'a4',
-          orientation: 'portrait' } };
-      html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = orig;
-        btn.disabled = false;
-        toast('✅ تم تحميل: ' + finalName + '.pdf');
-      }).catch(() => {
-        btn.innerHTML = orig;
-        btn.disabled = false;
-        toast('❌ خطأ');
-      });
+    const btn = document.getElementById('do-download-pdf'),
+      orig = btn.innerHTML;
+    btn.innerHTML = '⏳ جاري التجهيز...';
+    btn.disabled = true;
+    const element = document.querySelector('.doc-sheet');
+    const opt = { margin: [5, 5, 5, 5], filename: finalName + '.pdf', image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 3, useCORS: true, letterRendering: true }, jsPDF: { unit: 'mm', format: 'a4',
+        orientation: 'portrait' } };
+    html2pdf().set(opt).from(element).save().then(() => {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      toast('✅ تم تحميل: ' + finalName + '.pdf');
+    }).catch(() => {
+      btn.innerHTML = orig;
+      btn.disabled = false;
+      toast('❌ خطأ');
     });
+  });
 
-    document.getElementById('do-print').addEventListener('click', () => window.print());
-    document.getElementById('do-edit').addEventListener('click', () => go('#/form/' + doc.type + '/' + doc.id));
-    document.getElementById('do-duplicate').addEventListener('click', () => {
-      const c = JSON.parse(JSON.stringify(doc));
-      c.id = uid();
-      c.number = nextDocNumber();
-      c.date = todayStr();
-      c.status = 'pending';
-      commitDocNumber();
-      DOCS.unshift(c);
-      saveDocs(DOCS);
-      toast('✅ نسخة جديدة: ' + c.number);
-      go('#/form/' + c.type + '/' + c.id);
-    });
-    document.getElementById('back-archive').addEventListener('click', () => go('#/archive'));
-    if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
-  }
+  document.getElementById('do-print').addEventListener('click', () => window.print());
+  document.getElementById('do-edit').addEventListener('click', () => go('#/form/' + doc.type + '/' + doc.id));
+  document.getElementById('do-duplicate').addEventListener('click', () => {
+    const c = JSON.parse(JSON.stringify(doc));
+    c.id = uid();
+    c.number = nextDocNumber();
+    c.date = todayStr();
+    c.status = 'pending';
+    commitDocNumber();
+    DOCS.unshift(c);
+    saveDocs(DOCS);
+    toast('✅ نسخة جديدة: ' + c.number);
+    go('#/form/' + c.type + '/' + c.id);
+  });
+  document.getElementById('back-archive').addEventListener('click', () => go('#/archive'));
+  if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
+}
 
-  // ============================= ARCHIVE =============================
-  function renderArchive() {
-    if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
-    return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
+// ============================= ARCHIVE =============================
+function renderArchive() {
+  if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
+  return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
   <div class="archive-toolbar"><input id="search" placeholder="ابحث بالاسم، الرقم..."><select id="filter-type"><option value="">كل الأنواع</option>${Object.values(TYPES).map(t=>`<option value="${t.key}">${t.title}</option>`).join('')}</select></div>
   <table class="archive-table"><thead><tr><th>الرقم</th><th>النوع</th><th>العميل</th><th>التاريخ</th><th>الحالة</th><th>الإجمالي</th><th></th></tr></thead><tbody id="archive-body">${archiveRows(DOCS)}</tbody></table>`;
-  }
+}
 
-  function archiveRows(list) {
-    return list.map(d => {
-      const t = TYPES[d.type],
-        name = t.kind === 'quote' ? (d.customerName || '—') : (d.receivedFrom || '—'),
-        total = t.kind === 'quote' ? money(computeTotals(d).grand) : money(d.amount);
-      const whatsappLink = getWhatsAppLink(d);
-      return `<tr><td><b>${d.number}</b></td><td>${t.title}</td><td>${name}</td><td>${d.date}</td><td>${statusPill(d)}</td><td>${total} ريال</td><td class="row-actions">
+function archiveRows(list) {
+  return list.map(d => {
+    const t = TYPES[d.type],
+      name = t.kind === 'quote' ? (d.customerName || '—') : (d.receivedFrom || '—'),
+      total = t.kind === 'quote' ? money(computeTotals(d).grand) : money(d.amount);
+    const whatsappLink = getWhatsAppLink(d);
+    return `<tr><td><b>${d.number}</b></td><td>${t.title}</td><td>${name}</td><td>${d.date}</td><td>${statusPill(d)}</td><td>${total} ريال</td><td class="row-actions">
         <button data-view="${d.id}">👁️</button>
         <button data-edit="${d.id}" data-type="${d.type}">✏️</button>
         <button data-del="${d.id}">🗑️</button>
         <a href="${whatsappLink}" target="_blank" class="btn-whatsapp-small" title="إرسال عبر واتساب">💬</a>
       </td></tr>`;
-    }).join('');
-  }
+  }).join('');
+}
 
-  function statusPill(d) {
-    if (TYPES[d.type].kind !== 'quote') return '<span class="pill approved">مكتمل</span>';
-    const m = { pending: ['قيد الانتظار', 'pending'], approved: ['تمت الموافقة', 'approved'], rejected: ['مرفوض',
-        'rejected'
-      ] };
-    const [l, c] = m[d.status || 'pending'];
-    return `<select class="pill ${c}" data-status="${d.id}" style="border:none;background:transparent;font-weight:700;">${Object.entries(m).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v[0]}</option>`).join('')}</select>`;
-  }
+function statusPill(d) {
+  if (TYPES[d.type].kind !== 'quote') return '<span class="pill approved">مكتمل</span>';
+  const m = { pending: ['قيد الانتظار', 'pending'], approved: ['تمت الموافقة', 'approved'], rejected: ['مرفوض',
+      'rejected'
+    ] };
+  const [l, c] = m[d.status || 'pending'];
+  return `<select class="pill ${c}" data-status="${d.id}" style="border:none;background:transparent;font-weight:700;">${Object.entries(m).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v[0]}</option>`).join('')}</select>`;
+}
 
-  function bindArchive() {
-    document.getElementById('search').addEventListener('input', filterArchive);
-    document.getElementById('filter-type').addEventListener('change', filterArchive);
+function bindArchive() {
+  document.getElementById('search').addEventListener('input', filterArchive);
+  document.getElementById('filter-type').addEventListener('change', filterArchive);
 
-    function filterArchive() {
-      const q = document.getElementById('search').value.trim().toLowerCase(),
-        ty = document.getElementById('filter-type').value;
-      const f = DOCS.filter(d => {
-        const t = TYPES[d.type],
-          n = t.kind === 'quote' ? (d.customerName || '') : (d.receivedFrom || '');
-        return (!q || d.number.toLowerCase().includes(q) || n.toLowerCase().includes(q) || t.title.toLowerCase()
-          .includes(q)) && (!ty || d.type === ty);
-      });
-      document.getElementById('archive-body').innerHTML = archiveRows(f);
-      bindArchiveRowActions();
-    }
+  function filterArchive() {
+    const q = document.getElementById('search').value.trim().toLowerCase(),
+      ty = document.getElementById('filter-type').value;
+    const f = DOCS.filter(d => {
+      const t = TYPES[d.type],
+        n = t.kind === 'quote' ? (d.customerName || '') : (d.receivedFrom || '');
+      return (!q || d.number.toLowerCase().includes(q) || n.toLowerCase().includes(q) || t.title.toLowerCase()
+        .includes(q)) && (!ty || d.type === ty);
+    });
+    document.getElementById('archive-body').innerHTML = archiveRows(f);
     bindArchiveRowActions();
   }
+  bindArchiveRowActions();
+}
 
-  function bindArchiveRowActions() {
-    document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => go('#/view/' + b.dataset.view));
-    document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => go('#/form/' + b.dataset.type + '/' + b.dataset
-      .edit));
-    document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
-      if (confirm('تأكيد الحذف؟')) {
-        DOCS = DOCS.filter(d => d.id !== b.dataset.del);
-        saveDocs(DOCS);
-        toast('🗑️ تم الحذف');
-        render();
-      }
-    });
-    document.querySelectorAll('[data-status]').forEach(s => s.onchange = e => {
-      const d = DOCS.find(x => x.id === s.dataset.status);
-      d.status = e.target.value;
+function bindArchiveRowActions() {
+  document.querySelectorAll('[data-view]').forEach(b => b.onclick = () => go('#/view/' + b.dataset.view));
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => go('#/form/' + b.dataset.type + '/' + b.dataset
+    .edit));
+  document.querySelectorAll('[data-del]').forEach(b => b.onclick = () => {
+    if (confirm('تأكيد الحذف؟')) {
+      DOCS = DOCS.filter(d => d.id !== b.dataset.del);
       saveDocs(DOCS);
-      toast('تم التحديث');
-    });
-  }
+      toast('🗑️ تم الحذف');
+      render();
+    }
+  });
+  document.querySelectorAll('[data-status]').forEach(s => s.onchange = e => {
+    const d = DOCS.find(x => x.id === s.dataset.status);
+    d.status = e.target.value;
+    saveDocs(DOCS);
+    toast('تم التحديث');
+  });
+}
 
-  // ============================= SETTINGS =============================
-  function renderSettings() {
-    const s = SETTINGS;
-    const fixedFields = s.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedVals = s.fixedValues || DEFAULT_SETTINGS.fixedValues;
-    const fixedNotes = s.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
+// ============================= SETTINGS =============================
+function renderSettings() {
+  const s = SETTINGS;
+  const fixedFields = s.fixedFields || DEFAULT_SETTINGS.fixedFields;
+  const fixedVals = s.fixedValues || DEFAULT_SETTINGS.fixedValues;
+  const fixedNotes = s.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
 
-    function fixedCheckbox(fieldKey, label) {
-      const checked = fixedFields[fieldKey] === true ? 'checked' : '';
-      return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+  function fixedCheckbox(fieldKey, label) {
+    const checked = fixedFields[fieldKey] === true ? 'checked' : '';
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
         <input type="checkbox" id="ff-${fieldKey}" ${checked}>
         <label for="ff-${fieldKey}" style="font-size:13px;font-weight:500;color:var(--text);">${label}</label>
         <span style="font-size:11px;color:var(--green);margin-right:auto;">${checked?'🟢 ثابت':'⚪ غير ثابت'}</span>
       </div>`;
-    }
+  }
 
-    function fixedValueField(fieldKey, label, type = 'text') {
-      const val = fixedVals[fieldKey] || '';
-      return `<div class="field"><label style="color:var(--green);">${label}</label>
+  function fixedValueField(fieldKey, label, type = 'text') {
+    const val = fixedVals[fieldKey] || '';
+    return `<div class="field"><label style="color:var(--green);">${label}</label>
         <input id="fv-${fieldKey}" type="${type}" value="${val}" placeholder="أدخل القيمة الثابتة..."></div>`;
-    }
+  }
 
-    return `<h1 class="page-title">⚙️ الإعدادات</h1><p class="page-sub">تحكم في جميع بيانات الشركة واختر الحقول الثابتة التي تظهر باللون الأخضر</p>
+  return `<h1 class="page-title">⚙️ الإعدادات</h1><p class="page-sub">تحكم في جميع بيانات الشركة واختر الحقول الثابتة التي تظهر باللون الأخضر</p>
   <div class="settings-grid">
     <div class="panel"><h4>🏢 بيانات الشركة</h4>
       <div class="field"><label>اسم الشركة (سطر 1)</label><input id="s-companyLine1" value="${s.companyLine1}"></div>
@@ -1235,66 +1237,66 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     </div>
   </div>
   <div class="actions-bar"><button class="btn-primary" id="save-settings">💾 حفظ الإعدادات</button></div>`;
-  }
+}
 
-  function bindSettings() {
-    document.getElementById('save-settings').addEventListener('click', () => {
-      const fixedFields = {};
-      const fieldKeys = ['location', 'taxNumberClient', 'paymentMethod', 'project', 'materialType', 'taxPercent',
-        'workDescription', 'preparedBy', 'location2'
-      ];
-      fieldKeys.forEach(key => {
-        const checkbox = document.getElementById('ff-' + key);
-        fixedFields[key] = checkbox ? checkbox.checked : false;
-      });
+function bindSettings() {
+  document.getElementById('save-settings').addEventListener('click', () => {
+    const fixedFields = {};
+    const fieldKeys = ['location', 'taxNumberClient', 'paymentMethod', 'project', 'materialType', 'taxPercent',
+      'workDescription', 'preparedBy', 'location2'
+    ];
+    fieldKeys.forEach(key => {
+      const checkbox = document.getElementById('ff-' + key);
+      fixedFields[key] = checkbox ? checkbox.checked : false;
+    });
 
-      const fixedValues = {};
-      fieldKeys.forEach(key => {
-        const input = document.getElementById('fv-' + key);
-        fixedValues[key] = input ? input.value : '';
-      });
-      fixedValues.taxPercent = Number(fixedValues.taxPercent) || 15;
+    const fixedValues = {};
+    fieldKeys.forEach(key => {
+      const input = document.getElementById('fv-' + key);
+      fixedValues[key] = input ? input.value : '';
+    });
+    fixedValues.taxPercent = Number(fixedValues.taxPercent) || 15;
 
-      const fixedNotes = document.getElementById('s-fixedNotes').value;
+    const fixedNotes = document.getElementById('s-fixedNotes').value;
 
-      SETTINGS = {
-        ...SETTINGS,
-        companyLine1: document.getElementById('s-companyLine1').value,
-        companyLine2: document.getElementById('s-companyLine2').value,
-        slogan: document.getElementById('s-slogan').value,
-        taxNumber: document.getElementById('s-taxNumber').value,
-        address: document.getElementById('s-address').value,
-        phone: document.getElementById('s-phone').value,
-        email: document.getElementById('s-email').value,
-        website: document.getElementById('s-website').value,
-        whatsappNumber: document.getElementById('s-whatsapp').value,
-        bankName: document.getElementById('s-bankName').value,
-        bankNameEn: document.getElementById('s-bankNameEn').value,
-        accountNumber: document.getElementById('s-accountNumber').value,
-        iban: document.getElementById('s-iban').value,
-        year: document.getElementById('s-year').value,
-        nextNumber: Number(document.getElementById('s-nextNumber').value),
-        fixedNotes: fixedNotes,
-        fixedFields: fixedFields,
-        fixedValues: fixedValues
-      };
-      saveSettings(SETTINGS);
-      toast('✅ تم حفظ جميع الإعدادات');
+    SETTINGS = {
+      ...SETTINGS,
+      companyLine1: document.getElementById('s-companyLine1').value,
+      companyLine2: document.getElementById('s-companyLine2').value,
+      slogan: document.getElementById('s-slogan').value,
+      taxNumber: document.getElementById('s-taxNumber').value,
+      address: document.getElementById('s-address').value,
+      phone: document.getElementById('s-phone').value,
+      email: document.getElementById('s-email').value,
+      website: document.getElementById('s-website').value,
+      whatsappNumber: document.getElementById('s-whatsapp').value,
+      bankName: document.getElementById('s-bankName').value,
+      bankNameEn: document.getElementById('s-bankNameEn').value,
+      accountNumber: document.getElementById('s-accountNumber').value,
+      iban: document.getElementById('s-iban').value,
+      year: document.getElementById('s-year').value,
+      nextNumber: Number(document.getElementById('s-nextNumber').value),
+      fixedNotes: fixedNotes,
+      fixedFields: fixedFields,
+      fixedValues: fixedValues
+    };
+    saveSettings(SETTINGS);
+    toast('✅ تم حفظ جميع الإعدادات');
 
-      const preview = document.getElementById('preview');
-      if (preview) {
-        const hash = location.hash.replace('#/', '');
-        const parts = hash.split('/');
-        if (parts[0] === 'form') {
-          const doc = window._currentDoc;
-          if (doc) {
-            const t = TYPES[doc.type];
-            preview.innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
-          }
+    const preview = document.getElementById('preview');
+    if (preview) {
+      const hash = location.hash.replace('#/', '');
+      const parts = hash.split('/');
+      if (parts[0] === 'form') {
+        const doc = window._currentDoc;
+        if (doc) {
+          const t = TYPES[doc.type];
+          preview.innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
         }
       }
-    });
-  }
+    }
+  });
+}
 </script>
 </body>
 </html>
