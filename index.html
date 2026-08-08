@@ -84,6 +84,8 @@ input, select, textarea { font-family: inherit; }
 .btn-ghost { background: #fff; color: var(--navy); border: 1px solid var(--border); padding: 10px 18px; border-radius: 9px; font-weight: 700; font-size: 14px; }
 .btn-whatsapp { background: var(--whatsapp); color: #fff; padding: 11px 20px; border-radius: 9px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 6px; }
 .btn-whatsapp:hover { background: #1da851; }
+.btn-whatsapp.disabled { background: #ccc; color: #666; cursor: not-allowed; }
+.btn-whatsapp.disabled:hover { background: #ccc; }
 .btn-toggle-total { background: var(--navy); color: #fff; padding: 11px 20px; border-radius: 9px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 6px; }
 .btn-toggle-total:hover { background: var(--navy-2); }
 .btn-toggle-total.showing { background: var(--orange); }
@@ -197,6 +199,8 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 .row-actions button:hover { background: var(--bg); }
 .row-actions .btn-whatsapp-small { background: var(--whatsapp); color: #fff; border-radius: 6px; padding: 4px 8px; font-size: 13px; display: inline-flex; align-items: center; gap: 4px; }
 .row-actions .btn-whatsapp-small:hover { background: #1da851; }
+.row-actions .btn-whatsapp-small.disabled { background: #ccc; color: #666; cursor: not-allowed; }
+.row-actions .btn-whatsapp-small.disabled:hover { background: #ccc; }
 .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); }
 .empty-state .em { font-size: 40px; margin-bottom: 10px; }
 
@@ -360,18 +364,28 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // ===== دالة واتساب - ترسل على جهة الاتصال في العرض =====
+  // ===== دالة واتساب - ترسل على جهة الاتصال في العرض فقط =====
   function getWhatsAppLink(doc) {
-    // نأخذ رقم جهة الاتصال من المستند، أو رقم الشركة الافتراضي
-    const contactNumber = doc.contact ? doc.contact.replace(/\s/g, '') : SETTINGS.whatsappNumber || '966508346559';
-    // نتأكد من أن الرقم يبدأ بـ 966 أو 05
-    let number = contactNumber;
-    if (number.startsWith('0')) {
-      number = '966' + number.substring(1);
-    } else if (!number.startsWith('966')) {
-      number = '966' + number;
+    // نأخذ رقم جهة الاتصال من المستند
+    let contactNumber = doc.contact || '';
+    // إزالة أي مسافات أو شرطات أو أقواس
+    contactNumber = contactNumber.replace(/[\s\-\(\)]/g, '');
+    
+    // إذا كان الرقم فارغ، نرجع null
+    if (!contactNumber) {
+      return null;
     }
-    return `https://wa.me/${number}`;
+    
+    // إذا كان الرقم يبدأ بـ 0، نحوله إلى 966
+    if (contactNumber.startsWith('0')) {
+      contactNumber = '966' + contactNumber.substring(1);
+    }
+    // إذا كان الرقم لا يبدأ بـ 966 وليس 0، نضيف 966
+    else if (!contactNumber.startsWith('966')) {
+      contactNumber = '966' + contactNumber;
+    }
+    
+    return `https://wa.me/${contactNumber}`;
   }
 
   function numberToArabicWords(num) {
@@ -1017,12 +1031,14 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     const t = TYPES[doc.type],
       html = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     const whatsappLink = getWhatsAppLink(doc);
+    const hasContact = doc.contact && doc.contact.replace(/[\s\-\(\)]/g, '').length > 0;
+    
     return `<div class="actions-bar" style="margin-bottom:16px;">
     <button class="btn-pdf" id="do-download-pdf">📥 تحميل PDF</button>
     <button class="btn-secondary" id="do-print">🖨️ طباعة مباشرة</button>
     <button class="btn-ghost" id="do-edit">✏️ تعديل</button>
     <button class="btn-ghost" id="do-duplicate">🧾 نسخ</button>
-    <a href="${whatsappLink}" target="_blank" class="btn-whatsapp">💬 واتساب</a>
+    ${hasContact ? `<a href="${whatsappLink}" target="_blank" class="btn-whatsapp">💬 واتساب</a>` : `<span class="btn-whatsapp disabled" style="padding:11px 20px;border-radius:9px;display:inline-flex;align-items:center;gap:6px;background:#ccc;color:#666;cursor:not-allowed;">💬 لا يوجد رقم</span>`}
     <button class="btn-ghost" id="back-archive">↩ رجوع</button></div>
   <div id="print-area">${html}</div>`;
   }
@@ -1087,11 +1103,12 @@ table.archive-table tr:hover td { background: #f8f9fc; }
         name = t.kind === 'quote' ? (d.customerName || '—') : (d.receivedFrom || '—'),
         total = t.kind === 'quote' ? money(computeTotals(d).grand) : money(d.amount);
       const whatsappLink = getWhatsAppLink(d);
+      const hasContact = d.contact && d.contact.replace(/[\s\-\(\)]/g, '').length > 0;
       return `<tr><td><b>${d.number}</b></td><td>${t.title}</td><td>${name}</td><td>${d.date}</td><td>${statusPill(d)}</td><td>${total} ريال</td><td class="row-actions">
         <button data-view="${d.id}">👁️</button>
         <button data-edit="${d.id}" data-type="${d.type}">✏️</button>
         <button data-del="${d.id}">🗑️</button>
-        <a href="${whatsappLink}" target="_blank" class="btn-whatsapp-small" title="إرسال عبر واتساب">💬</a>
+        ${hasContact ? `<a href="${whatsappLink}" target="_blank" class="btn-whatsapp-small" title="إرسال عبر واتساب">💬</a>` : `<span class="btn-whatsapp-small disabled" title="لا يوجد رقم">💬</span>`}
       </td></tr>`;
     }).join('');
   }
@@ -1180,7 +1197,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       <div class="field"><label>الهاتف</label><input id="s-phone" value="${s.phone}"></div>
       <div class="field"><label>البريد</label><input id="s-email" value="${s.email}"></div>
       <div class="field"><label>الموقع</label><input id="s-website" value="${s.website}"></div>
-      <div class="field"><label>رقم واتساب (بدون +)</label><input id="s-whatsapp" value="${s.whatsappNumber || '966508346559'}" placeholder="مثال: 966508346559"></div>
+      <div class="field"><label>رقم واتساب</label><input id="s-whatsapp" value="${s.whatsappNumber || '966508346559'}" placeholder="مثال: 966508346559 (يستخدم في حالة عدم وجود رقم اتصال)"></div>
     </div>
     <div class="panel"><h4>🏦 البنك</h4>
       <div class="field"><label>اسم البنك (عربي)</label><input id="s-bankName" value="${s.bankName}"></div>
