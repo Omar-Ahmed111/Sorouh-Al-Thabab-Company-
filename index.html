@@ -296,7 +296,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       preparedBy: '',
       location2: ''
     },
-    showTotal: true // حالة إظهار الإجمالي
+    showTotal: true
   };
 
   function roundToTwo(num) {
@@ -360,17 +360,18 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
+  // ===== دالة واتساب - ترسل على جهة الاتصال في العرض =====
   function getWhatsAppLink(doc) {
-    const number = SETTINGS.whatsappNumber || '966508346559';
-    const t = TYPES[doc.type];
-    const customerName = doc.customerName || doc.receivedFrom || 'عميل';
-    const total = t.kind === 'quote' ? money(computeTotals(doc).grand) : money(doc.amount);
-    const message = `مرحباً، أتقدم لكم بعرض سعر رقم ${doc.number}\n` +
-                   `العميل: ${customerName}\n` +
-                   `التاريخ: ${doc.date}\n` +
-                   `الإجمالي: ${total} ريال\n` +
-                   `للاطلاع على التفاصيل الكاملة يرجى فتح المرفق`;
-    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+    // نأخذ رقم جهة الاتصال من المستند، أو رقم الشركة الافتراضي
+    const contactNumber = doc.contact ? doc.contact.replace(/\s/g, '') : SETTINGS.whatsappNumber || '966508346559';
+    // نتأكد من أن الرقم يبدأ بـ 966 أو 05
+    let number = contactNumber;
+    if (number.startsWith('0')) {
+      number = '966' + number.substring(1);
+    } else if (!number.startsWith('966')) {
+      number = '966' + number;
+    }
+    return `https://wa.me/${number}`;
   }
 
   function numberToArabicWords(num) {
