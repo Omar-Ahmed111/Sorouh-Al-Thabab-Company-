@@ -364,27 +364,17 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     window._toastT = setTimeout(() => t.classList.remove('show'), 2200);
   }
 
-  // ===== دالة واتساب - ترسل على جهة الاتصال في العرض فقط =====
   function getWhatsAppLink(doc) {
-    // نأخذ رقم جهة الاتصال من المستند
     let contactNumber = doc.contact || '';
-    // إزالة أي مسافات أو شرطات أو أقواس
     contactNumber = contactNumber.replace(/[\s\-\(\)]/g, '');
-    
-    // إذا كان الرقم فارغ، نرجع null
     if (!contactNumber) {
       return null;
     }
-    
-    // إذا كان الرقم يبدأ بـ 0، نحوله إلى 966
     if (contactNumber.startsWith('0')) {
       contactNumber = '966' + contactNumber.substring(1);
-    }
-    // إذا كان الرقم لا يبدأ بـ 966 وليس 0، نضيف 966
-    else if (!contactNumber.startsWith('966')) {
+    } else if (!contactNumber.startsWith('966')) {
       contactNumber = '966' + contactNumber;
     }
-    
     return `https://wa.me/${contactNumber}`;
   }
 
@@ -443,7 +433,9 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
       kind: 'quote' },
     receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
-      kind: 'receipt' }
+      kind: 'receipt' },
+    precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', itemLabel: 'البيان', icon: '🏗️',
+      desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
 
   // ============================= ROUTER =============================
@@ -513,6 +505,14 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     };
 
     if (t.kind === 'quote') {
+      let extraFields = {};
+      if (t.isPrecast) {
+        extraFields = {
+          size: '',
+          unitPriceWithoutTax: 0,
+          unitPriceWithTax: 0
+        };
+      }
       return {
         ...base,
         customerName: '',
@@ -528,14 +528,18 @@ table.archive-table tr:hover td { background: #f8f9fc; }
         location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
         priceTerms: '',
         deliveryTerms: '',
-        items: [emptyItem()]
+        items: [emptyItem(t.isPrecast)],
+        ...extraFields
       };
     }
     return { ...base, receivedFrom: '', amount: '', amountFor: '', paymentMethod: 'تحويل بنكي', txnRef: '', bankName: '',
       notes: '', receiverName: '', receiverDate: todayStr(), payerName: '', payerDate: todayStr() };
   }
 
-  function emptyItem() {
+  function emptyItem(isPrecast = false) {
+    if (isPrecast) {
+      return { id: uid(), desc: '', size: '', qty: 1, unitPriceWithoutTax: 0, unitPriceWithTax: 0, totalWithTax: 0 };
+    }
     return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
   }
 
@@ -568,11 +572,19 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     let qtyLabel = 'الكمية';
     let priceLabel = 'سعر المتر';
     let priceWithTaxLabel = '';
+    let sizeLabel = '';
+    let unitPriceWithoutTaxLabel = '';
+    let unitPriceWithTaxLabel = '';
     
     if (t.isConcrete) {
       qtyLabel = 'الكمية متر مكعب';
       priceLabel = 'سعر المتر قبل الضريبة';
       priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     }
 
     return `<div class="panel"><h4>بيانات العميل</h4>
@@ -584,15 +596,15 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <div class="field"><label>الموقع${fixedLabel('location')}</label><input data-f="location" value="${doc.location}"></div></div>
   <div class="panel"><h4>تفاصيل العرض</h4>
     <div class="field"><label>المشروع${fixedLabel('project')}</label><input data-f="project" value="${doc.project}"></div>
-    <div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>
+    ${!t.isPrecast ? `<div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>` : ''}
     <div class="field"><label>الضريبة (%)${fixedLabel('taxPercent')}</label><input data-f="taxPercent" type="number" value="${doc.taxPercent}"></div>
     <div class="field"><label>وصف الأعمال${fixedLabel('workDescription')}</label><textarea data-f="workDescription">${doc.workDescription}</textarea></div>
     <div class="field"><label>مقدم العرض${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${doc.preparedBy}"></div>
     <div class="field"><label>الموقع (تفاصيل)${fixedLabel('location2')}</label><input data-f="location2" value="${doc.location2}"></div>
     ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}</div>
   <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
-    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th><th style="width:80px;">الوحدة</th><th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
-    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t.isConcrete)).join('')}</tbody></table>
+    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th style="width:100px;">${unitPriceWithTaxLabel}</th>` : ''}<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
+    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t)).join('')}</tbody></table>
     <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>
   <div class="actions-bar" style="grid-column:1/-1;">
     <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
@@ -601,8 +613,31 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
   }
 
-  function itemRow(it, i, isConcrete) {
+  function itemRow(it, i, t) {
     const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
+    
+    if (t.isPrecast) {
+      const qty = roundToTwo(parseFloat(it.qty) || 0);
+      const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      
+      return `<tr data-id="${it.id}">
+        <td>${i+1}</td>
+        <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
+        <td><input data-if="size" value="${it.size||''}" style="text-align:center;"></td>
+        <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithoutTax" type="text" value="${unitPriceWithoutTax}" class="item-price" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithTax" type="text" value="${unitPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+        <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
+        <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
+        <td><button class="rm" data-rm="${it.id}">×</button></td>
+      </tr>`;
+    }
+    
+    // للخرسانة والعروض الأخرى
     const price = roundToTwo(parseFloat(it.price) || 0);
     const priceWithTax = roundToTwo(parseFloat(it.priceWithTax) || 0);
     const qty = roundToTwo(parseFloat(it.qty) || 0);
@@ -630,7 +665,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       <td><input data-if="unit" value="${it.unit||''}"></td>
       <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
       <td><input data-if="price" type="text" value="${displayPrice}" class="item-price" style="text-align:center;"></td>
-      ${isConcrete ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
+      ${t.isConcrete ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
       <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
       <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
       <td><button class="rm" data-rm="${it.id}">×</button></td>
@@ -661,12 +696,20 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   function computeTotals(doc) {
     let s = 0,
       v = 0;
+    const t = TYPES[doc.type];
     doc.items.forEach(it => {
-      const price = roundToTwo(parseFloat(it.price) || 0);
-      const qty = roundToTwo(parseFloat(it.qty) || 0);
-      const b = roundToTwo(qty * price);
-      s += b;
-      v += roundToTwo(b * ((doc.taxPercent || 15) / 100));
+      let totalBeforeTax = 0;
+      if (t.isPrecast) {
+        const qty = roundToTwo(parseFloat(it.qty) || 0);
+        const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+        totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      } else {
+        const price = roundToTwo(parseFloat(it.price) || 0);
+        const qty = roundToTwo(parseFloat(it.qty) || 0);
+        totalBeforeTax = roundToTwo(qty * price);
+      }
+      s += totalBeforeTax;
+      v += roundToTwo(totalBeforeTax * ((doc.taxPercent || 15) / 100));
     });
     return { subtotal: roundToTwo(s), vat: roundToTwo(v), grand: roundToTwo(s + v) };
   }
@@ -681,11 +724,18 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     let qtyLabel = 'الكمية';
     let priceLabel = 'سعر المتر';
     let priceWithTaxLabel = '';
+    let sizeLabel = '';
+    let unitPriceWithTaxLabel = '';
     
     if (t.isConcrete) {
       qtyLabel = 'الكمية متر مكعب';
       priceLabel = 'سعر المتر قبل الضريبة';
       priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     }
 
     function infoLineWithGreen(k, v, fieldKey) {
@@ -726,7 +776,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     </div>
     <div class="info-box"><h5>تفاصيل العرض</h5>
       ${infoLineWithGreen('المشروع', doc.project, 'project')}
-      ${infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType')}
+      ${!t.isPrecast ? infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType') : ''}
       ${infoLineWithGreen('الضريبة', (doc.taxPercent||15)+'%', 'taxPercent')}
       ${infoLineWithGreen('وصف الأعمال', doc.workDescription, 'workDescription')}
       ${infoLineWithGreen('مقدم العرض', doc.preparedBy, 'preparedBy')}
@@ -735,16 +785,31 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   </div>
   <div class="doc-table-wrap">
     <table class="doc-table">
-      <thead><tr><th>م</th><th>${t.itemLabel}</th><th>الوحدة</th><th>${qtyLabel}</th><th>${priceLabel}</th>${t.isConcrete ? `<th>${priceWithTaxLabel}</th>` : ''}<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
+      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th>${t.isConcrete ? `<th>${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th>${unitPriceWithTaxLabel}</th>` : ''}<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
       <tbody>${doc.items.map((it,i)=>{
-        const price = roundToTwo(parseFloat(it.price) || 0);
-        const qty = roundToTwo(parseFloat(it.qty) || 0);
         const taxPercent = doc.taxPercent || 15;
-        const totalBeforeTax = roundToTwo(qty * price);
+        let totalBeforeTax = 0;
+        let price = 0;
+        let priceWithTax = 0;
+        let qty = 0;
+        let size = '';
+        
+        if (t.isPrecast) {
+          qty = roundToTwo(parseFloat(it.qty) || 0);
+          price = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+          size = it.size || '—';
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+        } else {
+          qty = roundToTwo(parseFloat(it.qty) || 0);
+          price = roundToTwo(parseFloat(it.price) || 0);
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+        }
         const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
         const totalWithTax = roundToTwo(totalBeforeTax + tax);
-        const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td><td>${it.unit||'—'}</td><td>${qty||0}</td><td>${money(price)}</td>${t.isConcrete ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
+        
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td>${t.isConcrete ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}${t.isPrecast ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
       }).join('')}</tbody>
     </table>
   </div>
@@ -855,6 +920,16 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       return { price, totalBeforeTax, tax, totalWithTax };
     }
 
+    function calculatePrecast(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const unitPriceWithoutTax = roundToTwo(parseFloat(item.unitPriceWithoutTax) || 0);
+      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      return { totalBeforeTax, tax, totalWithTax, unitPriceWithTax };
+    }
+
     document.getElementById('form-panels').addEventListener('input', e => {
       const f = e.target.dataset.f;
       if (f) {
@@ -869,67 +944,116 @@ table.archive-table tr:hover td { background: #f8f9fc; }
           item = doc.items.find(x => x.id === itemId);
         
         let newVal = e.target.value;
-        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax') {
+        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax' || ifld === 'unitPriceWithoutTax' || ifld === 'unitPriceWithTax') {
           newVal = parseFloat(newVal) || 0;
         }
         item[ifld] = newVal;
 
         const taxPercent = doc.taxPercent || 15;
 
-        if (ifld === 'price') {
-          const result = calculateFromPrice(item, taxPercent);
-          item.priceWithTax = result.priceWithTax;
-          item.totalWithTax = result.totalWithTax;
-          const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-          if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
-          const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
-        }
-
-        if (ifld === 'priceWithTax') {
-          const result = calculateFromPriceWithTax(item, taxPercent);
-          item.price = result.price;
-          item.totalWithTax = result.totalWithTax;
-          const priceInput = tr.querySelector('.item-price');
-          if (priceInput) priceInput.value = result.price;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
-          const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
-        }
-
-        if (ifld === 'qty') {
-          const qty = roundToTwo(parseFloat(item.qty) || 0);
-          const price = roundToTwo(parseFloat(item.price) || 0);
-          const result = calculateFromPrice(item, taxPercent);
-          item.totalWithTax = result.totalWithTax;
-          item.priceWithTax = result.priceWithTax;
-          const totalInput = tr.querySelector('.item-total');
-          if (totalInput) totalInput.value = result.totalWithTax;
-          const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-          if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-          const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-          if (taxCell) taxCell.textContent = money(result.tax);
-        }
-
-        if (ifld === 'totalWithTax') {
-          const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
-          const qty = roundToTwo(parseFloat(item.qty) || 1);
-          if (qty > 0) {
-            const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
-            const price = roundToTwo(totalBeforeTax / qty);
-            const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-            item.price = price;
-            item.priceWithTax = priceWithTax;
-            const priceInput = tr.querySelector('.item-price');
-            if (priceInput) priceInput.value = price;
+        if (t.isPrecast) {
+          if (ifld === 'unitPriceWithoutTax' || ifld === 'qty') {
+            const result = calculatePrecast(item, taxPercent);
+            item.totalWithTax = result.totalWithTax;
+            item.unitPriceWithTax = result.unitPriceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
             const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-            if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
-            const tax = roundToTwo(totalWithTax - totalBeforeTax);
+            if (priceWithTaxInput) priceWithTaxInput.value = result.unitPriceWithTax;
+            const taxCell = tr.querySelectorAll('td')[6];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+          if (ifld === 'unitPriceWithTax') {
+            const unitPriceWithTax = roundToTwo(parseFloat(item.unitPriceWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const unitPriceWithoutTax = roundToTwo(unitPriceWithTax / (1 + (taxPercent / 100)));
+              item.unitPriceWithoutTax = unitPriceWithoutTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = unitPriceWithoutTax;
+              const result = calculatePrecast(item, taxPercent);
+              item.totalWithTax = result.totalWithTax;
+              const totalInput = tr.querySelector('.item-total');
+              if (totalInput) totalInput.value = result.totalWithTax;
+              const taxCell = tr.querySelectorAll('td')[6];
+              if (taxCell) taxCell.textContent = money(result.tax);
+            }
+          }
+          if (ifld === 'totalWithTax') {
+            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
+              const unitPriceWithoutTax = roundToTwo(totalBeforeTax / qty);
+              const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+              item.unitPriceWithoutTax = unitPriceWithoutTax;
+              item.unitPriceWithTax = unitPriceWithTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = unitPriceWithoutTax;
+              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+              if (priceWithTaxInput) priceWithTaxInput.value = unitPriceWithTax;
+              const tax = roundToTwo(totalWithTax - totalBeforeTax);
+              const taxCell = tr.querySelectorAll('td')[6];
+              if (taxCell) taxCell.textContent = money(tax);
+            }
+          }
+        } else {
+          // للخرسانة والعروض الأخرى
+          if (ifld === 'price') {
+            const result = calculateFromPrice(item, taxPercent);
+            item.priceWithTax = result.priceWithTax;
+            item.totalWithTax = result.totalWithTax;
+            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
             const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-            if (taxCell) taxCell.textContent = money(tax);
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'priceWithTax') {
+            const result = calculateFromPriceWithTax(item, taxPercent);
+            item.price = result.price;
+            item.totalWithTax = result.totalWithTax;
+            const priceInput = tr.querySelector('.item-price');
+            if (priceInput) priceInput.value = result.price;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'qty') {
+            const qty = roundToTwo(parseFloat(item.qty) || 0);
+            const price = roundToTwo(parseFloat(item.price) || 0);
+            const result = calculateFromPrice(item, taxPercent);
+            item.totalWithTax = result.totalWithTax;
+            item.priceWithTax = result.priceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'totalWithTax') {
+            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
+              const price = roundToTwo(totalBeforeTax / qty);
+              const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+              item.price = price;
+              item.priceWithTax = priceWithTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = price;
+              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+              if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
+              const tax = roundToTwo(totalWithTax - totalBeforeTax);
+              const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+              if (taxCell) taxCell.textContent = money(tax);
+            }
           }
         }
 
@@ -939,15 +1063,15 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 
     document.getElementById('form-panels').addEventListener('click', e => {
       if (e.target.id === 'add-row') {
-        doc.items.push(emptyItem());
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
+        doc.items.push(emptyItem(t.isPrecast));
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
         refreshPreview();
       }
       const rmId = e.target.dataset.rm;
       if (rmId) {
         doc.items = doc.items.filter(x => x.id !== rmId);
-        if (!doc.items.length) doc.items.push(emptyItem());
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t.isConcrete)).join('');
+        if (!doc.items.length) doc.items.push(emptyItem(t.isPrecast));
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
         refreshPreview();
       }
       if (e.target.id === 'save-doc') {
