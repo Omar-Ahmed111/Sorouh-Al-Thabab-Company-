@@ -719,13 +719,14 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       return { totalBeforeTax, tax, totalWithTax };
     }
 
-    // دالة لحساب السعر من الإجمالي والكمية
+    // دالة لحساب السعر من الإجمالي والكمية (تقريب لرقمين عشريين)
     function calculatePriceFromTotal(item, taxPercent) {
       const totalWithTax = parseFloat(item.totalWithTax) || 0;
       const qty = parseFloat(item.qty) || 1;
       if (qty === 0) return 0;
       const totalBeforeTax = totalWithTax / (1 + (taxPercent / 100));
-      return totalBeforeTax / qty;
+      // تقريب السعر لأقرب رقمين عشريين
+      return Math.round((totalBeforeTax / qty) * 100) / 100;
     }
 
     document.getElementById('form-panels').addEventListener('input', e => {
