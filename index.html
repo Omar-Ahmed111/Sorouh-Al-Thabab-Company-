@@ -30,7 +30,7 @@ a { color: inherit; text-decoration: none; }
 button { font-family: inherit; cursor: pointer; border: none; }
 input, select, textarea { font-family: inherit; }
 
-#topbar { background: var(--navy); color: #fff; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0, 0, 0, .15); flex-wrap: wrap; gap: 10px; }
+#topbar { background: var(--navy); color: #fff; padding: 14px 22px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; box-shadow: 0 2px 10px rgba(0, 0, 0, .15); }
 #topbar .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 18px; }
 #topbar .brand .dot { width: 10px; height: 10px; background: var(--orange); border-radius: 3px; transform: rotate(45deg); }
 #topbar nav { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -65,7 +65,6 @@ input, select, textarea { font-family: inherit; }
 .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--orange); background: #fff; }
 .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .field textarea { resize: vertical; min-height: 56px; }
-.field .helper { font-size: 11px; color: var(--muted); margin-top: 3px; display: block; }
 
 .items-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
 .items-table th { background: var(--navy); color: #fff; padding: 8px 6px; font-size: 12px; font-weight: 700; }
@@ -91,53 +90,8 @@ input, select, textarea { font-family: inherit; }
 .btn-toggle-total:hover { background: var(--navy-2); }
 .btn-toggle-total.showing { background: var(--orange); }
 .btn-toggle-total.showing:hover { background: var(--orange-2); }
-.btn-customize { background: #6B4E71; color: #fff; padding: 11px 20px; border-radius: 9px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 6px; }
-.btn-customize:hover { background: #5a3d5f; }
 
 .actions-bar { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
-
-/* نافذة تخصيص الأعمدة */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 9999;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.active { display: flex; }
-.modal-box {
-  background: #fff;
-  border-radius: 16px;
-  max-width: 700px;
-  width: 100%;
-  max-height: 90vh;
-  overflow-y: auto;
-  padding: 28px 30px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-.modal-box h2 { color: var(--navy); margin: 0 0 8px; }
-.modal-box .close-modal { float: left; background: none; font-size: 28px; color: var(--muted); padding: 0 8px; }
-.modal-box .close-modal:hover { color: var(--red); }
-.column-config { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0; }
-.column-config .col-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: var(--bg);
-  border-radius: 8px;
-  border: 1px solid var(--border);
-}
-.column-config .col-item input { flex: 1; border: none; background: transparent; padding: 4px 0; font-size: 13px; font-weight: 500; }
-.column-config .col-item input:focus { outline: none; border-bottom: 2px solid var(--orange); }
-.column-config .col-item .drag { cursor: grab; color: var(--muted); font-size: 18px; }
-.column-config .col-item .del-col { background: none; color: var(--red); font-weight: 900; font-size: 16px; padding: 0 4px; }
-.column-config .col-item .del-col:hover { color: #b91c1c; }
-.add-col-btn { background: var(--bg); border: 2px dashed var(--border); border-radius: 8px; padding: 10px; width: 100%; font-weight: 700; color: var(--muted); margin-top: 6px; }
-.add-col-btn:hover { border-color: var(--orange); color: var(--orange); }
 
 .doc-sheet { 
   background: #fff; 
@@ -169,7 +123,7 @@ input, select, textarea { font-family: inherit; }
   display: block;
 }
 
-.doc-header { background: #fff; padding: 18px 26px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; gap: 20px; position: relative; z-index: 2; flex-wrap: wrap; }
+.doc-header { background: #fff; padding: 18px 26px 14px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #eee; gap: 20px; position: relative; z-index: 2; }
 .doc-header .logo-area { flex-shrink: 0; }
 .doc-header .logo-area .logo-img { height: 120px; width: auto; border-radius: 10px; object-fit: contain; background: #fff; padding: 5px; border: 1px solid #ddd; display: block; }
 .doc-header .badge-area { flex-shrink: 0; }
@@ -195,9 +149,9 @@ input, select, textarea { font-family: inherit; }
 .info-line .v { font-weight: 800; color: var(--text); max-width: 60%; text-align: left; word-break: break-word; }
 .info-line .v.green-static { color: var(--green) !important; }
 
-.doc-table-wrap { padding: 0 26px 8px; position: relative; z-index: 2; overflow-x: auto; }
-table.doc-table { width: 100%; border-collapse: collapse; font-size: 14px; min-width: 600px; }
-table.doc-table th { background: var(--navy); color: #fff; padding: 10px 6px; font-weight: 900; white-space: nowrap; }
+.doc-table-wrap { padding: 0 26px 8px; position: relative; z-index: 2; }
+table.doc-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table.doc-table th { background: var(--navy); color: #fff; padding: 10px 6px; font-weight: 900; }
 table.doc-table td { padding: 9px 6px; border: 1px solid var(--border); text-align: center; font-weight: 500; }
 
 .total-bar { margin: 12px 26px 0; background: var(--orange); color: #fff; border-radius: 8px; padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; font-weight: 900; position: relative; z-index: 2; }
@@ -304,23 +258,6 @@ table.archive-table tr:hover td { background: #f8f9fc; }
 <div id="app"></div>
 <div id="toast"></div>
 
-<!-- نافذة تخصيص الأعمدة -->
-<div class="modal-overlay" id="columnModal">
-  <div class="modal-box">
-    <button class="close-modal" id="closeModal">✕</button>
-    <h2>⚙️ تخصيص بنود العرض</h2>
-    <p style="color:var(--muted);font-size:14px;">غيّر أسماء الأعمدة، أضف أو احذف أعمدة حسب احتياجك</p>
-    <div class="column-config" id="columnConfig">
-      <!-- يتم إنشاؤها بواسطة JavaScript -->
-    </div>
-    <button class="add-col-btn" id="addColumnBtn">➕ إضافة عمود جديد</button>
-    <div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap;">
-      <button class="btn-primary" id="applyColumns">✔ تطبيق التغييرات</button>
-      <button class="btn-ghost" id="resetDefaultColumns">↩ إعادة الأعمدة الافتراضية</button>
-    </div>
-  </div>
-</div>
-
 <script>
   // ============================= DATA LAYER =============================
   const DEFAULT_SETTINGS = {
@@ -363,48 +300,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       preparedBy: '',
       location2: ''
     },
-    showTotal: true,
-    // الأعمدة الافتراضية لكل نوع عرض
-    defaultColumns: {
-      concrete: [
-        { id: 'desc', label: 'نوع الخرسانة', type: 'text', fixed: true },
-        { id: 'unit', label: 'الوحدة', type: 'text', fixed: true, default: 'متر مكعب' },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'price', label: 'سعر المتر قبل الضريبة', type: 'currency', fixed: true },
-        { id: 'priceWithTax', label: 'سعر المتر شامل الضريبة', type: 'currency', fixed: true }
-      ],
-      interlock: [
-        { id: 'desc', label: 'نوع الإنتر لوك', type: 'text', fixed: true },
-        { id: 'unit', label: 'الوحدة', type: 'text', fixed: true, default: 'متر مربع' },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'price', label: 'سعر المتر', type: 'currency', fixed: true }
-      ],
-      block: [
-        { id: 'desc', label: 'نوع البلوك', type: 'text', fixed: true },
-        { id: 'unit', label: 'الوحدة', type: 'text', fixed: true, default: 'ألف حبة' },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'price', label: 'سعر الألف', type: 'currency', fixed: true }
-      ],
-      general: [
-        { id: 'desc', label: 'البيان', type: 'text', fixed: true },
-        { id: 'unit', label: 'الوحدة', type: 'text', fixed: true },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'price', label: 'سعر الوحدة', type: 'currency', fixed: true }
-      ],
-      claim: [
-        { id: 'desc', label: 'البيان', type: 'text', fixed: true },
-        { id: 'unit', label: 'الوحدة', type: 'text', fixed: true },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'price', label: 'سعر الوحدة', type: 'currency', fixed: true }
-      ],
-      precast: [
-        { id: 'desc', label: 'البيان', type: 'text', fixed: true },
-        { id: 'size', label: 'المقاس', type: 'text', fixed: true },
-        { id: 'qty', label: 'الكمية', type: 'number', fixed: true },
-        { id: 'unitPriceWithoutTax', label: 'سعر الوحدة قبل الضريبة', type: 'currency', fixed: true },
-        { id: 'unitPriceWithTax', label: 'سعر الوحدة بعد الضريبة', type: 'currency', fixed: true }
-      ]
-    }
+    showTotal: true
   };
 
   function roundToTwo(num) {
@@ -526,19 +422,19 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   }
 
   const TYPES = {
-    concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', icon: '🚛',
+    concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', itemLabel: 'نوع الخرسانة', icon: '🚛',
       desc: 'خرسانة جاهزة بمقاومات وأنواع أسمنت مختلفة', kind: 'quote', isConcrete: true },
-    interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', icon: '🧱',
+    interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
       desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
-    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
-      kind: 'quote', simpleTable: true, terms: true },
-    general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', icon: '🏗️',
+    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
+      kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة' },
+    general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
       desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
-    claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
+    claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
       kind: 'quote' },
-    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
+    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
       kind: 'receipt' },
-    precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', icon: '🏗️',
+    precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', itemLabel: 'البيان', icon: '🏗️',
       desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
 
@@ -594,11 +490,6 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   }
 
   // ============================= FORM =============================
-  function getDefaultColumns(type) {
-    const defaults = SETTINGS.defaultColumns || DEFAULT_SETTINGS.defaultColumns;
-    return defaults[type] ? JSON.parse(JSON.stringify(defaults[type])) : [];
-  }
-
   function blankDoc(type) {
     const t = TYPES[type];
     const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
@@ -610,9 +501,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       number: nextDocNumber(),
       createdAt: Date.now(),
       status: 'pending',
-      date: todayStr(),
-      // إضافة الأعمدة المخصصة لكل مستند
-      columns: getDefaultColumns(type)
+      date: todayStr()
     };
 
     if (t.kind === 'quote') {
@@ -639,7 +528,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
         location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
         priceTerms: '',
         deliveryTerms: '',
-        items: [emptyItem(t.isPrecast, base.columns)],
+        items: [emptyItem(t.isPrecast)],
         ...extraFields
       };
     }
@@ -647,35 +536,16 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       notes: '', receiverName: '', receiverDate: todayStr(), payerName: '', payerDate: todayStr() };
   }
 
-  function emptyItem(isPrecast = false, columns = []) {
-    const item = { id: uid() };
-    columns.forEach(col => {
-      if (col.fixed) {
-        item[col.id] = col.default || '';
-      } else {
-        item[col.id] = '';
-      }
-    });
-    // إضافة الحقول الإضافية للـ Precast
+  function emptyItem(isPrecast = false) {
     if (isPrecast) {
-      item.size = '';
-      item.unitPriceWithoutTax = 0;
-      item.unitPriceWithTax = 0;
+      return { id: uid(), desc: '', size: '', qty: 1, unitPriceWithoutTax: 0, unitPriceWithTax: 0, totalWithTax: 0 };
     }
-    return item;
+    return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
   }
 
   function getDoc(type, id) {
     if (id === 'new') return blankDoc(type);
-    const doc = DOCS.find(d => d.id === id);
-    if (doc) {
-      // التأكد من وجود الأعمدة للمستندات القديمة
-      if (!doc.columns || doc.columns.length === 0) {
-        doc.columns = getDefaultColumns(type);
-      }
-      return JSON.parse(JSON.stringify(doc));
-    }
-    return blankDoc(type);
+    return DOCS.find(d => d.id === id) || blankDoc(type);
   }
 
   function renderForm(type, id) {
@@ -691,14 +561,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   <div class="form-wrap"><div id="form-panels">${t.kind==='quote'?quoteFormPanels(t,window._currentDoc):receiptFormPanels(window._currentDoc)}</div>
   <div><div class="panel" style="padding:14px;"><h4>معاينة حية</h4><div id="preview">${t.kind==='quote'?quotePreview(t,window._currentDoc):receiptPreview(window._currentDoc)}</div></div></div></div>
   <div class="actions-bar" style="margin-top:10px;">
-    <button class="btn-customize" id="openColumnModal">⚙️ تخصيص بنود العرض</button>
     <button class="${toggleBtnClass}" id="toggle-total-btn">${toggleBtnText}</button>
-  </div>
-  <div class="actions-bar">
-    <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
-    <button class="btn-pdf" id="download-pdf-form">📥 تحميل PDF</button>
-    <button class="btn-secondary" id="save-print">🖨️ حفظ وطباعة</button>
-    <button class="btn-ghost" id="cancel-form">إلغاء</button>
   </div>`;
   }
 
@@ -706,36 +569,23 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
     const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
     
-    // إنشاء جدول العناصر بالأعمدة المخصصة
-    const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(t.key);
-    let headerRow = '<tr><th style="width:26px;">م</th>';
-    columns.forEach(col => {
-      headerRow += `<th>${col.label}</th>`;
-    });
-    headerRow += '<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr>';
-
-    let bodyRows = doc.items.map((it, i) => {
-      let row = `<tr data-id="${it.id}"><td>${i+1}</td>`;
-      columns.forEach(col => {
-        const val = it[col.id] || '';
-        if (col.type === 'number' || col.type === 'currency') {
-          row += `<td><input data-if="${col.id}" type="text" value="${val}" class="item-${col.id}" style="text-align:center;"></td>`;
-        } else {
-          row += `<td><input data-if="${col.id}" value="${val}" style="text-align:right;"></td>`;
-        }
-      });
-      // حساب الضريبة والإجمالي
-      const taxPercent = doc.taxPercent || 15;
-      const qty = parseFloat(it.qty) || 0;
-      const price = parseFloat(it.price) || 0;
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      row += `<td style="color:var(--green);font-weight:700;">${money(tax)}</td>`;
-      row += `<td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>`;
-      row += `<td><button class="rm" data-rm="${it.id}">×</button></td></tr>`;
-      return row;
-    }).join('');
+    let qtyLabel = 'الكمية';
+    let priceLabel = 'سعر المتر';
+    let priceWithTaxLabel = '';
+    let sizeLabel = '';
+    let unitPriceWithoutTaxLabel = '';
+    let unitPriceWithTaxLabel = '';
+    
+    if (t.isConcrete) {
+      qtyLabel = 'الكمية متر مكعب';
+      priceLabel = 'سعر المتر قبل الضريبة';
+      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+    }
 
     return `<div class="panel"><h4>بيانات العميل</h4>
     <div class="field"><label>تاريخ العرض</label><input data-f="date" value="${doc.date}"></div>
@@ -746,16 +596,80 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     <div class="field"><label>الموقع${fixedLabel('location')}</label><input data-f="location" value="${doc.location}"></div></div>
   <div class="panel"><h4>تفاصيل العرض</h4>
     <div class="field"><label>المشروع${fixedLabel('project')}</label><input data-f="project" value="${doc.project}"></div>
-    <div class="field"><label>نوع المواد${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>
+    ${!t.isPrecast ? `<div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>` : ''}
     <div class="field"><label>الضريبة (%)${fixedLabel('taxPercent')}</label><input data-f="taxPercent" type="number" value="${doc.taxPercent}"></div>
     <div class="field"><label>وصف الأعمال${fixedLabel('workDescription')}</label><textarea data-f="workDescription">${doc.workDescription}</textarea></div>
     <div class="field"><label>مقدم العرض${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${doc.preparedBy}"></div>
     <div class="field"><label>الموقع (تفاصيل)${fixedLabel('location2')}</label><input data-f="location2" value="${doc.location2}"></div>
     ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}</div>
-  <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض <span style="color:var(--muted);font-weight:400;font-size:12px;">(يمكن تخصيص الأعمدة من زر "تخصيص بنود العرض")</span></h4>
-    <table class="items-table"><thead>${headerRow}</thead>
-    <tbody id="items-body">${bodyRows}</tbody></table>
-    <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>`;
+  <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
+    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th style="width:100px;">${unitPriceWithTaxLabel}</th>` : ''}<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
+    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t)).join('')}</tbody></table>
+    <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>
+  <div class="actions-bar" style="grid-column:1/-1;">
+    <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
+    <button class="btn-pdf" id="download-pdf-form">📥 تحميل PDF</button>
+    <button class="btn-secondary" id="save-print">🖨️ حفظ وطباعة</button>
+    <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
+  }
+
+  function itemRow(it, i, t) {
+    const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
+    
+    if (t.isPrecast) {
+      const qty = roundToTwo(parseFloat(it.qty) || 0);
+      const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      
+      return `<tr data-id="${it.id}">
+        <td>${i+1}</td>
+        <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
+        <td><input data-if="size" value="${it.size||''}" style="text-align:center;"></td>
+        <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithoutTax" type="text" value="${unitPriceWithoutTax}" class="item-price" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithTax" type="text" value="${unitPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+        <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
+        <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
+        <td><button class="rm" data-rm="${it.id}">×</button></td>
+      </tr>`;
+    }
+    
+    // للخرسانة والعروض الأخرى
+    const price = roundToTwo(parseFloat(it.price) || 0);
+    const priceWithTax = roundToTwo(parseFloat(it.priceWithTax) || 0);
+    const qty = roundToTwo(parseFloat(it.qty) || 0);
+    
+    let displayPrice = price;
+    let displayPriceWithTax = priceWithTax;
+    
+    if (priceWithTax > 0 && price === 0) {
+      displayPrice = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
+      it.price = displayPrice;
+    }
+    
+    const totalBeforeTax = roundToTwo(qty * displayPrice);
+    const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+    const totalWithTax = roundToTwo(totalBeforeTax + tax);
+    
+    if (priceWithTax === 0 && price > 0) {
+      displayPriceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+      it.priceWithTax = displayPriceWithTax;
+    }
+    
+    return `<tr data-id="${it.id}">
+      <td>${i+1}</td>
+      <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
+      <td><input data-if="unit" value="${it.unit||''}"></td>
+      <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
+      <td><input data-if="price" type="text" value="${displayPrice}" class="item-price" style="text-align:center;"></td>
+      ${t.isConcrete ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
+      <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
+      <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
+      <td><button class="rm" data-rm="${it.id}">×</button></td>
+    </tr>`;
   }
 
   function receiptFormPanels(doc) {
@@ -782,10 +696,18 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   function computeTotals(doc) {
     let s = 0,
       v = 0;
+    const t = TYPES[doc.type];
     doc.items.forEach(it => {
-      const qty = roundToTwo(parseFloat(it.qty) || 0);
-      const price = roundToTwo(parseFloat(it.price) || 0);
-      const totalBeforeTax = roundToTwo(qty * price);
+      let totalBeforeTax = 0;
+      if (t.isPrecast) {
+        const qty = roundToTwo(parseFloat(it.qty) || 0);
+        const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+        totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      } else {
+        const price = roundToTwo(parseFloat(it.price) || 0);
+        const qty = roundToTwo(parseFloat(it.qty) || 0);
+        totalBeforeTax = roundToTwo(qty * price);
+      }
       s += totalBeforeTax;
       v += roundToTwo(totalBeforeTax * ((doc.taxPercent || 15) / 100));
     });
@@ -799,29 +721,22 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
     const totalHiddenClass = showTotal ? '' : 'hidden';
     
-    const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(t.key);
+    let qtyLabel = 'الكمية';
+    let priceLabel = 'سعر المتر';
+    let priceWithTaxLabel = '';
+    let sizeLabel = '';
+    let unitPriceWithTaxLabel = '';
     
-    let headerRow = '<tr><th>م</th>';
-    columns.forEach(col => {
-      headerRow += `<th>${col.label}</th>`;
-    });
-    headerRow += '<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr>';
-
-    let bodyRows = doc.items.map((it, i) => {
-      let row = `<tr><td>${i+1}</td>`;
-      columns.forEach(col => {
-        const val = it[col.id] || '—';
-        row += `<td>${col.type === 'currency' ? money(parseFloat(val) || 0) : val}</td>`;
-      });
-      const taxPercent = doc.taxPercent || 15;
-      const qty = parseFloat(it.qty) || 0;
-      const price = parseFloat(it.price) || 0;
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      row += `<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
-      return row;
-    }).join('');
+    if (t.isConcrete) {
+      qtyLabel = 'الكمية متر مكعب';
+      priceLabel = 'سعر المتر قبل الضريبة';
+      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+    }
 
     function infoLineWithGreen(k, v, fieldKey) {
       const isGreen = fixedFields[fieldKey] === true;
@@ -861,7 +776,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     </div>
     <div class="info-box"><h5>تفاصيل العرض</h5>
       ${infoLineWithGreen('المشروع', doc.project, 'project')}
-      ${infoLineWithGreen('نوع المواد', doc.materialType, 'materialType')}
+      ${!t.isPrecast ? infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType') : ''}
       ${infoLineWithGreen('الضريبة', (doc.taxPercent||15)+'%', 'taxPercent')}
       ${infoLineWithGreen('وصف الأعمال', doc.workDescription, 'workDescription')}
       ${infoLineWithGreen('مقدم العرض', doc.preparedBy, 'preparedBy')}
@@ -870,8 +785,32 @@ table.archive-table tr:hover td { background: #f8f9fc; }
   </div>
   <div class="doc-table-wrap">
     <table class="doc-table">
-      <thead>${headerRow}</thead>
-      <tbody>${bodyRows}</tbody>
+      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th>${t.isConcrete ? `<th>${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th>${unitPriceWithTaxLabel}</th>` : ''}<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
+      <tbody>${doc.items.map((it,i)=>{
+        const taxPercent = doc.taxPercent || 15;
+        let totalBeforeTax = 0;
+        let price = 0;
+        let priceWithTax = 0;
+        let qty = 0;
+        let size = '';
+        
+        if (t.isPrecast) {
+          qty = roundToTwo(parseFloat(it.qty) || 0);
+          price = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+          size = it.size || '—';
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+        } else {
+          qty = roundToTwo(parseFloat(it.qty) || 0);
+          price = roundToTwo(parseFloat(it.price) || 0);
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+        }
+        const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+        const totalWithTax = roundToTwo(totalBeforeTax + tax);
+        
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td>${t.isConcrete ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}${t.isPrecast ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
+      }).join('')}</tbody>
     </table>
   </div>
   <div class="total-bar ${totalHiddenClass}"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>
@@ -951,92 +890,7 @@ table.archive-table tr:hover td { background: #f8f9fc; }
     </div>`;
   }
 
-  // ============================= COLUMN CUSTOMIZER =============================
-  function openColumnModal() {
-    const doc = window._currentDoc;
-    if (!doc) return;
-    const modal = document.getElementById('columnModal');
-    const config = document.getElementById('columnConfig');
-    config.innerHTML = '';
-    
-    const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(doc.type);
-    
-    columns.forEach((col, index) => {
-      const div = document.createElement('div');
-      div.className = 'col-item';
-      div.innerHTML = `
-        <span class="drag">⠿</span>
-        <input type="text" value="${col.label}" data-index="${index}" placeholder="اسم العمود">
-        ${!col.fixed ? `<button class="del-col" data-index="${index}">✕</button>` : ''}
-        <span style="font-size:10px;color:var(--green);${col.fixed?'':'display:none;'}">🔒</span>
-      `;
-      config.appendChild(div);
-    });
-
-    modal.classList.add('active');
-  }
-
-  function applyColumns() {
-    const doc = window._currentDoc;
-    if (!doc) return;
-    const inputs = document.querySelectorAll('#columnConfig .col-item input');
-    const newColumns = [];
-    inputs.forEach(input => {
-      const index = parseInt(input.dataset.index);
-      const oldCol = doc.columns[index] || { id: 'col' + (index + 1), type: 'text' };
-      newColumns.push({
-        ...oldCol,
-        label: input.value.trim() || oldCol.label || 'عمود'
-      });
-    });
-    doc.columns = newColumns;
-    
-    // تحديث العناصر بحيث تتطابق مع الأعمدة الجديدة
-    const oldItemKeys = new Set();
-    doc.items.forEach(item => {
-      Object.keys(item).forEach(key => oldItemKeys.add(key));
-    });
-    
-    doc.items.forEach(item => {
-      // إزالة المفاتيح القديمة غير الموجودة في الأعمدة الجديدة
-      const newKeys = new Set(doc.columns.map(c => c.id));
-      Object.keys(item).forEach(key => {
-        if (!newKeys.has(key) && key !== 'id' && key !== 'size' && key !== 'unitPriceWithoutTax' && key !== 'unitPriceWithTax') {
-          delete item[key];
-        }
-      });
-      // إضافة المفاتيح الجديدة
-      doc.columns.forEach(col => {
-        if (!item.hasOwnProperty(col.id)) {
-          item[col.id] = col.default || '';
-        }
-      });
-    });
-
-    document.getElementById('columnModal').classList.remove('active');
-    toast('✅ تم تخصيص بنود العرض بنجاح');
-    refreshPreview();
-  }
-
-  function resetDefaultColumns() {
-    const doc = window._currentDoc;
-    if (!doc) return;
-    if (!confirm('هل أنت متأكد من إعادة الأعمدة الافتراضية؟')) return;
-    doc.columns = getDefaultColumns(doc.type);
-    // إعادة بناء العناصر
-    doc.items = doc.items.map(item => {
-      const newItem = { id: item.id };
-      doc.columns.forEach(col => {
-        newItem[col.id] = col.default || '';
-      });
-      return newItem;
-    });
-    document.getElementById('columnModal').classList.remove('active');
-    toast('✅ تم إعادة الأعمدة الافتراضية');
-    refreshPreview();
-  }
-
-  // ============================= FORM BINDINGS =============================
+  // ---- form bindings ----
   function bindForm(type, id) {
     const t = TYPES[type],
       doc = window._currentDoc;
@@ -1045,16 +899,36 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     }
 
-    // ربط أزرار تخصيص الأعمدة
-    document.getElementById('openColumnModal').addEventListener('click', openColumnModal);
-    document.getElementById('closeModal').addEventListener('click', () => {
-      document.getElementById('columnModal').classList.remove('active');
-    });
-    document.getElementById('applyColumns').addEventListener('click', applyColumns);
-    document.getElementById('resetDefaultColumns').addEventListener('click', resetDefaultColumns);
-    document.getElementById('columnModal').addEventListener('click', e => {
-      if (e.target === e.currentTarget) document.getElementById('columnModal').classList.remove('active');
-    });
+    function calculateFromPrice(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const price = roundToTwo(parseFloat(item.price) || 0);
+      const totalBeforeTax = roundToTwo(qty * price);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+      return { totalBeforeTax, tax, totalWithTax, priceWithTax };
+    }
+
+    function calculateFromPriceWithTax(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
+      if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
+      const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
+      const totalBeforeTax = roundToTwo(qty * price);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      return { price, totalBeforeTax, tax, totalWithTax };
+    }
+
+    function calculatePrecast(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const unitPriceWithoutTax = roundToTwo(parseFloat(item.unitPriceWithoutTax) || 0);
+      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      return { totalBeforeTax, tax, totalWithTax, unitPriceWithTax };
+    }
 
     document.getElementById('form-panels').addEventListener('input', e => {
       const f = e.target.dataset.f;
@@ -1068,75 +942,136 @@ table.archive-table tr:hover td { background: #f8f9fc; }
         const tr = e.target.closest('tr'),
           itemId = tr.dataset.id,
           item = doc.items.find(x => x.id === itemId);
+        
         let newVal = e.target.value;
-        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax') {
+        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax' || ifld === 'unitPriceWithoutTax' || ifld === 'unitPriceWithTax') {
           newVal = parseFloat(newVal) || 0;
         }
         item[ifld] = newVal;
+
+        const taxPercent = doc.taxPercent || 15;
+
+        if (t.isPrecast) {
+          if (ifld === 'unitPriceWithoutTax' || ifld === 'qty') {
+            const result = calculatePrecast(item, taxPercent);
+            item.totalWithTax = result.totalWithTax;
+            item.unitPriceWithTax = result.unitPriceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+            if (priceWithTaxInput) priceWithTaxInput.value = result.unitPriceWithTax;
+            const taxCell = tr.querySelectorAll('td')[6];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+          if (ifld === 'unitPriceWithTax') {
+            const unitPriceWithTax = roundToTwo(parseFloat(item.unitPriceWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const unitPriceWithoutTax = roundToTwo(unitPriceWithTax / (1 + (taxPercent / 100)));
+              item.unitPriceWithoutTax = unitPriceWithoutTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = unitPriceWithoutTax;
+              const result = calculatePrecast(item, taxPercent);
+              item.totalWithTax = result.totalWithTax;
+              const totalInput = tr.querySelector('.item-total');
+              if (totalInput) totalInput.value = result.totalWithTax;
+              const taxCell = tr.querySelectorAll('td')[6];
+              if (taxCell) taxCell.textContent = money(result.tax);
+            }
+          }
+          if (ifld === 'totalWithTax') {
+            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
+              const unitPriceWithoutTax = roundToTwo(totalBeforeTax / qty);
+              const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+              item.unitPriceWithoutTax = unitPriceWithoutTax;
+              item.unitPriceWithTax = unitPriceWithTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = unitPriceWithoutTax;
+              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+              if (priceWithTaxInput) priceWithTaxInput.value = unitPriceWithTax;
+              const tax = roundToTwo(totalWithTax - totalBeforeTax);
+              const taxCell = tr.querySelectorAll('td')[6];
+              if (taxCell) taxCell.textContent = money(tax);
+            }
+          }
+        } else {
+          // للخرسانة والعروض الأخرى
+          if (ifld === 'price') {
+            const result = calculateFromPrice(item, taxPercent);
+            item.priceWithTax = result.priceWithTax;
+            item.totalWithTax = result.totalWithTax;
+            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'priceWithTax') {
+            const result = calculateFromPriceWithTax(item, taxPercent);
+            item.price = result.price;
+            item.totalWithTax = result.totalWithTax;
+            const priceInput = tr.querySelector('.item-price');
+            if (priceInput) priceInput.value = result.price;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'qty') {
+            const qty = roundToTwo(parseFloat(item.qty) || 0);
+            const price = roundToTwo(parseFloat(item.price) || 0);
+            const result = calculateFromPrice(item, taxPercent);
+            item.totalWithTax = result.totalWithTax;
+            item.priceWithTax = result.priceWithTax;
+            const totalInput = tr.querySelector('.item-total');
+            if (totalInput) totalInput.value = result.totalWithTax;
+            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            if (taxCell) taxCell.textContent = money(result.tax);
+          }
+
+          if (ifld === 'totalWithTax') {
+            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
+            const qty = roundToTwo(parseFloat(item.qty) || 1);
+            if (qty > 0) {
+              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
+              const price = roundToTwo(totalBeforeTax / qty);
+              const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+              item.price = price;
+              item.priceWithTax = priceWithTax;
+              const priceInput = tr.querySelector('.item-price');
+              if (priceInput) priceInput.value = price;
+              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
+              if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
+              const tax = roundToTwo(totalWithTax - totalBeforeTax);
+              const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+              if (taxCell) taxCell.textContent = money(tax);
+            }
+          }
+        }
+
         refreshPreview();
       }
     });
 
     document.getElementById('form-panels').addEventListener('click', e => {
       if (e.target.id === 'add-row') {
-        const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(t.key);
-        doc.items.push(emptyItem(t.isPrecast, columns));
-        // إعادة بناء جدول العناصر
-        const itemsBody = document.getElementById('items-body');
-        itemsBody.innerHTML = doc.items.map((it, i) => {
-          let row = `<tr data-id="${it.id}"><td>${i+1}</td>`;
-          columns.forEach(col => {
-            const val = it[col.id] || '';
-            if (col.type === 'number' || col.type === 'currency') {
-              row += `<td><input data-if="${col.id}" type="text" value="${val}" class="item-${col.id}" style="text-align:center;"></td>`;
-            } else {
-              row += `<td><input data-if="${col.id}" value="${val}" style="text-align:right;"></td>`;
-            }
-          });
-          const taxPercent = doc.taxPercent || 15;
-          const qty = parseFloat(it.qty) || 0;
-          const price = parseFloat(it.price) || 0;
-          const totalBeforeTax = roundToTwo(qty * price);
-          const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-          const totalWithTax = roundToTwo(totalBeforeTax + tax);
-          row += `<td style="color:var(--green);font-weight:700;">${money(tax)}</td>`;
-          row += `<td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>`;
-          row += `<td><button class="rm" data-rm="${it.id}">×</button></td></tr>`;
-          return row;
-        }).join('');
+        doc.items.push(emptyItem(t.isPrecast));
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
         refreshPreview();
       }
       const rmId = e.target.dataset.rm;
       if (rmId) {
         doc.items = doc.items.filter(x => x.id !== rmId);
-        if (!doc.items.length) {
-          const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(t.key);
-          doc.items.push(emptyItem(t.isPrecast, columns));
-        }
-        // إعادة بناء الجدول...
-        const itemsBody = document.getElementById('items-body');
-        const columns = doc.columns && doc.columns.length > 0 ? doc.columns : getDefaultColumns(t.key);
-        itemsBody.innerHTML = doc.items.map((it, i) => {
-          let row = `<tr data-id="${it.id}"><td>${i+1}</td>`;
-          columns.forEach(col => {
-            const val = it[col.id] || '';
-            if (col.type === 'number' || col.type === 'currency') {
-              row += `<td><input data-if="${col.id}" type="text" value="${val}" class="item-${col.id}" style="text-align:center;"></td>`;
-            } else {
-              row += `<td><input data-if="${col.id}" value="${val}" style="text-align:right;"></td>`;
-            }
-          });
-          const taxPercent = doc.taxPercent || 15;
-          const qty = parseFloat(it.qty) || 0;
-          const price = parseFloat(it.price) || 0;
-          const totalBeforeTax = roundToTwo(qty * price);
-          const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-          const totalWithTax = roundToTwo(totalBeforeTax + tax);
-          row += `<td style="color:var(--green);font-weight:700;">${money(tax)}</td>`;
-          row += `<td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>`;
-          row += `<td><button class="rm" data-rm="${it.id}">×</button></td></tr>`;
-          return row;
-        }).join('');
+        if (!doc.items.length) doc.items.push(emptyItem(t.isPrecast));
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
         refreshPreview();
       }
       if (e.target.id === 'save-doc') {
@@ -1504,11 +1439,6 @@ table.archive-table tr:hover td { background: #f8f9fc; }
       }
     });
   }
-
-  // ============================= INIT =============================
-  console.log('🚀 نظام صروح الثبات جاهز!');
-  console.log('📄 عدد المستندات:', DOCS.length);
-  console.log('⚙️ الإعدادات:', SETTINGS);
 </script>
 </body>
 </html>
