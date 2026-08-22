@@ -207,6 +207,63 @@
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
     @media(max-width:900px) { .settings-grid { grid-template-columns: 1fr; } }
 
+    .notes-list-container {
+      background: #f8f9fc;
+      border-radius: 8px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .note-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      background: white;
+      border-radius: 6px;
+      margin-bottom: 6px;
+      border: 1px solid #eef0f5;
+    }
+    .note-item .note-text {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 6px 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .note-item .note-text:focus {
+      outline: none;
+    }
+    .note-item .remove-note-btn {
+      background: #fde2e1;
+      color: var(--red);
+      border: none;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .note-item .remove-note-btn:hover {
+      background: #fccfcd;
+    }
+    .add-note-btn {
+      background: var(--navy);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    .add-note-btn:hover {
+      background: var(--navy-2);
+    }
+
     #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 22px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(0, 0, 0, .2); opacity: 0; pointer-events: none; transition: .25s; z-index: 999; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 
@@ -267,11 +324,9 @@
 <div id="toast"></div>
 
 <script type="module">
-  // Import Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, remove, child } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-  // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAdUXus0SNdhHrhg5wDYnK4QIziElakMTw",
     authDomain: "sorouh-al-thabat-company.firebaseapp.com",
@@ -283,11 +338,9 @@
     measurementId: "G-TCC3GP1BF5"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ============================= DATA LAYER =============================
   const DEFAULT_SETTINGS = {
     companyLine1: 'صروح الثبات',
     companyLine2: 'الخرسانة الجاهزة',
@@ -305,7 +358,12 @@
     year: '2026',
     startNumber: 1,
     nextNumber: 1,
-    fixedNotes: '🔔 العرض ساري لمدة أسبوع. يلتزم العميل بتجهيز الموقع.',
+    fixedNotes: [
+      '🔔 العرض ساري لمدة أسبوع',
+      '📍 يلتزم العميل بتجهيز الموقع',
+      '💰 الدفع خلال 30 يوم من تاريخ الفاتورة',
+      '📅 الأسعار شاملة الضريبة'
+    ],
     fixedFields: {
       location: true,
       taxNumberClient: true,
@@ -338,17 +396,25 @@
   let SETTINGS = { ...DEFAULT_SETTINGS };
   let DOCS = [];
 
-  // Firebase references
   const settingsRef = ref(db, 'settings');
   const docsRef = ref(db, 'documents');
   const metaRef = ref(db, 'meta');
 
-  // Load settings from Firebase
   async function loadSettings() {
     try {
       const snapshot = await get(settingsRef);
       if (snapshot.exists()) {
         SETTINGS = { ...DEFAULT_SETTINGS, ...snapshot.val() };
+        // تحويل الملاحظات القديمة إلى مصفوفة إذا كانت نصاً
+        if (typeof SETTINGS.fixedNotes === 'string') {
+          SETTINGS.fixedNotes = SETTINGS.fixedNotes.split('\n').filter(n => n.trim());
+          if (!SETTINGS.fixedNotes.length) {
+            SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
+          }
+        }
+        if (!Array.isArray(SETTINGS.fixedNotes)) {
+          SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
+        }
       } else {
         await set(settingsRef, DEFAULT_SETTINGS);
         SETTINGS = { ...DEFAULT_SETTINGS };
@@ -359,7 +425,6 @@
     }
   }
 
-  // Save settings to Firebase
   async function saveSettings(s) {
     try {
       await set(settingsRef, s);
@@ -370,7 +435,6 @@
     }
   }
 
-  // Load documents from Firebase with real-time listener
   function loadDocs() {
     onValue(docsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -381,13 +445,11 @@
         DOCS = [];
       }
       
-      // Hide loading screen after first load
       const loadingScreen = document.getElementById('loading-screen');
       if (loadingScreen) {
         loadingScreen.style.display = 'none';
       }
       
-      // Re-render if on a page that shows documents
       const hash = location.hash.replace('#/', '') || 'dashboard';
       if (hash === 'dashboard' || hash === 'archive') {
         render();
@@ -401,7 +463,6 @@
     });
   }
 
-  // Save document to Firebase
   async function saveDoc(doc) {
     try {
       const docRef = ref(db, `documents/${doc.id}`);
@@ -414,7 +475,6 @@
     }
   }
 
-  // Delete document from Firebase
   async function deleteDoc(id) {
     try {
       const docRef = ref(db, `documents/${id}`);
@@ -427,7 +487,6 @@
     }
   }
 
-  // Get next document number safely
   async function getNextDocNumber() {
     try {
       const snapshot = await get(child(metaRef, 'nextNumber'));
@@ -444,7 +503,6 @@
     }
   }
 
-  // Commit document number (increment)
   async function commitDocNumber() {
     try {
       const currentNum = await getNextDocNumber();
@@ -555,7 +613,6 @@
       desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
 
-  // ============================= ROUTER =============================
   function go(r) { location.hash = r; }
   window.addEventListener('hashchange', render);
   window.addEventListener('DOMContentLoaded', async () => {
@@ -592,7 +649,6 @@
     if (b) go('#/' + b.dataset.r);
   });
 
-  // ============================= DASHBOARD =============================
   function renderDashboard() {
     const total = DOCS.length,
       quotes = DOCS.filter(d => TYPES[d.type] && TYPES[d.type].kind === 'quote').length,
@@ -608,7 +664,6 @@
       '/new')));
   }
 
-  // ============================= FORM =============================
   function blankDoc(type) {
     const t = TYPES[type];
     const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
@@ -832,10 +887,15 @@
     return { subtotal: roundToTwo(s), vat: roundToTwo(v), grand: roundToTwo(s + v) };
   }
 
+  function renderFixedNotes() {
+    const notes = SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
+    if (!Array.isArray(notes) || notes.length === 0) return '';
+    return `<div class="notes-box"><b>ملاحظات:</b><ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul></div>`;
+  }
+
   function quotePreview(t, doc) {
     const tot = computeTotals(doc);
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedNotes = SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
     const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
     const totalHiddenClass = showTotal ? '' : 'hidden';
     
@@ -934,7 +994,7 @@
   <div class="total-bar ${totalHiddenClass}"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>
   ${(t.terms&&(doc.priceTerms||doc.deliveryTerms))?`<div class="notes-box" style="margin-top:14px;"><b>شروط التنفيذ</b><ul>${doc.priceTerms?'<li>'+doc.priceTerms+'</li>':''}${doc.deliveryTerms?'<li>'+doc.deliveryTerms+'</li>':''}</ul></div>`:''}
   ${bankBox()}
-  <div class="notes-box" style="padding-bottom:6px;">${fixedNotes}</div>
+  ${renderFixedNotes()}
   ${footerBar()}</div>`;
   }
 
@@ -1242,7 +1302,6 @@
       }
     });
 
-    // زر إظهار/إخفاء الإجمالي
     const toggleBtn = document.getElementById('toggle-total-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', async function() {
@@ -1265,7 +1324,6 @@
     return await saveDoc(doc);
   }
 
-  // ============================= VIEW PAGE =============================
   function renderViewPage(id) {
     const doc = DOCS.find(d => d.id === id);
     if (!doc) return '<p>غير موجود</p>';
@@ -1329,7 +1387,6 @@
     if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
   }
 
-  // ============================= ARCHIVE =============================
   function renderArchive() {
     if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
     return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
@@ -1427,6 +1484,19 @@
         <input id="fv-${fieldKey}" type="${type}" value="${val}" placeholder="أدخل القيمة الثابتة..."></div>`;
     }
 
+    function renderNotesList() {
+      const notes = Array.isArray(fixedNotes) ? fixedNotes : [];
+      return `<div class="notes-list-container" id="notes-list-container">
+        ${notes.map((note, index) => `
+          <div class="note-item" data-index="${index}">
+            <input class="note-text" value="${note}" placeholder="أدخل ملاحظة...">
+            <button class="remove-note-btn" data-index="${index}">×</button>
+          </div>
+        `).join('')}
+        <button class="add-note-btn" id="add-note-btn">+ إضافة ملاحظة</button>
+      </div>`;
+    }
+
     return `<h1 class="page-title">⚙️ الإعدادات</h1><p class="page-sub">تحكم في جميع بيانات الشركة واختر الحقول الثابتة التي تظهر باللون الأخضر</p>
   <div class="settings-grid">
     <div class="panel"><h4>🏢 بيانات الشركة</h4>
@@ -1453,9 +1523,8 @@
       <div class="field"><label>الرقم التالي</label><input id="s-nextNumber" type="number" value="${s.nextNumber}"></div>
     </div>
     <div class="panel" style="grid-column:1/-1;"><h4>📝 الملاحظات الثابتة</h4>
-      <div class="field"><label>نص الملاحظة الثابتة</label>
-        <textarea id="s-fixedNotes" rows="3" style="width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fbfcfe;color:var(--text);">${fixedNotes}</textarea>
-      </div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">أضف ملاحظات تظهر في جميع العروض كقائمة منظمة</p>
+      ${renderNotesList()}
     </div>
     <div class="panel" style="grid-column:1/-1;"><h4>🟢 الحقول الثابتة</h4>
       <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">حدد الحقول التي تريد أن تكون ثابتة واملأ قيمها</p>
@@ -1511,7 +1580,10 @@
       });
       fixedValues.taxPercent = Number(fixedValues.taxPercent) || 15;
 
-      const fixedNotes = document.getElementById('s-fixedNotes').value;
+      // جمع الملاحظات من الواجهة
+      const noteInputs = document.querySelectorAll('.note-text');
+      const fixedNotes = Array.from(noteInputs).map(input => input.value.trim()).filter(n => n);
+
       const showTotal = document.getElementById('s-showTotal').checked;
 
       const newSettings = {
@@ -1539,6 +1611,43 @@
       
       await saveSettings(newSettings);
       toast('✅ تم حفظ جميع الإعدادات');
+    });
+
+    // إضافة ملاحظة جديدة
+    document.getElementById('add-note-btn').addEventListener('click', () => {
+      const container = document.getElementById('notes-list-container');
+      const newNote = document.createElement('div');
+      newNote.className = 'note-item';
+      newNote.innerHTML = `
+        <input class="note-text" value="" placeholder="أدخل ملاحظة...">
+        <button class="remove-note-btn">×</button>
+      `;
+      container.insertBefore(newNote, container.querySelector('.add-note-btn'));
+      
+      // إضافة حدث الحذف للملاحظة الجديدة
+      newNote.querySelector('.remove-note-btn').addEventListener('click', function() {
+        const item = this.closest('.note-item');
+        if (document.querySelectorAll('.note-item').length > 1) {
+          item.remove();
+        } else {
+          toast('⚠️ يجب أن يكون هناك ملاحظة واحدة على الأقل');
+        }
+      });
+      
+      // التركيز على الحقل الجديد
+      newNote.querySelector('.note-text').focus();
+    });
+
+    // إضافة أحداث الحذف للملاحظات الموجودة
+    document.querySelectorAll('.remove-note-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const item = this.closest('.note-item');
+        if (document.querySelectorAll('.note-item').length > 1) {
+          item.remove();
+        } else {
+          toast('⚠️ يجب أن يكون هناك ملاحظة واحدة على الأقل');
+        }
+      });
     });
   }
 </script>
