@@ -61,8 +61,10 @@
     .panel h4 { margin: 0 0 14px; color: var(--navy); font-size: 15px; font-weight: 900; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
     .field { margin-bottom: 12px; }
     .field label { display: block; font-size: 12.5px; font-weight: 700; color: var(--muted); margin-bottom: 5px; }
+    .field label .green-badge { color: var(--green); font-weight: 900; }
     .field input, .field select, .field textarea { width: 100%; padding: 9px 11px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; background: #fbfcfe; color: var(--text); }
     .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--orange); background: #fff; }
+    .field input.green-static { border-color: var(--green); background: #f0faf0; color: var(--green); font-weight: 700; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .field textarea { resize: vertical; min-height: 56px; }
 
@@ -90,6 +92,10 @@
     .btn-toggle-total:hover { background: var(--navy-2); }
     .btn-toggle-total.showing { background: var(--orange); }
     .btn-toggle-total.showing:hover { background: var(--orange-2); }
+    .btn-toggle-number { background: var(--navy); color: #fff; padding: 11px 20px; border-radius: 9px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-toggle-number:hover { background: var(--navy-2); }
+    .btn-toggle-number.showing { background: var(--orange); }
+    .btn-toggle-number.showing:hover { background: var(--orange-2); }
 
     .actions-bar { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
@@ -130,11 +136,13 @@
     .doc-header .badge-area .doc-badge { background: linear-gradient(135deg, var(--navy), var(--navy-2)); color: #fff; border-radius: 12px; padding: 14px 22px; text-align: center; min-width: 160px; border: 2px solid var(--orange); box-shadow: 0 2px 10px rgba(0, 0, 0, .12); }
     .doc-header .badge-area .doc-badge .t { font-size: 14px; color: #cdd6ea; margin-bottom: 3px; }
     .doc-header .badge-area .doc-badge .big { font-size: 24px; font-weight: 900; color: var(--orange); }
+    .doc-header .badge-area.hidden-badge { display: none; }
     .doc-header .company-info { flex: 1; text-align: center; padding: 0 15px; }
     .doc-header .company-info .tag { color: var(--orange); font-weight: 700; font-size: 14px; margin-bottom: 2px; }
     .doc-header .company-info h1 { margin: 0; color: var(--navy); font-size: 26px; font-weight: 900; line-height: 1.3; }
     .doc-header .company-info h1 span { font-size: 18px; color: var(--orange); display: block; margin-top: 2px; }
     .doc-header .company-info .slogan { font-size: 14px; color: var(--muted); border-top: 2px solid #f0f0f0; padding-top: 5px; margin-top: 4px; }
+    .doc-header .company-info .slogan.hidden-slogan { border-top: none; margin-top: 0; }
 
     .doc-title-strip { padding: 0 26px 12px; border-bottom: 1px solid #eee; position: relative; z-index: 2; }
     .doc-title-strip h2 { margin: 10px 0 2px; font-size: 30px; font-weight: 900; color: var(--navy); border-bottom: 4px solid var(--orange); display: inline-block; padding-bottom: 4px; }
@@ -264,6 +272,15 @@
       background: var(--navy-2);
     }
 
+    .label-settings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 16px;
+    }
+    @media(max-width:600px) { .label-settings-grid { grid-template-columns: 1fr; } }
+    .label-settings-grid .field { margin-bottom: 6px; }
+    .label-settings-grid .field label { font-size: 11px; color: var(--muted); }
+
     #toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--navy); color: #fff; padding: 12px 22px; border-radius: 10px; font-weight: 700; font-size: 14px; box-shadow: 0 8px 20px rgba(0, 0, 0, .2); opacity: 0; pointer-events: none; transition: .25s; z-index: 999; }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(-6px); }
 
@@ -280,6 +297,7 @@
     #preview .doc-sheet .doc-badge, #print-area .doc-sheet .doc-badge { background: linear-gradient(135deg, #0B1F4D, #132a63) !important; border-color: #F97316 !important; }
     #preview .doc-sheet .doc-badge *, #print-area .doc-sheet .doc-badge * { color: #fff !important; }
     #preview .doc-sheet .doc-badge .big, #print-area .doc-sheet .doc-badge .big { color: #F97316 !important; }
+    #preview .doc-sheet .doc-badge.hidden-badge, #print-area .doc-sheet .doc-badge.hidden-badge { display: none !important; }
     #preview .doc-sheet .info-line .k, #print-area .doc-sheet .info-line .k { color: #333 !important; }
     #preview .doc-sheet .info-line .v, #print-area .doc-sheet .info-line .v { color: #000 !important; }
     #preview .doc-sheet .doc-header, #print-area .doc-sheet .doc-header { border-bottom: 2px solid #aaa !important; }
@@ -341,6 +359,7 @@
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // ===== DEFAULT SETTINGS =====
   const DEFAULT_SETTINGS = {
     companyLine1: 'صروح الثبات',
     companyLine2: 'الخرسانة الجاهزة',
@@ -386,7 +405,154 @@
       preparedBy: '',
       location2: ''
     },
-    showTotal: true
+    showTotal: true,
+    showNumber: true,
+    docLabels: {
+      concrete: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل الخرسانة',
+        itemsSection: '📊 جدول الخلطات',
+        fieldDate: 'تاريخ العرض',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع الخرسانة',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف الأعمال',
+        fieldPreparedBy: 'مقدم العرض',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'نوع الخرسانة',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية متر مكعب',
+        colPrice: 'سعر المتر قبل الضريبة',
+        colPriceWithTax: 'سعر المتر شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      },
+      interlock: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل الإنتر لوك',
+        itemsSection: '📊 جدول الإنتر لوك',
+        fieldDate: 'تاريخ العرض',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع الإنتر لوك',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف الأعمال',
+        fieldPreparedBy: 'مقدم العرض',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'الوصف',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية',
+        colPrice: 'سعر الوحدة قبل الضريبة',
+        colPriceWithTax: 'سعر الوحدة شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      },
+      block: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل البلوك',
+        itemsSection: '📊 جدول البلوك',
+        fieldDate: 'تاريخ العرض',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع البلوك',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف الأعمال',
+        fieldPreparedBy: 'مقدم العرض',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'نوع البلوك',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية (لكل 1000)',
+        colPrice: 'سعر الألف قبل الضريبة',
+        colPriceWithTax: 'سعر الألف شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      },
+      general: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل المواد',
+        itemsSection: '📊 جدول المواد',
+        fieldDate: 'تاريخ العرض',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع المادة',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف الأعمال',
+        fieldPreparedBy: 'مقدم العرض',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'البيان',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية',
+        colPrice: 'سعر الوحدة قبل الضريبة',
+        colPriceWithTax: 'سعر الوحدة شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      },
+      claim: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل المطالبة',
+        itemsSection: '📊 جدول المطالبة',
+        fieldDate: 'تاريخ المطالبة',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع الخدمة',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف المطالبة',
+        fieldPreparedBy: 'مقدم المطالبة',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'البيان',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية',
+        colPrice: 'سعر الوحدة قبل الضريبة',
+        colPriceWithTax: 'سعر الوحدة شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      },
+      precast: {
+        clientSection: '📋 بيانات العميل',
+        detailsSection: '🔧 تفاصيل Precast',
+        itemsSection: '📊 جدول العناصر',
+        fieldDate: 'تاريخ العرض',
+        fieldCustomer: 'اسم العميل',
+        fieldContact: 'جهة الاتصال',
+        fieldTaxNumber: 'الرقم الضريبي للعميل',
+        fieldPayment: 'طريقة الدفع',
+        fieldLocation: 'الموقع',
+        fieldProject: 'المشروع',
+        fieldMaterial: 'نوع العنصر',
+        fieldTaxPercent: 'الضريبة (%)',
+        fieldWorkDesc: 'وصف الأعمال',
+        fieldPreparedBy: 'مقدم العرض',
+        fieldLocation2: 'الموقع (تفاصيل)',
+        colItem: 'البيان',
+        colUnit: 'الوحدة',
+        colQty: 'الكمية',
+        colPrice: 'سعر الوحدة قبل الضريبة',
+        colPriceWithTax: 'سعر الوحدة شامل الضريبة',
+        colTax: 'الضريبة',
+        colTotal: 'الإجمالي شامل الضريبة'
+      }
+    }
   };
 
   function roundToTwo(num) {
@@ -405,16 +571,21 @@
       const snapshot = await get(settingsRef);
       if (snapshot.exists()) {
         SETTINGS = { ...DEFAULT_SETTINGS, ...snapshot.val() };
-        // تحويل الملاحظات القديمة إلى مصفوفة إذا كانت نصاً
+        if (!SETTINGS.docLabels) {
+          SETTINGS.docLabels = { ...DEFAULT_SETTINGS.docLabels };
+        }
+        Object.keys(DEFAULT_SETTINGS.docLabels).forEach(key => {
+          if (!SETTINGS.docLabels[key]) {
+            SETTINGS.docLabels[key] = { ...DEFAULT_SETTINGS.docLabels[key] };
+          }
+        });
         if (typeof SETTINGS.fixedNotes === 'string') {
           SETTINGS.fixedNotes = SETTINGS.fixedNotes.split('\n').filter(n => n.trim());
-          if (!SETTINGS.fixedNotes.length) {
-            SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
-          }
+          if (!SETTINGS.fixedNotes.length) SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
         }
-        if (!Array.isArray(SETTINGS.fixedNotes)) {
-          SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
-        }
+        if (!Array.isArray(SETTINGS.fixedNotes)) SETTINGS.fixedNotes = DEFAULT_SETTINGS.fixedNotes;
+        // التأكد من وجود showNumber
+        if (SETTINGS.showNumber === undefined) SETTINGS.showNumber = true;
       } else {
         await set(settingsRef, DEFAULT_SETTINGS);
         SETTINGS = { ...DEFAULT_SETTINGS };
@@ -444,22 +615,14 @@
       } else {
         DOCS = [];
       }
-      
       const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) {
-        loadingScreen.style.display = 'none';
-      }
-      
+      if (loadingScreen) loadingScreen.style.display = 'none';
       const hash = location.hash.replace('#/', '') || 'dashboard';
-      if (hash === 'dashboard' || hash === 'archive') {
-        render();
-      }
+      if (hash === 'dashboard' || hash === 'archive') render();
     }, (error) => {
       console.error('Error loading documents:', error);
       const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) {
-        loadingScreen.innerHTML = '<div style="color:red;font-weight:700;">❌ خطأ في تحميل البيانات</div>';
-      }
+      if (loadingScreen) loadingScreen.innerHTML = '<div style="color:red;font-weight:700;">❌ خطأ في تحميل البيانات</div>';
     });
   }
 
@@ -490,9 +653,8 @@
   async function getNextDocNumber() {
     try {
       const snapshot = await get(child(metaRef, 'nextNumber'));
-      if (snapshot.exists()) {
-        return snapshot.val();
-      } else {
+      if (snapshot.exists()) return snapshot.val();
+      else {
         const startNum = SETTINGS.startNumber || 1;
         await set(child(metaRef, 'nextNumber'), startNum);
         return startNum;
@@ -542,14 +704,9 @@
   function getWhatsAppLink(doc) {
     let contactNumber = doc.contact || '';
     contactNumber = contactNumber.replace(/[\s\-\(\)]/g, '');
-    if (!contactNumber) {
-      return null;
-    }
-    if (contactNumber.startsWith('0')) {
-      contactNumber = '966' + contactNumber.substring(1);
-    } else if (!contactNumber.startsWith('966')) {
-      contactNumber = '966' + contactNumber;
-    }
+    if (!contactNumber) return null;
+    if (contactNumber.startsWith('0')) contactNumber = '966' + contactNumber.substring(1);
+    else if (!contactNumber.startsWith('966')) contactNumber = '966' + contactNumber;
     return `https://wa.me/${contactNumber}`;
   }
 
@@ -561,7 +718,6 @@
     ];
     const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
     const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
-
     function threeDigits(n) {
       let s = '';
       const h = Math.floor(n / 100),
@@ -578,7 +734,6 @@
       }
       return s;
     }
-
     function group(n, s, d, p) {
       if (n === 0) return '';
       if (n === 1) return s;
@@ -597,21 +752,28 @@
   }
 
   const TYPES = {
-    concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', itemLabel: 'نوع الخرسانة', icon: '🚛',
+    concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', icon: '🚛',
       desc: 'خرسانة جاهزة بمقاومات وأنواع أسمنت مختلفة', kind: 'quote', isConcrete: true },
-    interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
+    interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', icon: '🧱',
       desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
-    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
+    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
       kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة' },
-    general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
+    general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', icon: '🏗️',
       desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
-    claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
+    claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
       kind: 'quote' },
-    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
+    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
       kind: 'receipt' },
-    precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', itemLabel: 'البيان', icon: '🏗️',
+    precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', icon: '🏗️',
       desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
+
+  function getDocLabels(typeKey) {
+    if (SETTINGS.docLabels && SETTINGS.docLabels[typeKey]) {
+      return SETTINGS.docLabels[typeKey];
+    }
+    return DEFAULT_SETTINGS.docLabels[typeKey] || DEFAULT_SETTINGS.docLabels.general;
+  }
 
   function go(r) { location.hash = r; }
   window.addEventListener('hashchange', render);
@@ -649,6 +811,7 @@
     if (b) go('#/' + b.dataset.r);
   });
 
+  // ===== DASHBOARD =====
   function renderDashboard() {
     const total = DOCS.length,
       quotes = DOCS.filter(d => TYPES[d.type] && TYPES[d.type].kind === 'quote').length,
@@ -664,6 +827,7 @@
       '/new')));
   }
 
+  // ===== BLANK DOC =====
   function blankDoc(type) {
     const t = TYPES[type];
     const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
@@ -719,66 +883,75 @@
 
   function getDoc(type, id) {
     if (id === 'new') return blankDoc(type);
-    return DOCS.find(d => d.id === id) || blankDoc(type);
+    const found = DOCS.find(d => d.id === id);
+    if (found) return { ...found };
+    return blankDoc(type);
   }
 
+  // ===== RENDER FORM =====
   function renderForm(type, id) {
     const t = TYPES[type];
     if (!t) return '<p>نوع غير معروف</p>';
     const doc = getDoc(type, id);
     window._currentDoc = JSON.parse(JSON.stringify(doc));
     const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
-    const toggleBtnText = showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
-    const toggleBtnClass = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
+    const showNumber = SETTINGS.showNumber !== undefined ? SETTINGS.showNumber : true;
+    const toggleTotalText = showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
+    const toggleTotalClass = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
+    const toggleNumberText = showNumber ? '🔽 إخفاء رقم العرض والسعر' : '🔼 إظهار رقم العرض والسعر';
+    const toggleNumberClass = showNumber ? 'btn-toggle-number showing' : 'btn-toggle-number';
     
     return `<h1 class="page-title">${t.title}</h1><p class="page-sub">رقم المستند: <b style="color:var(--orange)">${doc.number}</b> — ${id==='new'?'مستند جديد':'تعديل'}</p>
   <div class="form-wrap"><div id="form-panels">${t.kind==='quote'?quoteFormPanels(t,window._currentDoc):receiptFormPanels(window._currentDoc)}</div>
   <div><div class="panel" style="padding:14px;"><h4>معاينة حية</h4><div id="preview">${t.kind==='quote'?quotePreview(t,window._currentDoc):receiptPreview(window._currentDoc)}</div></div></div></div>
   <div class="actions-bar" style="margin-top:10px;">
-    <button class="${toggleBtnClass}" id="toggle-total-btn">${toggleBtnText}</button>
+    <button class="${toggleNumberClass}" id="toggle-number-btn">${toggleNumberText}</button>
+    <button class="${toggleTotalClass}" id="toggle-total-btn">${toggleTotalText}</button>
   </div>`;
   }
 
+  // ===== QUOTE FORM PANELS =====
   function quoteFormPanels(t, doc) {
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
-    
-    let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
-    let sizeLabel = '';
-    let unitPriceWithoutTaxLabel = '';
-    let unitPriceWithTaxLabel = '';
-    
-    if (t.isConcrete) {
-      qtyLabel = 'الكمية متر مكعب';
-      priceLabel = 'سعر المتر قبل الضريبة';
-      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
-    } else if (t.isPrecast) {
-      qtyLabel = 'الكمية';
-      priceLabel = 'سعر الوحدة قبل الضريبة';
-      sizeLabel = 'المقاس';
-      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
-    }
+    const labels = getDocLabels(t.key);
+    const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span class="green-badge">🟢 ثابت</span>' : '';
 
-    return `<div class="panel"><h4>بيانات العميل</h4>
-    <div class="field"><label>تاريخ العرض</label><input data-f="date" value="${doc.date}"></div>
-    <div class="field"><label>اسم العميل${fixedLabel('customerName')}</label><input data-f="customerName" value="${doc.customerName}" placeholder="اسم العميل أو المنشأة"></div>
-    <div class="field"><label>جهة الاتصال${fixedLabel('contact')}</label><input data-f="contact" value="${doc.contact}"></div>
-    <div class="field"><label>الرقم الضريبي للعميل${fixedLabel('taxNumberClient')}</label><input data-f="taxNumberClient" value="${doc.taxNumberClient}"></div>
-    <div class="field"><label>طريقة الدفع${fixedLabel('paymentMethod')}</label><input data-f="paymentMethod" value="${doc.paymentMethod}"></div>
-    <div class="field"><label>الموقع${fixedLabel('location')}</label><input data-f="location" value="${doc.location}"></div></div>
-  <div class="panel"><h4>تفاصيل العرض</h4>
-    <div class="field"><label>المشروع${fixedLabel('project')}</label><input data-f="project" value="${doc.project}"></div>
-    ${!t.isPrecast ? `<div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>` : ''}
-    <div class="field"><label>الضريبة (%)${fixedLabel('taxPercent')}</label><input data-f="taxPercent" type="number" value="${doc.taxPercent}"></div>
-    <div class="field"><label>وصف الأعمال${fixedLabel('workDescription')}</label><textarea data-f="workDescription">${doc.workDescription}</textarea></div>
-    <div class="field"><label>مقدم العرض${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${doc.preparedBy}"></div>
-    <div class="field"><label>الموقع (تفاصيل)${fixedLabel('location2')}</label><input data-f="location2" value="${doc.location2}"></div>
-    ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}</div>
-  <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
-    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th style="width:100px;">${unitPriceWithTaxLabel}</th>` : ''}<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
-    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t)).join('')}</tbody></table>
+    const isFixed = (fieldKey) => fixedFields[fieldKey] === true;
+    const fixedValue = (fieldKey) => {
+      const vals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
+      return vals[fieldKey] || '';
+    };
+    const getFieldValue = (fieldKey, docField) => {
+      if (isFixed(fieldKey)) return fixedValue(fieldKey);
+      return docField || '';
+    };
+    const getFieldClass = (fieldKey) => isFixed(fieldKey) ? 'green-static' : '';
+
+    let qtyLabel = labels.colQty || 'الكمية';
+    let priceLabel = labels.colPrice || 'سعر المتر قبل الضريبة';
+    let priceWithTaxLabel = labels.colPriceWithTax || 'سعر المتر شامل الضريبة';
+    let sizeLabel = 'المقاس';
+    let unitLabel = labels.colUnit || 'الوحدة';
+
+    return `<div class="panel"><h4>${labels.clientSection || '📋 بيانات العميل'}</h4>
+    <div class="field"><label>${labels.fieldDate || 'تاريخ العرض'}</label><input data-f="date" value="${doc.date}"></div>
+    <div class="field"><label>${labels.fieldCustomer || 'اسم العميل'}${fixedLabel('customerName')}</label><input data-f="customerName" value="${doc.customerName}" placeholder="اسم العميل أو المنشأة"></div>
+    <div class="field"><label>${labels.fieldContact || 'جهة الاتصال'}${fixedLabel('contact')}</label><input data-f="contact" value="${doc.contact}"></div>
+    <div class="field"><label>${labels.fieldTaxNumber || 'الرقم الضريبي للعميل'}${fixedLabel('taxNumberClient')}</label><input data-f="taxNumberClient" value="${getFieldValue('taxNumberClient', doc.taxNumberClient)}" class="${getFieldClass('taxNumberClient')}"></div>
+    <div class="field"><label>${labels.fieldPayment || 'طريقة الدفع'}${fixedLabel('paymentMethod')}</label><input data-f="paymentMethod" value="${getFieldValue('paymentMethod', doc.paymentMethod)}" class="${getFieldClass('paymentMethod')}"></div>
+    <div class="field"><label>${labels.fieldLocation || 'الموقع'}${fixedLabel('location')}</label><input data-f="location" value="${getFieldValue('location', doc.location)}" class="${getFieldClass('location')}"></div></div>
+  <div class="panel"><h4>${labels.detailsSection || '🔧 تفاصيل العرض'}</h4>
+    <div class="field"><label>${labels.fieldProject || 'المشروع'}${fixedLabel('project')}</label><input data-f="project" value="${getFieldValue('project', doc.project)}" class="${getFieldClass('project')}"></div>
+    ${!t.isPrecast ? `<div class="field"><label>${labels.fieldMaterial || 'نوع المادة'}${fixedLabel('materialType')}</label><input data-f="materialType" value="${getFieldValue('materialType', doc.materialType)}" class="${getFieldClass('materialType')}"></div>` : ''}
+    <div class="field"><label>${labels.fieldTaxPercent || 'الضريبة (%)'}${fixedLabel('taxPercent')}</label><input data-f="taxPercent" type="number" value="${getFieldValue('taxPercent', doc.taxPercent)}" class="${getFieldClass('taxPercent')}"></div>
+    <div class="field"><label>${labels.fieldWorkDesc || 'وصف الأعمال'}${fixedLabel('workDescription')}</label><textarea data-f="workDescription" class="${getFieldClass('workDescription')}">${getFieldValue('workDescription', doc.workDescription)}</textarea></div>
+    <div class="field"><label>${labels.fieldPreparedBy || 'مقدم العرض'}${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${getFieldValue('preparedBy', doc.preparedBy)}" class="${getFieldClass('preparedBy')}"></div>
+    <div class="field"><label>${labels.fieldLocation2 || 'الموقع (تفاصيل)'}${fixedLabel('location2')}</label><input data-f="location2" value="${getFieldValue('location2', doc.location2)}" class="${getFieldClass('location2')}"></div>
+    ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}
+  </div>
+  <div class="panel" style="grid-column:1/-1;"><h4>${labels.itemsSection || '📊 بنود العرض'} ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
+    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${labels.colItem || 'البيان'}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">${unitLabel}</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete || t.key === 'block' ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th style="width:100px;">${priceWithTaxLabel}</th>` : ''}<th style="width:90px;">${labels.colTax || 'الضريبة'}</th><th style="width:100px;">${labels.colTotal || 'الإجمالي شامل الضريبة'}</th><th style="width:30px;"></th></tr></thead>
+    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t, labels)).join('')}</tbody></table>
     <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>
   <div class="actions-bar" style="grid-column:1/-1;">
     <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
@@ -787,7 +960,7 @@
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
   }
 
-  function itemRow(it, i, t) {
+  function itemRow(it, i, t, labels) {
     const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
     
     if (t.isPrecast) {
@@ -832,19 +1005,22 @@
       it.priceWithTax = displayPriceWithTax;
     }
     
+    const showPriceWithTax = t.isConcrete || t.key === 'block';
+    
     return `<tr data-id="${it.id}">
       <td>${i+1}</td>
       <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
       <td><input data-if="unit" value="${it.unit||''}"></td>
       <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
       <td><input data-if="price" type="text" value="${displayPrice}" class="item-price" style="text-align:center;"></td>
-      ${t.isConcrete ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
+      ${showPriceWithTax ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
       <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
       <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
       <td><button class="rm" data-rm="${it.id}">×</button></td>
     </tr>`;
   }
 
+  // ===== RECEIPT FORM =====
   function receiptFormPanels(doc) {
     return `<div class="panel"><h4>بيانات السند</h4>
     <div class="field"><label>التاريخ</label><input data-f="date" value="${doc.date}"></div>
@@ -866,9 +1042,9 @@
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
   }
 
+  // ===== COMPUTE TOTALS =====
   function computeTotals(doc) {
-    let s = 0,
-      v = 0;
+    let s = 0, v = 0;
     const t = TYPES[doc.type];
     doc.items.forEach(it => {
       let totalBeforeTax = 0;
@@ -893,28 +1069,17 @@
     return `<div class="notes-box"><b>ملاحظات:</b><ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul></div>`;
   }
 
+  // ===== QUOTE PREVIEW =====
   function quotePreview(t, doc) {
     const tot = computeTotals(doc);
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
     const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
+    const showNumber = SETTINGS.showNumber !== undefined ? SETTINGS.showNumber : true;
     const totalHiddenClass = showTotal ? '' : 'hidden';
-    
-    let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
-    let sizeLabel = '';
-    let unitPriceWithTaxLabel = '';
-    
-    if (t.isConcrete) {
-      qtyLabel = 'الكمية متر مكعب';
-      priceLabel = 'سعر المتر قبل الضريبة';
-      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
-    } else if (t.isPrecast) {
-      qtyLabel = 'الكمية';
-      priceLabel = 'سعر الوحدة قبل الضريبة';
-      sizeLabel = 'المقاس';
-      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
-    }
+    const numberHiddenClass = showNumber ? '' : 'hidden-badge';
+    const labels = getDocLabels(t.key);
+
+    const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
 
     function infoLineWithGreen(k, v, fieldKey) {
       const isGreen = fixedFields[fieldKey] === true;
@@ -922,7 +1087,19 @@
       return `<div class="info-line"><span class="k">${k}</span><span class="v ${greenClass}">${v&&v.length?v:'—'}</span></div>`;
     }
 
-    const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
+    const clientSection = labels.clientSection || '📋 بيانات العميل';
+    const detailsSection = labels.detailsSection || '🔧 تفاصيل العرض';
+    const itemsSection = labels.itemsSection || '📊 بنود العرض';
+
+    let colItem = labels.colItem || 'البيان';
+    let colUnit = labels.colUnit || 'الوحدة';
+    let colQty = labels.colQty || 'الكمية';
+    let colPrice = labels.colPrice || 'سعر المتر قبل الضريبة';
+    let colPriceWithTax = labels.colPriceWithTax || 'سعر المتر شامل الضريبة';
+    let colTax = labels.colTax || 'الضريبة';
+    let colTotal = labels.colTotal || 'الإجمالي شامل الضريبة';
+
+    const showPriceWithTax = t.isConcrete || t.key === 'block';
 
     return `<div class="doc-sheet">
   ${watermarkHTML}
@@ -935,7 +1112,7 @@
       <h1>${SETTINGS.companyLine1}<br><span>${t.badge} — ${SETTINGS.companyLine2}</span></h1>
       <div class="slogan">${SETTINGS.slogan}</div>
     </div>
-    <div class="badge-area">
+    <div class="badge-area ${numberHiddenClass}">
       <div class="doc-badge">
         <div class="t">رقم العرض</div>
         <div class="big">${doc.number}</div>
@@ -944,26 +1121,26 @@
   </div>
   <div class="doc-title-strip"><h2>${t.key==='claim'?'مطالبة مالية':'عرض سعر'}</h2><div class="subtitle">${t.title}</div></div>
   <div class="info-grid">
-    <div class="info-box"><h5>بيانات العميل</h5>
-      ${infoLineWithGreen('تاريخ العرض', doc.date, 'date')}
-      ${infoLineWithGreen('اسم العميل', doc.customerName, 'customerName')}
-      ${infoLineWithGreen('جهة الاتصال', doc.contact, 'contact')}
-      ${infoLineWithGreen('الرقم الضريبي', doc.taxNumberClient, 'taxNumberClient')}
-      ${infoLineWithGreen('طريقة الدفع', doc.paymentMethod, 'paymentMethod')}
-      ${infoLineWithGreen('الموقع', doc.location, 'location')}
+    <div class="info-box"><h5>${clientSection}</h5>
+      ${infoLineWithGreen(labels.fieldDate || 'تاريخ العرض', doc.date, 'date')}
+      ${infoLineWithGreen(labels.fieldCustomer || 'اسم العميل', doc.customerName, 'customerName')}
+      ${infoLineWithGreen(labels.fieldContact || 'جهة الاتصال', doc.contact, 'contact')}
+      ${infoLineWithGreen(labels.fieldTaxNumber || 'الرقم الضريبي للعميل', doc.taxNumberClient, 'taxNumberClient')}
+      ${infoLineWithGreen(labels.fieldPayment || 'طريقة الدفع', doc.paymentMethod, 'paymentMethod')}
+      ${infoLineWithGreen(labels.fieldLocation || 'الموقع', doc.location, 'location')}
     </div>
-    <div class="info-box"><h5>تفاصيل العرض</h5>
-      ${infoLineWithGreen('المشروع', doc.project, 'project')}
-      ${!t.isPrecast ? infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType') : ''}
-      ${infoLineWithGreen('الضريبة', (doc.taxPercent||15)+'%', 'taxPercent')}
-      ${infoLineWithGreen('وصف الأعمال', doc.workDescription, 'workDescription')}
-      ${infoLineWithGreen('مقدم العرض', doc.preparedBy, 'preparedBy')}
-      ${infoLineWithGreen('الموقع', doc.location2, 'location2')}
+    <div class="info-box"><h5>${detailsSection}</h5>
+      ${infoLineWithGreen(labels.fieldProject || 'المشروع', doc.project, 'project')}
+      ${!t.isPrecast ? infoLineWithGreen(labels.fieldMaterial || 'نوع المادة', doc.materialType, 'materialType') : ''}
+      ${infoLineWithGreen(labels.fieldTaxPercent || 'الضريبة (%)', (doc.taxPercent||15)+'%', 'taxPercent')}
+      ${infoLineWithGreen(labels.fieldWorkDesc || 'وصف الأعمال', doc.workDescription, 'workDescription')}
+      ${infoLineWithGreen(labels.fieldPreparedBy || 'مقدم العرض', doc.preparedBy, 'preparedBy')}
+      ${infoLineWithGreen(labels.fieldLocation2 || 'الموقع (تفاصيل)', doc.location2, 'location2')}
     </div>
   </div>
   <div class="doc-table-wrap">
     <table class="doc-table">
-      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th>${t.isConcrete ? `<th>${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th>${unitPriceWithTaxLabel}</th>` : ''}<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
+      <thead><tr><th>م</th><th>${colItem}</th>${t.isPrecast ? `<th>المقاس</th>` : `<th>${colUnit}</th>`}<th>${colQty}</th><th>${colPrice}</th>${showPriceWithTax ? `<th>${colPriceWithTax}</th>` : ''}${t.isPrecast ? `<th>${colPriceWithTax}</th>` : ''}<th>${colTax}</th><th>${colTotal}</th></tr></thead>
       <tbody>${doc.items.map((it,i)=>{
         const taxPercent = doc.taxPercent || 15;
         let totalBeforeTax = 0;
@@ -987,7 +1164,7 @@
         const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
         const totalWithTax = roundToTwo(totalBeforeTax + tax);
         
-        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td>${t.isConcrete ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}${t.isPrecast ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td>${showPriceWithTax ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}${t.isPrecast ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
       }).join('')}</tbody>
     </table>
   </div>
@@ -998,7 +1175,10 @@
   ${footerBar()}</div>`;
   }
 
+  // ===== RECEIPT PREVIEW =====
   function receiptPreview(doc) {
+    const showNumber = SETTINGS.showNumber !== undefined ? SETTINGS.showNumber : true;
+    const numberHiddenClass = showNumber ? '' : 'hidden-badge';
     const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
     return `<div class="doc-sheet">
   ${watermarkHTML}
@@ -1011,7 +1191,7 @@
       <h1>${SETTINGS.companyLine1}<br><span>خرسانة جاهزة</span></h1>
       <div class="slogan">${SETTINGS.address} — ر.ض ${SETTINGS.taxNumber}</div>
     </div>
-    <div class="badge-area">
+    <div class="badge-area ${numberHiddenClass}">
       <div class="doc-badge">
         <div class="t">رقم السند</div>
         <div class="big">${doc.number}</div>
@@ -1068,43 +1248,21 @@
     </div>`;
   }
 
+  // ===== BIND FORM =====
   function bindForm(type, id) {
     const t = TYPES[type],
       doc = window._currentDoc;
+    const labels = getDocLabels(t.key);
 
     function refreshPreview() {
       document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     }
 
-    function calculateFromPrice(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const price = roundToTwo(parseFloat(item.price) || 0);
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-      return { totalBeforeTax, tax, totalWithTax, priceWithTax };
-    }
-
-    function calculateFromPriceWithTax(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
-      if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
-      const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      return { price, totalBeforeTax, tax, totalWithTax };
-    }
-
-    function calculatePrecast(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const unitPriceWithoutTax = roundToTwo(parseFloat(item.unitPriceWithoutTax) || 0);
-      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
-      return { totalBeforeTax, tax, totalWithTax, unitPriceWithTax };
+    function rebuildItemsTable() {
+      const tbody = document.getElementById('items-body');
+      if (tbody) {
+        tbody.innerHTML = doc.items.map((it, i) => itemRow(it, i, t, labels)).join('');
+      }
     }
 
     document.getElementById('form-panels').addEventListener('input', e => {
@@ -1183,7 +1341,7 @@
             if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
             const totalInput = tr.querySelector('.item-total');
             if (totalInput) totalInput.value = result.totalWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete || t.key === 'block' ? 5 : 4];
             if (taxCell) taxCell.textContent = money(result.tax);
           }
 
@@ -1195,7 +1353,7 @@
             if (priceInput) priceInput.value = result.price;
             const totalInput = tr.querySelector('.item-total');
             if (totalInput) totalInput.value = result.totalWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete || t.key === 'block' ? 5 : 4];
             if (taxCell) taxCell.textContent = money(result.tax);
           }
 
@@ -1209,7 +1367,7 @@
             if (totalInput) totalInput.value = result.totalWithTax;
             const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
             if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+            const taxCell = tr.querySelectorAll('td')[t.isConcrete || t.key === 'block' ? 5 : 4];
             if (taxCell) taxCell.textContent = money(result.tax);
           }
 
@@ -1227,7 +1385,7 @@
               const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
               if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
               const tax = roundToTwo(totalWithTax - totalBeforeTax);
-              const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
+              const taxCell = tr.querySelectorAll('td')[t.isConcrete || t.key === 'block' ? 5 : 4];
               if (taxCell) taxCell.textContent = money(tax);
             }
           }
@@ -1237,17 +1395,48 @@
       }
     });
 
+    function calculateFromPrice(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const price = roundToTwo(parseFloat(item.price) || 0);
+      const totalBeforeTax = roundToTwo(qty * price);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+      return { totalBeforeTax, tax, totalWithTax, priceWithTax };
+    }
+
+    function calculateFromPriceWithTax(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
+      if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
+      const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
+      const totalBeforeTax = roundToTwo(qty * price);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      return { price, totalBeforeTax, tax, totalWithTax };
+    }
+
+    function calculatePrecast(item, taxPercent) {
+      const qty = roundToTwo(parseFloat(item.qty) || 0);
+      const unitPriceWithoutTax = roundToTwo(parseFloat(item.unitPriceWithoutTax) || 0);
+      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + tax);
+      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      return { totalBeforeTax, tax, totalWithTax, unitPriceWithTax };
+    }
+
     document.getElementById('form-panels').addEventListener('click', async e => {
       if (e.target.id === 'add-row') {
         doc.items.push(emptyItem(t.isPrecast));
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
+        rebuildItemsTable();
         refreshPreview();
       }
       const rmId = e.target.dataset.rm;
       if (rmId) {
         doc.items = doc.items.filter(x => x.id !== rmId);
         if (!doc.items.length) doc.items.push(emptyItem(t.isPrecast));
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
+        rebuildItemsTable();
         refreshPreview();
       }
       if (e.target.id === 'save-doc') {
@@ -1302,9 +1491,10 @@
       }
     });
 
-    const toggleBtn = document.getElementById('toggle-total-btn');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', async function() {
+    // ===== Toggle Total Button =====
+    const toggleTotalBtn = document.getElementById('toggle-total-btn');
+    if (toggleTotalBtn) {
+      toggleTotalBtn.addEventListener('click', async function() {
         SETTINGS.showTotal = !SETTINGS.showTotal;
         await saveSettings(SETTINGS);
         const showTotal = SETTINGS.showTotal;
@@ -1312,6 +1502,20 @@
         this.className = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
         refreshPreview();
         toast(showTotal ? '✅ تم إظهار الإجمالي' : '✅ تم إخفاء الإجمالي');
+      });
+    }
+
+    // ===== Toggle Number Button =====
+    const toggleNumberBtn = document.getElementById('toggle-number-btn');
+    if (toggleNumberBtn) {
+      toggleNumberBtn.addEventListener('click', async function() {
+        SETTINGS.showNumber = !SETTINGS.showNumber;
+        await saveSettings(SETTINGS);
+        const showNumber = SETTINGS.showNumber;
+        this.textContent = showNumber ? '🔽 إخفاء رقم العرض والسعر' : '🔼 إظهار رقم العرض والسعر';
+        this.className = showNumber ? 'btn-toggle-number showing' : 'btn-toggle-number';
+        refreshPreview();
+        toast(showNumber ? '✅ تم إظهار رقم العرض والسعر' : '✅ تم إخفاء رقم العرض والسعر');
       });
     }
   }
@@ -1324,6 +1528,7 @@
     return await saveDoc(doc);
   }
 
+  // ===== VIEW PAGE =====
   function renderViewPage(id) {
     const doc = DOCS.find(d => d.id === id);
     if (!doc) return '<p>غير موجود</p>';
@@ -1387,6 +1592,7 @@
     if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
   }
 
+  // ===== ARCHIVE =====
   function renderArchive() {
     if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
     return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
@@ -1461,13 +1667,15 @@
     });
   }
 
-  // ============================= SETTINGS =============================
+  // ===== SETTINGS =====
   function renderSettings() {
     const s = SETTINGS;
     const fixedFields = s.fixedFields || DEFAULT_SETTINGS.fixedFields;
     const fixedVals = s.fixedValues || DEFAULT_SETTINGS.fixedValues;
     const fixedNotes = s.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
     const showTotal = s.showTotal !== undefined ? s.showTotal : true;
+    const showNumber = s.showNumber !== undefined ? s.showNumber : true;
+    const docLabels = s.docLabels || DEFAULT_SETTINGS.docLabels;
 
     function fixedCheckbox(fieldKey, label) {
       const checked = fixedFields[fieldKey] === true ? 'checked' : '';
@@ -1497,6 +1705,37 @@
       </div>`;
     }
 
+    function renderDocTypeLabels(typeKey, typeName) {
+      const labels = docLabels[typeKey] || DEFAULT_SETTINGS.docLabels[typeKey] || DEFAULT_SETTINGS.docLabels.general;
+      return `<div style="border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;">
+        <h5 style="color:var(--orange);margin:0 0 10px;">🏗️ ${typeName}</h5>
+        <div class="label-settings-grid">
+          <div class="field"><label>مسمى "بيانات العميل"</label><input class="label-input" data-type="${typeKey}" data-key="clientSection" value="${labels.clientSection || ''}"></div>
+          <div class="field"><label>مسمى "تفاصيل العرض"</label><input class="label-input" data-type="${typeKey}" data-key="detailsSection" value="${labels.detailsSection || ''}"></div>
+          <div class="field"><label>مسمى "بنود العرض"</label><input class="label-input" data-type="${typeKey}" data-key="itemsSection" value="${labels.itemsSection || ''}"></div>
+          <div class="field"><label>مسمى "تاريخ العرض"</label><input class="label-input" data-type="${typeKey}" data-key="fieldDate" value="${labels.fieldDate || ''}"></div>
+          <div class="field"><label>مسمى "اسم العميل"</label><input class="label-input" data-type="${typeKey}" data-key="fieldCustomer" value="${labels.fieldCustomer || ''}"></div>
+          <div class="field"><label>مسمى "جهة الاتصال"</label><input class="label-input" data-type="${typeKey}" data-key="fieldContact" value="${labels.fieldContact || ''}"></div>
+          <div class="field"><label>مسمى "الرقم الضريبي للعميل"</label><input class="label-input" data-type="${typeKey}" data-key="fieldTaxNumber" value="${labels.fieldTaxNumber || ''}"></div>
+          <div class="field"><label>مسمى "طريقة الدفع"</label><input class="label-input" data-type="${typeKey}" data-key="fieldPayment" value="${labels.fieldPayment || ''}"></div>
+          <div class="field"><label>مسمى "الموقع"</label><input class="label-input" data-type="${typeKey}" data-key="fieldLocation" value="${labels.fieldLocation || ''}"></div>
+          <div class="field"><label>مسمى "المشروع"</label><input class="label-input" data-type="${typeKey}" data-key="fieldProject" value="${labels.fieldProject || ''}"></div>
+          <div class="field"><label>مسمى "نوع المادة"</label><input class="label-input" data-type="${typeKey}" data-key="fieldMaterial" value="${labels.fieldMaterial || ''}"></div>
+          <div class="field"><label>مسمى "الضريبة (%)"</label><input class="label-input" data-type="${typeKey}" data-key="fieldTaxPercent" value="${labels.fieldTaxPercent || ''}"></div>
+          <div class="field"><label>مسمى "وصف الأعمال"</label><input class="label-input" data-type="${typeKey}" data-key="fieldWorkDesc" value="${labels.fieldWorkDesc || ''}"></div>
+          <div class="field"><label>مسمى "مقدم العرض"</label><input class="label-input" data-type="${typeKey}" data-key="fieldPreparedBy" value="${labels.fieldPreparedBy || ''}"></div>
+          <div class="field"><label>مسمى "الموقع (تفاصيل)"</label><input class="label-input" data-type="${typeKey}" data-key="fieldLocation2" value="${labels.fieldLocation2 || ''}"></div>
+          <div class="field"><label>مسمى عمود "البيان"</label><input class="label-input" data-type="${typeKey}" data-key="colItem" value="${labels.colItem || ''}"></div>
+          <div class="field"><label>مسمى عمود "الوحدة"</label><input class="label-input" data-type="${typeKey}" data-key="colUnit" value="${labels.colUnit || ''}"></div>
+          <div class="field"><label>مسمى عمود "الكمية"</label><input class="label-input" data-type="${typeKey}" data-key="colQty" value="${labels.colQty || ''}"></div>
+          <div class="field"><label>مسمى عمود "السعر قبل الضريبة"</label><input class="label-input" data-type="${typeKey}" data-key="colPrice" value="${labels.colPrice || ''}"></div>
+          <div class="field"><label>مسمى عمود "السعر شامل الضريبة"</label><input class="label-input" data-type="${typeKey}" data-key="colPriceWithTax" value="${labels.colPriceWithTax || ''}"></div>
+          <div class="field"><label>مسمى عمود "الضريبة"</label><input class="label-input" data-type="${typeKey}" data-key="colTax" value="${labels.colTax || ''}"></div>
+          <div class="field"><label>مسمى عمود "الإجمالي"</label><input class="label-input" data-type="${typeKey}" data-key="colTotal" value="${labels.colTotal || ''}"></div>
+        </div>
+      </div>`;
+    }
+
     return `<h1 class="page-title">⚙️ الإعدادات</h1><p class="page-sub">تحكم في جميع بيانات الشركة واختر الحقول الثابتة التي تظهر باللون الأخضر</p>
   <div class="settings-grid">
     <div class="panel"><h4>🏢 بيانات الشركة</h4>
@@ -1520,6 +1759,7 @@
     </div>
     <div class="panel"><h4>🔢 الترقيم</h4>
       <div class="field"><label>السنة</label><input id="s-year" value="${s.year}"></div>
+      <div class="field"><label>رقم البداية</label><input id="s-startNumber" type="number" value="${s.startNumber}"></div>
       <div class="field"><label>الرقم التالي</label><input id="s-nextNumber" type="number" value="${s.nextNumber}"></div>
     </div>
     <div class="panel" style="grid-column:1/-1;"><h4>📝 الملاحظات الثابتة</h4>
@@ -1552,7 +1792,20 @@
         ${fixedValueField('location2', 'الموقع (تفاصيل)')}
       </div>
     </div>
+    <div class="panel" style="grid-column:1/-1;"><h4>📝 إعدادات المسميات لكل نوع عرض</h4>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">غير المسميات لكل نوع عرض على حدة (تظهر في جميع عروض هذا النوع)</p>
+      ${renderDocTypeLabels('concrete', 'خرسانة جاهزة')}
+      ${renderDocTypeLabels('block', 'بلوك')}
+      ${renderDocTypeLabels('interlock', 'إنتر لوك')}
+      ${renderDocTypeLabels('general', 'مواد بناء عامة')}
+      ${renderDocTypeLabels('claim', 'مطالبة مالية')}
+      ${renderDocTypeLabels('precast', 'Precast')}
+    </div>
     <div class="panel" style="grid-column:1/-1;"><h4>⚙️ إعدادات العرض</h4>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+        <label style="font-weight:700;font-size:14px;">🔽 إظهار رقم العرض والسعر في المعاينة</label>
+        <input type="checkbox" id="s-showNumber" ${showNumber ? 'checked' : ''}>
+      </div>
       <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
         <label style="font-weight:700;font-size:14px;">🔽 إظهار الإجمالي في المعاينة</label>
         <input type="checkbox" id="s-showTotal" ${showTotal ? 'checked' : ''}>
@@ -1580,11 +1833,27 @@
       });
       fixedValues.taxPercent = Number(fixedValues.taxPercent) || 15;
 
-      // جمع الملاحظات من الواجهة
       const noteInputs = document.querySelectorAll('.note-text');
       const fixedNotes = Array.from(noteInputs).map(input => input.value.trim()).filter(n => n);
 
       const showTotal = document.getElementById('s-showTotal').checked;
+      const showNumber = document.getElementById('s-showNumber').checked;
+
+      const docLabels = {};
+      const typeKeys = ['concrete', 'interlock', 'block', 'general', 'claim', 'precast'];
+      const labelKeys = ['clientSection', 'detailsSection', 'itemsSection', 'fieldDate', 'fieldCustomer', 'fieldContact',
+        'fieldTaxNumber', 'fieldPayment', 'fieldLocation', 'fieldProject', 'fieldMaterial', 'fieldTaxPercent',
+        'fieldWorkDesc', 'fieldPreparedBy', 'fieldLocation2', 'colItem', 'colUnit', 'colQty', 'colPrice',
+        'colPriceWithTax', 'colTax', 'colTotal'
+      ];
+
+      typeKeys.forEach(typeKey => {
+        docLabels[typeKey] = {};
+        labelKeys.forEach(labelKey => {
+          const input = document.querySelector(`.label-input[data-type="${typeKey}"][data-key="${labelKey}"]`);
+          docLabels[typeKey][labelKey] = input ? input.value : '';
+        });
+      });
 
       const newSettings = {
         ...SETTINGS,
@@ -1602,18 +1871,20 @@
         accountNumber: document.getElementById('s-accountNumber').value,
         iban: document.getElementById('s-iban').value,
         year: document.getElementById('s-year').value,
-        nextNumber: Number(document.getElementById('s-nextNumber').value),
+        startNumber: Number(document.getElementById('s-startNumber').value) || 1,
+        nextNumber: Number(document.getElementById('s-nextNumber').value) || 1,
         fixedNotes: fixedNotes,
         fixedFields: fixedFields,
         fixedValues: fixedValues,
-        showTotal: showTotal
+        showTotal: showTotal,
+        showNumber: showNumber,
+        docLabels: docLabels
       };
       
       await saveSettings(newSettings);
       toast('✅ تم حفظ جميع الإعدادات');
     });
 
-    // إضافة ملاحظة جديدة
     document.getElementById('add-note-btn').addEventListener('click', () => {
       const container = document.getElementById('notes-list-container');
       const newNote = document.createElement('div');
@@ -1624,7 +1895,6 @@
       `;
       container.insertBefore(newNote, container.querySelector('.add-note-btn'));
       
-      // إضافة حدث الحذف للملاحظة الجديدة
       newNote.querySelector('.remove-note-btn').addEventListener('click', function() {
         const item = this.closest('.note-item');
         if (document.querySelectorAll('.note-item').length > 1) {
@@ -1634,11 +1904,9 @@
         }
       });
       
-      // التركيز على الحقل الجديد
       newNote.querySelector('.note-text').focus();
     });
 
-    // إضافة أحداث الحذف للملاحظات الموجودة
     document.querySelectorAll('.remove-note-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         const item = this.closest('.note-item');
