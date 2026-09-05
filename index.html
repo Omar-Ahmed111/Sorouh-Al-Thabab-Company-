@@ -90,6 +90,10 @@
     .btn-toggle-total:hover { background: var(--navy-2); }
     .btn-toggle-total.showing { background: var(--orange); }
     .btn-toggle-total.showing:hover { background: var(--orange-2); }
+    .btn-toggle-number { background: var(--navy); color: #fff; padding: 11px 20px; border-radius: 9px; font-weight: 800; font-size: 14.5px; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-toggle-number:hover { background: var(--navy-2); }
+    .btn-toggle-number.showing { background: var(--orange); }
+    .btn-toggle-number.showing:hover { background: var(--orange-2); }
 
     .actions-bar { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
 
@@ -328,11 +332,28 @@
       preparedBy: '',
       location2: ''
     },
-    showTotal: true
+    showTotal: true,
+    // تخزين الملاحظات الثابتة لكل نوع
+    typeFixedNotes: {
+      concrete: '🔔 عرض سعر الخرسانة الجاهزة ساري لمدة أسبوع.\nيرجى التأكد من تجهيز الموقع.',
+      interlock: '🔔 عرض سعر الإنتر لوك ساري لمدة 10 أيام.\nيتم التسليم حسب الكمية المطلوبة.',
+      block: '🔔 عرض سعر البلوك ساري لمدة أسبوع.\nالأسعار تشمل التوصيل للموقع.',
+      general: '🔔 عرض سعر مواد البناء ساري لمدة أسبوع.\nالأسعار قابلة للتغيير حسب الكمية.',
+      claim: '🔔 المطالبة المالية صالحة لمدة 30 يوماً من تاريخ الإصدار.',
+      precast: '🔔 عرض سعر المواد المسبقة الصب ساري لمدة أسبوعين.\nيتم التسليم حسب الجدول الزمني المتفق عليه.'
+    }
   };
 
   function roundToTwo(num) {
-    return Math.round((num || 0) * 100) / 100;
+    const n = parseFloat(num);
+    if (isNaN(n) || !isFinite(n)) return 0;
+    return Math.round(n * 100) / 100;
+  }
+
+  function safeNumber(value) {
+    const num = parseFloat(value);
+    if (isNaN(num) || !isFinite(num)) return 0;
+    return num;
   }
 
   let SETTINGS = { ...DEFAULT_SETTINGS };
@@ -349,9 +370,13 @@
       const snapshot = await get(settingsRef);
       if (snapshot.exists()) {
         SETTINGS = { ...DEFAULT_SETTINGS, ...snapshot.val() };
+        // التأكد من وجود typeFixedNotes
+        if (!SETTINGS.typeFixedNotes) {
+          SETTINGS.typeFixedNotes = { ...DEFAULT_SETTINGS.typeFixedNotes };
+        }
       } else {
-        await set(settingsRef, DEFAULT_SETTINGS);
         SETTINGS = { ...DEFAULT_SETTINGS };
+        await set(settingsRef, SETTINGS);
       }
     } catch (error) {
       console.error('Error loading settings:', error);
@@ -381,13 +406,11 @@
         DOCS = [];
       }
       
-      // Hide loading screen after first load
       const loadingScreen = document.getElementById('loading-screen');
       if (loadingScreen) {
         loadingScreen.style.display = 'none';
       }
       
-      // Re-render if on a page that shows documents
       const hash = location.hash.replace('#/', '') || 'dashboard';
       if (hash === 'dashboard' || hash === 'archive') {
         render();
@@ -470,7 +493,8 @@
   }
 
   function money(n) {
-    return (roundToTwo(n)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const num = safeNumber(n);
+    return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
   function toast(m) {
@@ -544,7 +568,7 @@
     interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
       desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
     block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
-      kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة' },
+      kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة', isBlock: true },
     general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
       desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
     claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
@@ -620,7 +644,10 @@
       number: nextDocNumber(),
       createdAt: Date.now(),
       status: 'pending',
-      date: todayStr()
+      date: todayStr(),
+      showNumber: true,
+      showTotal: true,
+      showBank: true
     };
 
     if (t.kind === 'quote') {
@@ -647,6 +674,7 @@
         location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
         priceTerms: '',
         deliveryTerms: '',
+        notes: '',
         items: [emptyItem(t.isPrecast)],
         ...extraFields
       };
@@ -664,7 +692,14 @@
 
   function getDoc(type, id) {
     if (id === 'new') return blankDoc(type);
-    return DOCS.find(d => d.id === id) || blankDoc(type);
+    const doc = DOCS.find(d => d.id === id);
+    if (doc) {
+      if (doc.showNumber === undefined) doc.showNumber = true;
+      if (doc.showTotal === undefined) doc.showTotal = true;
+      if (doc.showBank === undefined) doc.showBank = true;
+      return doc;
+    }
+    return blankDoc(type);
   }
 
   function renderForm(type, id) {
@@ -672,15 +707,23 @@
     if (!t) return '<p>نوع غير معروف</p>';
     const doc = getDoc(type, id);
     window._currentDoc = JSON.parse(JSON.stringify(doc));
-    const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
+    const showTotal = doc.showTotal !== undefined ? doc.showTotal : true;
     const toggleBtnText = showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
     const toggleBtnClass = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
+    const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
+    const toggleNumText = showNumber ? '🔢 إخفاء رقم العرض' : '🔢 إظهار رقم العرض';
+    const toggleNumClass = showNumber ? 'btn-toggle-number showing' : 'btn-toggle-number';
+    const showBank = doc.showBank !== undefined ? doc.showBank : true;
+    const toggleBankText = showBank ? '🏦 إخفاء بيانات البنك' : '🏦 إظهار بيانات البنك';
+    const toggleBankClass = showBank ? 'btn-toggle-number showing' : 'btn-toggle-number';
     
     return `<h1 class="page-title">${t.title}</h1><p class="page-sub">رقم المستند: <b style="color:var(--orange)">${doc.number}</b> — ${id==='new'?'مستند جديد':'تعديل'}</p>
   <div class="form-wrap"><div id="form-panels">${t.kind==='quote'?quoteFormPanels(t,window._currentDoc):receiptFormPanels(window._currentDoc)}</div>
   <div><div class="panel" style="padding:14px;"><h4>معاينة حية</h4><div id="preview">${t.kind==='quote'?quotePreview(t,window._currentDoc):receiptPreview(window._currentDoc)}</div></div></div></div>
   <div class="actions-bar" style="margin-top:10px;">
     <button class="${toggleBtnClass}" id="toggle-total-btn">${toggleBtnText}</button>
+    <button class="${toggleNumClass}" id="toggle-number-btn">${toggleNumText}</button>
+    <button class="${toggleBankClass}" id="toggle-bank-btn">${toggleBankText}</button>
   </div>`;
   }
 
@@ -689,11 +732,14 @@
     const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
     
     let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
+    let priceLabel = 'سعر الوحدة قبل الضريبة';
+    let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     let sizeLabel = '';
-    let unitPriceWithoutTaxLabel = '';
-    let unitPriceWithTaxLabel = '';
+    
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
     
     if (t.isConcrete) {
       qtyLabel = 'الكمية متر مكعب';
@@ -703,7 +749,7 @@
       qtyLabel = 'الكمية';
       priceLabel = 'سعر الوحدة قبل الضريبة';
       sizeLabel = 'المقاس';
-      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+      priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     }
 
     return `<div class="panel"><h4>بيانات العميل</h4>
@@ -720,10 +766,11 @@
     <div class="field"><label>وصف الأعمال${fixedLabel('workDescription')}</label><textarea data-f="workDescription">${doc.workDescription}</textarea></div>
     <div class="field"><label>مقدم العرض${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${doc.preparedBy}"></div>
     <div class="field"><label>الموقع (تفاصيل)${fixedLabel('location2')}</label><input data-f="location2" value="${doc.location2}"></div>
-    ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}</div>
+    ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}
+    <div class="field"><label>ملاحظات إضافية</label><textarea data-f="notes">${doc.notes}</textarea></div></div>
   <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
-    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th>${t.isConcrete ? `<th style="width:110px;">${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th style="width:100px;">${unitPriceWithTaxLabel}</th>` : ''}<th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
-    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t)).join('')}</tbody></table>
+    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th><th style="width:110px;">${priceWithTaxLabel}</th><th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
+    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t, doc.taxPercent)).join('')}</tbody></table>
     <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>
   <div class="actions-bar" style="grid-column:1/-1;">
     <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
@@ -732,60 +779,53 @@
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
   }
 
-  function itemRow(it, i, t) {
-    const taxPercent = window._currentDoc ? window._currentDoc.taxPercent : 15;
+  function itemRow(it, i, t, taxPercent) {
+    const tax = safeNumber(taxPercent);
+    
+    let priceLabel = 'سعر الوحدة قبل الضريبة';
+    let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
     
     if (t.isPrecast) {
-      const qty = roundToTwo(parseFloat(it.qty) || 0);
-      const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+      const qty = safeNumber(it.qty);
+      const unitPriceWithoutTax = safeNumber(it.unitPriceWithoutTax);
+      const unitPriceWithTax = safeNumber(it.unitPriceWithTax);
       const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
+      const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+      const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
       
       return `<tr data-id="${it.id}">
         <td>${i+1}</td>
         <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
         <td><input data-if="size" value="${it.size||''}" style="text-align:center;"></td>
-        <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
-        <td><input data-if="unitPriceWithoutTax" type="text" value="${unitPriceWithoutTax}" class="item-price" style="text-align:center;"></td>
-        <td><input data-if="unitPriceWithTax" type="text" value="${unitPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
-        <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
-        <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
+        <td><input data-if="qty" type="text" value="${qty || ''}" class="item-qty" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithoutTax" type="text" value="${unitPriceWithoutTax || ''}" class="item-price" style="text-align:center;"></td>
+        <td><input data-if="unitPriceWithTax" type="text" value="${unitPriceWithTax || ''}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+        <td style="color:var(--green);font-weight:700;">${money(taxAmount)}</td>
+        <td><input data-if="totalWithTax" type="text" value="${totalWithTax || ''}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
         <td><button class="rm" data-rm="${it.id}">×</button></td>
       </tr>`;
     }
     
-    const price = roundToTwo(parseFloat(it.price) || 0);
-    const priceWithTax = roundToTwo(parseFloat(it.priceWithTax) || 0);
-    const qty = roundToTwo(parseFloat(it.qty) || 0);
-    
-    let displayPrice = price;
-    let displayPriceWithTax = priceWithTax;
-    
-    if (priceWithTax > 0 && price === 0) {
-      displayPrice = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
-      it.price = displayPrice;
-    }
-    
-    const totalBeforeTax = roundToTwo(qty * displayPrice);
-    const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-    const totalWithTax = roundToTwo(totalBeforeTax + tax);
-    
-    if (priceWithTax === 0 && price > 0) {
-      displayPriceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-      it.priceWithTax = displayPriceWithTax;
-    }
+    const qty = safeNumber(it.qty);
+    const price = safeNumber(it.price);
+    const priceWithTax = safeNumber(it.priceWithTax);
+    const totalBeforeTax = roundToTwo(qty * price);
+    const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+    const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
     
     return `<tr data-id="${it.id}">
       <td>${i+1}</td>
       <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
       <td><input data-if="unit" value="${it.unit||''}"></td>
-      <td><input data-if="qty" type="text" value="${qty}" class="item-qty" style="text-align:center;"></td>
-      <td><input data-if="price" type="text" value="${displayPrice}" class="item-price" style="text-align:center;"></td>
-      ${t.isConcrete ? `<td><input data-if="priceWithTax" type="text" value="${displayPriceWithTax}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>` : ''}
-      <td style="color:var(--green);font-weight:700;">${money(tax)}</td>
-      <td><input data-if="totalWithTax" type="text" value="${totalWithTax}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
+      <td><input data-if="qty" type="text" value="${qty || ''}" class="item-qty" style="text-align:center;"></td>
+      <td><input data-if="price" type="text" value="${price || ''}" class="item-price" style="text-align:center;"></td>
+      <td><input data-if="priceWithTax" type="text" value="${priceWithTax || ''}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+      <td style="color:var(--green);font-weight:700;">${money(taxAmount)}</td>
+      <td><input data-if="totalWithTax" type="text" value="${totalWithTax || ''}" class="item-total" style="font-weight:800;color:var(--navy);text-align:center;"></td>
       <td><button class="rm" data-rm="${it.id}">×</button></td>
     </tr>`;
   }
@@ -815,19 +855,20 @@
     let s = 0,
       v = 0;
     const t = TYPES[doc.type];
+    const tax = safeNumber(doc.taxPercent || 15);
     doc.items.forEach(it => {
       let totalBeforeTax = 0;
       if (t.isPrecast) {
-        const qty = roundToTwo(parseFloat(it.qty) || 0);
-        const unitPriceWithoutTax = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+        const qty = safeNumber(it.qty);
+        const unitPriceWithoutTax = safeNumber(it.unitPriceWithoutTax);
         totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
       } else {
-        const price = roundToTwo(parseFloat(it.price) || 0);
-        const qty = roundToTwo(parseFloat(it.qty) || 0);
+        const price = safeNumber(it.price);
+        const qty = safeNumber(it.qty);
         totalBeforeTax = roundToTwo(qty * price);
       }
       s += totalBeforeTax;
-      v += roundToTwo(totalBeforeTax * ((doc.taxPercent || 15) / 100));
+      v += roundToTwo(totalBeforeTax * (tax / 100));
     });
     return { subtotal: roundToTwo(s), vat: roundToTwo(v), grand: roundToTwo(s + v) };
   }
@@ -835,15 +876,27 @@
   function quotePreview(t, doc) {
     const tot = computeTotals(doc);
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedNotes = SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
-    const showTotal = SETTINGS.showTotal !== undefined ? SETTINGS.showTotal : true;
+    const fixedNotes = doc.notes || SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
+    const showTotal = doc.showTotal !== undefined ? doc.showTotal : true;
     const totalHiddenClass = showTotal ? '' : 'hidden';
+    const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
+    const numberDisplay = showNumber ? doc.number : '—';
+    const showBank = doc.showBank !== undefined ? doc.showBank : true;
+    
+    // جلب الملاحظات الثابتة الخاصة بهذا النوع
+    const typeFixedNotes = SETTINGS.typeFixedNotes && SETTINGS.typeFixedNotes[t.key] 
+      ? SETTINGS.typeFixedNotes[t.key] 
+      : '';
     
     let qtyLabel = 'الكمية';
-    let priceLabel = 'سعر المتر';
-    let priceWithTaxLabel = '';
+    let priceLabel = 'سعر الوحدة قبل الضريبة';
+    let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     let sizeLabel = '';
-    let unitPriceWithTaxLabel = '';
+    
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
     
     if (t.isConcrete) {
       qtyLabel = 'الكمية متر مكعب';
@@ -853,7 +906,7 @@
       qtyLabel = 'الكمية';
       priceLabel = 'سعر الوحدة قبل الضريبة';
       sizeLabel = 'المقاس';
-      unitPriceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+      priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     }
 
     function infoLineWithGreen(k, v, fieldKey) {
@@ -863,6 +916,12 @@
     }
 
     const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
+
+    // تقسيم الملاحظات الثابتة إلى سطور منفصلة
+    const fixedNotesLines = typeFixedNotes ? typeFixedNotes.split('\n').filter(line => line.trim()) : [];
+    const fixedNotesHTML = fixedNotesLines.length > 0 
+      ? `<div class="notes-box" style="padding-bottom:6px;"><b>📝 ملاحظات:</b><br>${fixedNotesLines.map(line => `<span style="display:block;padding:2px 0;">${line}</span>`).join('')}</div>`
+      : '';
 
     return `<div class="doc-sheet">
   ${watermarkHTML}
@@ -878,7 +937,7 @@
     <div class="badge-area">
       <div class="doc-badge">
         <div class="t">رقم العرض</div>
-        <div class="big">${doc.number}</div>
+        <div class="big">${numberDisplay}</div>
       </div>
     </div>
   </div>
@@ -903,9 +962,9 @@
   </div>
   <div class="doc-table-wrap">
     <table class="doc-table">
-      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th>${t.isConcrete ? `<th>${priceWithTaxLabel}</th>` : ''}${t.isPrecast ? `<th>${unitPriceWithTaxLabel}</th>` : ''}<th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
+      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th><th>${priceWithTaxLabel}</th><th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
       <tbody>${doc.items.map((it,i)=>{
-        const taxPercent = doc.taxPercent || 15;
+        const tax = safeNumber(doc.taxPercent || 15);
         let totalBeforeTax = 0;
         let price = 0;
         let priceWithTax = 0;
@@ -913,32 +972,36 @@
         let size = '';
         
         if (t.isPrecast) {
-          qty = roundToTwo(parseFloat(it.qty) || 0);
-          price = roundToTwo(parseFloat(it.unitPriceWithoutTax) || 0);
+          qty = safeNumber(it.qty);
+          price = safeNumber(it.unitPriceWithoutTax);
           size = it.size || '—';
           totalBeforeTax = roundToTwo(qty * price);
-          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+          priceWithTax = safeNumber(it.unitPriceWithTax) || roundToTwo(price * (1 + (tax / 100)));
         } else {
-          qty = roundToTwo(parseFloat(it.qty) || 0);
-          price = roundToTwo(parseFloat(it.price) || 0);
+          qty = safeNumber(it.qty);
+          price = safeNumber(it.price);
           totalBeforeTax = roundToTwo(qty * price);
-          priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
+          priceWithTax = safeNumber(it.priceWithTax) || roundToTwo(price * (1 + (tax / 100)));
         }
-        const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-        const totalWithTax = roundToTwo(totalBeforeTax + tax);
+        const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+        const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
         
-        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td>${t.isConcrete ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}${t.isPrecast ? `<td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td>` : ''}<td>${money(tax)}</td><td>${money(totalWithTax)}</td></tr>`;
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td><td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td><td>${money(taxAmount)}</td><td>${money(totalWithTax)}</td></tr>`;
       }).join('')}</tbody>
     </table>
   </div>
   <div class="total-bar ${totalHiddenClass}"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>
   ${(t.terms&&(doc.priceTerms||doc.deliveryTerms))?`<div class="notes-box" style="margin-top:14px;"><b>شروط التنفيذ</b><ul>${doc.priceTerms?'<li>'+doc.priceTerms+'</li>':''}${doc.deliveryTerms?'<li>'+doc.deliveryTerms+'</li>':''}</ul></div>`:''}
-  ${bankBox()}
-  <div class="notes-box" style="padding-bottom:6px;">${fixedNotes}</div>
+  ${fixedNotesHTML}
+  ${showBank ? bankBox() : ''}
+  ${fixedNotes ? `<div class="notes-box" style="padding-bottom:6px;">${fixedNotes}</div>` : ''}
   ${footerBar()}</div>`;
   }
 
   function receiptPreview(doc) {
+    const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
+    const numberDisplay = showNumber ? doc.number : '—';
+    const showBank = doc.showBank !== undefined ? doc.showBank : true;
     const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
     return `<div class="doc-sheet">
   ${watermarkHTML}
@@ -954,7 +1017,7 @@
     <div class="badge-area">
       <div class="doc-badge">
         <div class="t">رقم السند</div>
-        <div class="big">${doc.number}</div>
+        <div class="big">${numberDisplay}</div>
       </div>
     </div>
   </div>
@@ -972,7 +1035,9 @@
   <div class="sign-grid">
     <div class="sg"><h5>المستلم</h5><div class="sl"><span>الاسم</span><span>${doc.receiverName||'—'}</span></div><div class="sl"><span>التاريخ</span><span>${doc.receiverDate||'—'}</span></div><div class="sl"><span>التوقيع</span><span>____________</span></div></div>
     <div class="sg"><h5>المسلّم</h5><div class="sl"><span>الاسم</span><span>${doc.payerName||'—'}</span></div><div class="sl"><span>التاريخ</span><span>${doc.payerDate||'—'}</span></div><div class="sl"><span>التوقيع</span><span>____________</span></div></div>
-  </div>${footerBar()}</div>`;
+  </div>
+  ${showBank ? bankBox() : ''}
+  ${footerBar()}</div>`;
   }
 
   function infoLine(k, v) {
@@ -1009,185 +1074,190 @@
   }
 
   function bindForm(type, id) {
-    const t = TYPES[type],
-      doc = window._currentDoc;
+    const t = TYPES[type];
+    const doc = window._currentDoc;
 
     function refreshPreview() {
       document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     }
 
-    function calculateFromPrice(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const price = roundToTwo(parseFloat(item.price) || 0);
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-      return { totalBeforeTax, tax, totalWithTax, priceWithTax };
+    // ========== حساب ثنائي الاتجاه محسن ==========
+    function calculateItem(item, taxPercent, triggeredField) {
+      const tax = safeNumber(taxPercent);
+      
+      if (t.isPrecast) {
+        let qty = safeNumber(item.qty);
+        let unitPriceWithoutTax = safeNumber(item.unitPriceWithoutTax);
+        let unitPriceWithTax = safeNumber(item.unitPriceWithTax);
+        let totalWithTax = safeNumber(item.totalWithTax);
+        
+        if (triggeredField === 'qty' || triggeredField === 'unitPriceWithoutTax') {
+          const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+          const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+          totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+          unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (tax / 100)));
+        } else if (triggeredField === 'unitPriceWithTax') {
+          if (unitPriceWithTax > 0) {
+            unitPriceWithoutTax = roundToTwo(unitPriceWithTax / (1 + (tax / 100)));
+            const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+            const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+            totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+          }
+        } else if (triggeredField === 'totalWithTax') {
+          if (totalWithTax > 0 && qty > 0) {
+            const totalBeforeTax = roundToTwo(totalWithTax / (1 + (tax / 100)));
+            unitPriceWithoutTax = roundToTwo(totalBeforeTax / qty);
+            unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (tax / 100)));
+          }
+        }
+        
+        item.qty = qty;
+        item.unitPriceWithoutTax = unitPriceWithoutTax;
+        item.unitPriceWithTax = unitPriceWithTax;
+        item.totalWithTax = totalWithTax;
+        
+        return { unitPriceWithoutTax, unitPriceWithTax, totalWithTax };
+      } else {
+        let qty = safeNumber(item.qty);
+        let price = safeNumber(item.price);
+        let priceWithTax = safeNumber(item.priceWithTax);
+        let totalWithTax = safeNumber(item.totalWithTax);
+        
+        if (triggeredField === 'qty' || triggeredField === 'price') {
+          const totalBeforeTax = roundToTwo(qty * price);
+          const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+          totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+          priceWithTax = roundToTwo(price * (1 + (tax / 100)));
+        } else if (triggeredField === 'priceWithTax') {
+          if (priceWithTax > 0) {
+            price = roundToTwo(priceWithTax / (1 + (tax / 100)));
+            const totalBeforeTax = roundToTwo(qty * price);
+            const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+            totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+          }
+        } else if (triggeredField === 'totalWithTax') {
+          if (totalWithTax > 0 && qty > 0) {
+            const totalBeforeTax = roundToTwo(totalWithTax / (1 + (tax / 100)));
+            price = roundToTwo(totalBeforeTax / qty);
+            priceWithTax = roundToTwo(price * (1 + (tax / 100)));
+          }
+        }
+        
+        item.qty = qty;
+        item.price = price;
+        item.priceWithTax = priceWithTax;
+        item.totalWithTax = totalWithTax;
+        
+        return { price, priceWithTax, totalWithTax };
+      }
     }
 
-    function calculateFromPriceWithTax(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const priceWithTax = roundToTwo(parseFloat(item.priceWithTax) || 0);
-      if (qty === 0) return { price: 0, totalBeforeTax: 0, tax: 0, totalWithTax: 0 };
-      const price = roundToTwo(priceWithTax / (1 + (taxPercent / 100)));
-      const totalBeforeTax = roundToTwo(qty * price);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      return { price, totalBeforeTax, tax, totalWithTax };
+    // ========== تحديث حقول الصف مع الحفاظ على التركيز ==========
+    function updateRowFields(tr, item) {
+      if (t.isPrecast) {
+        const qtyInput = tr.querySelector('[data-if="qty"]');
+        const priceInput = tr.querySelector('[data-if="unitPriceWithoutTax"]');
+        const priceWithTaxInput = tr.querySelector('[data-if="unitPriceWithTax"]');
+        const totalInput = tr.querySelector('[data-if="totalWithTax"]');
+        const taxCells = tr.querySelectorAll('td');
+        const taxCell = taxCells[6];
+        
+        if (qtyInput && document.activeElement !== qtyInput) qtyInput.value = item.qty || '';
+        if (priceInput && document.activeElement !== priceInput) priceInput.value = item.unitPriceWithoutTax || '';
+        if (priceWithTaxInput && document.activeElement !== priceWithTaxInput) priceWithTaxInput.value = item.unitPriceWithTax || '';
+        if (totalInput && document.activeElement !== totalInput) totalInput.value = item.totalWithTax || '';
+        if (taxCell) {
+          const totalBeforeTax = roundToTwo(item.qty * item.unitPriceWithoutTax);
+          const taxAmount = roundToTwo(totalBeforeTax * (safeNumber(doc.taxPercent) / 100));
+          taxCell.textContent = money(taxAmount);
+        }
+      } else {
+        const qtyInput = tr.querySelector('[data-if="qty"]');
+        const priceInput = tr.querySelector('[data-if="price"]');
+        const priceWithTaxInput = tr.querySelector('[data-if="priceWithTax"]');
+        const totalInput = tr.querySelector('[data-if="totalWithTax"]');
+        const taxCells = tr.querySelectorAll('td');
+        const taxCell = taxCells[6];
+        
+        if (qtyInput && document.activeElement !== qtyInput) qtyInput.value = item.qty || '';
+        if (priceInput && document.activeElement !== priceInput) priceInput.value = item.price || '';
+        if (priceWithTaxInput && document.activeElement !== priceWithTaxInput) priceWithTaxInput.value = item.priceWithTax || '';
+        if (totalInput && document.activeElement !== totalInput) totalInput.value = item.totalWithTax || '';
+        if (taxCell) {
+          const totalBeforeTax = roundToTwo(item.qty * item.price);
+          const taxAmount = roundToTwo(totalBeforeTax * (safeNumber(doc.taxPercent) / 100));
+          taxCell.textContent = money(taxAmount);
+        }
+      }
     }
 
-    function calculatePrecast(item, taxPercent) {
-      const qty = roundToTwo(parseFloat(item.qty) || 0);
-      const unitPriceWithoutTax = roundToTwo(parseFloat(item.unitPriceWithoutTax) || 0);
-      const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
-      const tax = roundToTwo(totalBeforeTax * (taxPercent / 100));
-      const totalWithTax = roundToTwo(totalBeforeTax + tax);
-      const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
-      return { totalBeforeTax, tax, totalWithTax, unitPriceWithTax };
-    }
-
-    document.getElementById('form-panels').addEventListener('input', e => {
+    // ========== معالج الإدخال المحسّن ==========
+    document.getElementById('form-panels').addEventListener('input', function(e) {
       const f = e.target.dataset.f;
       if (f) {
         doc[f] = e.target.value;
         refreshPreview();
         return;
       }
+      
       const ifld = e.target.dataset.if;
       if (ifld) {
-        const tr = e.target.closest('tr'),
-          itemId = tr.dataset.id,
-          item = doc.items.find(x => x.id === itemId);
+        const tr = e.target.closest('tr');
+        if (!tr) return;
+        const itemId = tr.dataset.id;
+        const item = doc.items.find(x => x.id === itemId);
+        if (!item) return;
         
-        let newVal = e.target.value;
-        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || ifld === 'totalWithTax' || ifld === 'unitPriceWithoutTax' || ifld === 'unitPriceWithTax') {
-          newVal = parseFloat(newVal) || 0;
-        }
-        item[ifld] = newVal;
-
-        const taxPercent = doc.taxPercent || 15;
-
-        if (t.isPrecast) {
-          if (ifld === 'unitPriceWithoutTax' || ifld === 'qty') {
-            const result = calculatePrecast(item, taxPercent);
-            item.totalWithTax = result.totalWithTax;
-            item.unitPriceWithTax = result.unitPriceWithTax;
-            const totalInput = tr.querySelector('.item-total');
-            if (totalInput) totalInput.value = result.totalWithTax;
-            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-            if (priceWithTaxInput) priceWithTaxInput.value = result.unitPriceWithTax;
-            const taxCell = tr.querySelectorAll('td')[6];
-            if (taxCell) taxCell.textContent = money(result.tax);
-          }
-          if (ifld === 'unitPriceWithTax') {
-            const unitPriceWithTax = roundToTwo(parseFloat(item.unitPriceWithTax) || 0);
-            const qty = roundToTwo(parseFloat(item.qty) || 1);
-            if (qty > 0) {
-              const unitPriceWithoutTax = roundToTwo(unitPriceWithTax / (1 + (taxPercent / 100)));
-              item.unitPriceWithoutTax = unitPriceWithoutTax;
-              const priceInput = tr.querySelector('.item-price');
-              if (priceInput) priceInput.value = unitPriceWithoutTax;
-              const result = calculatePrecast(item, taxPercent);
-              item.totalWithTax = result.totalWithTax;
-              const totalInput = tr.querySelector('.item-total');
-              if (totalInput) totalInput.value = result.totalWithTax;
-              const taxCell = tr.querySelectorAll('td')[6];
-              if (taxCell) taxCell.textContent = money(result.tax);
-            }
-          }
-          if (ifld === 'totalWithTax') {
-            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
-            const qty = roundToTwo(parseFloat(item.qty) || 1);
-            if (qty > 0) {
-              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
-              const unitPriceWithoutTax = roundToTwo(totalBeforeTax / qty);
-              const unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (taxPercent / 100)));
-              item.unitPriceWithoutTax = unitPriceWithoutTax;
-              item.unitPriceWithTax = unitPriceWithTax;
-              const priceInput = tr.querySelector('.item-price');
-              if (priceInput) priceInput.value = unitPriceWithoutTax;
-              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-              if (priceWithTaxInput) priceWithTaxInput.value = unitPriceWithTax;
-              const tax = roundToTwo(totalWithTax - totalBeforeTax);
-              const taxCell = tr.querySelectorAll('td')[6];
-              if (taxCell) taxCell.textContent = money(tax);
+        let val = e.target.value;
+        
+        if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || 
+            ifld === 'totalWithTax' || ifld === 'unitPriceWithoutTax' || 
+            ifld === 'unitPriceWithTax') {
+          if (val === '') {
+            item[ifld] = '';
+          } else {
+            const num = parseFloat(val);
+            if (!isNaN(num) && isFinite(num)) {
+              item[ifld] = num;
+            } else {
+              item[ifld] = val;
             }
           }
         } else {
-          if (ifld === 'price') {
-            const result = calculateFromPrice(item, taxPercent);
-            item.priceWithTax = result.priceWithTax;
-            item.totalWithTax = result.totalWithTax;
-            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-            const totalInput = tr.querySelector('.item-total');
-            if (totalInput) totalInput.value = result.totalWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-            if (taxCell) taxCell.textContent = money(result.tax);
-          }
-
-          if (ifld === 'priceWithTax') {
-            const result = calculateFromPriceWithTax(item, taxPercent);
-            item.price = result.price;
-            item.totalWithTax = result.totalWithTax;
-            const priceInput = tr.querySelector('.item-price');
-            if (priceInput) priceInput.value = result.price;
-            const totalInput = tr.querySelector('.item-total');
-            if (totalInput) totalInput.value = result.totalWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-            if (taxCell) taxCell.textContent = money(result.tax);
-          }
-
-          if (ifld === 'qty') {
-            const qty = roundToTwo(parseFloat(item.qty) || 0);
-            const price = roundToTwo(parseFloat(item.price) || 0);
-            const result = calculateFromPrice(item, taxPercent);
-            item.totalWithTax = result.totalWithTax;
-            item.priceWithTax = result.priceWithTax;
-            const totalInput = tr.querySelector('.item-total');
-            if (totalInput) totalInput.value = result.totalWithTax;
-            const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-            if (priceWithTaxInput) priceWithTaxInput.value = result.priceWithTax;
-            const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-            if (taxCell) taxCell.textContent = money(result.tax);
-          }
-
-          if (ifld === 'totalWithTax') {
-            const totalWithTax = roundToTwo(parseFloat(item.totalWithTax) || 0);
-            const qty = roundToTwo(parseFloat(item.qty) || 1);
-            if (qty > 0) {
-              const totalBeforeTax = roundToTwo(totalWithTax / (1 + (taxPercent / 100)));
-              const price = roundToTwo(totalBeforeTax / qty);
-              const priceWithTax = roundToTwo(price * (1 + (taxPercent / 100)));
-              item.price = price;
-              item.priceWithTax = priceWithTax;
-              const priceInput = tr.querySelector('.item-price');
-              if (priceInput) priceInput.value = price;
-              const priceWithTaxInput = tr.querySelector('.item-price-with-tax');
-              if (priceWithTaxInput) priceWithTaxInput.value = priceWithTax;
-              const tax = roundToTwo(totalWithTax - totalBeforeTax);
-              const taxCell = tr.querySelectorAll('td')[t.isConcrete ? 6 : 5];
-              if (taxCell) taxCell.textContent = money(tax);
+          item[ifld] = val;
+        }
+        
+        const taxPercent = safeNumber(doc.taxPercent || 15);
+        const triggeredField = ifld;
+        
+        if (['qty', 'price', 'priceWithTax', 'totalWithTax', 'unitPriceWithoutTax', 'unitPriceWithTax'].includes(ifld)) {
+          const currentVal = item[ifld];
+          if (currentVal !== '' && currentVal !== null && currentVal !== undefined) {
+            const numVal = parseFloat(currentVal);
+            if (!isNaN(numVal) && isFinite(numVal)) {
+              item[ifld] = numVal;
+              calculateItem(item, taxPercent, triggeredField);
             }
           }
         }
-
+        
+        updateRowFields(tr, item);
         refreshPreview();
       }
     });
 
+    // ========== معالج النقر على الأزرار ==========
     document.getElementById('form-panels').addEventListener('click', async e => {
       if (e.target.id === 'add-row') {
         doc.items.push(emptyItem(t.isPrecast));
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
         refreshPreview();
       }
       const rmId = e.target.dataset.rm;
       if (rmId) {
         doc.items = doc.items.filter(x => x.id !== rmId);
         if (!doc.items.length) doc.items.push(emptyItem(t.isPrecast));
-        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t)).join('');
+        document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
         refreshPreview();
       }
       if (e.target.id === 'save-doc') {
@@ -1242,19 +1312,56 @@
       }
     });
 
-    // زر إظهار/إخفاء الإجمالي
+    // ========== أزرار التحكم ==========
     const toggleBtn = document.getElementById('toggle-total-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', async function() {
-        SETTINGS.showTotal = !SETTINGS.showTotal;
-        await saveSettings(SETTINGS);
-        const showTotal = SETTINGS.showTotal;
-        this.textContent = showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
-        this.className = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
+        doc.showTotal = !doc.showTotal;
+        await saveDoc(doc);
+        this.textContent = doc.showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
+        this.className = doc.showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
         refreshPreview();
-        toast(showTotal ? '✅ تم إظهار الإجمالي' : '✅ تم إخفاء الإجمالي');
+        toast(doc.showTotal ? '✅ تم إظهار الإجمالي' : '✅ تم إخفاء الإجمالي');
       });
     }
+
+    const toggleNumBtn = document.getElementById('toggle-number-btn');
+    if (toggleNumBtn) {
+      toggleNumBtn.addEventListener('click', async function() {
+        doc.showNumber = !doc.showNumber;
+        await saveDoc(doc);
+        this.textContent = doc.showNumber ? '🔢 إخفاء رقم العرض' : '🔢 إظهار رقم العرض';
+        this.className = doc.showNumber ? 'btn-toggle-number showing' : 'btn-toggle-number';
+        refreshPreview();
+        toast(doc.showNumber ? '✅ تم إظهار الرقم' : '✅ تم إخفاء الرقم');
+      });
+    }
+
+    const toggleBankBtn = document.getElementById('toggle-bank-btn');
+    if (toggleBankBtn) {
+      toggleBankBtn.addEventListener('click', async function() {
+        doc.showBank = !doc.showBank;
+        await saveDoc(doc);
+        this.textContent = doc.showBank ? '🏦 إخفاء بيانات البنك' : '🏦 إظهار بيانات البنك';
+        this.className = doc.showBank ? 'btn-toggle-number showing' : 'btn-toggle-number';
+        refreshPreview();
+        toast(doc.showBank ? '✅ تم إظهار البنك' : '✅ تم إخفاء البنك');
+      });
+    }
+
+    // ========== تحديث عند تغيير الضريبة ==========
+    document.querySelector('[data-f="taxPercent"]')?.addEventListener('change', function() {
+      doc.taxPercent = safeNumber(this.value);
+      doc.items.forEach(item => {
+        if (t.isPrecast) {
+          calculateItem(item, doc.taxPercent, 'unitPriceWithoutTax');
+        } else {
+          calculateItem(item, doc.taxPercent, 'price');
+        }
+      });
+      document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
+      refreshPreview();
+    });
   }
 
   async function persistDoc(doc) {
@@ -1411,6 +1518,7 @@
     const fixedVals = s.fixedValues || DEFAULT_SETTINGS.fixedValues;
     const fixedNotes = s.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
     const showTotal = s.showTotal !== undefined ? s.showTotal : true;
+    const typeFixedNotes = s.typeFixedNotes || {};
 
     function fixedCheckbox(fieldKey, label) {
       const checked = fixedFields[fieldKey] === true ? 'checked' : '';
@@ -1426,6 +1534,21 @@
       return `<div class="field"><label style="color:var(--green);">${label}</label>
         <input id="fv-${fieldKey}" type="${type}" value="${val}" placeholder="أدخل القيمة الثابتة..."></div>`;
     }
+
+    // إنشاء حقول الملاحظات الثابتة لكل نوع
+    let typeNotesHTML = '';
+    Object.keys(TYPES).forEach(key => {
+      const t = TYPES[key];
+      if (t.kind === 'quote') {
+        const noteValue = typeFixedNotes[key] || '';
+        typeNotesHTML += `
+          <div style="margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px;">
+            <label style="font-weight:700;font-size:13px;color:var(--navy);">${t.icon} ${t.title}</label>
+            <textarea id="type-note-${key}" rows="2" style="width:100%;margin-top:5px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fbfcfe;color:var(--text);">${noteValue}</textarea>
+          </div>
+        `;
+      }
+    });
 
     return `<h1 class="page-title">⚙️ الإعدادات</h1><p class="page-sub">تحكم في جميع بيانات الشركة واختر الحقول الثابتة التي تظهر باللون الأخضر</p>
   <div class="settings-grid">
@@ -1452,10 +1575,14 @@
       <div class="field"><label>السنة</label><input id="s-year" value="${s.year}"></div>
       <div class="field"><label>الرقم التالي</label><input id="s-nextNumber" type="number" value="${s.nextNumber}"></div>
     </div>
-    <div class="panel" style="grid-column:1/-1;"><h4>📝 الملاحظات الثابتة</h4>
-      <div class="field"><label>نص الملاحظة الثابتة</label>
+    <div class="panel" style="grid-column:1/-1;"><h4>📝 الملاحظات الثابتة العامة</h4>
+      <div class="field"><label>نص الملاحظة الثابتة (تظهر في جميع العروض)</label>
         <textarea id="s-fixedNotes" rows="3" style="width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;font-size:14px;background:#fbfcfe;color:var(--text);">${fixedNotes}</textarea>
       </div>
+    </div>
+    <div class="panel" style="grid-column:1/-1;"><h4>📝 ملاحظات ثابتة خاصة بكل نوع عرض</h4>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">كل نوع عرض له ملاحظاته الثابتة المستقلة التي تظهر تحت شروط التنفيذ</p>
+      ${typeNotesHTML}
     </div>
     <div class="panel" style="grid-column:1/-1;"><h4>🟢 الحقول الثابتة</h4>
       <p style="font-size:13px;color:var(--muted);margin-bottom:12px;">حدد الحقول التي تريد أن تكون ثابتة واملأ قيمها</p>
@@ -1490,7 +1617,7 @@
       </div>
     </div>
   </div>
-  <div class="actions-bar"><button class="btn-primary" id="save-settings">💾 حفظ الإعدادات</button></div>`;
+  <div class="actions-bar"><button class="btn-primary" id="save-settings">💾 حفظ جميع الإعدادات</button></div>`;
   }
 
   function bindSettings() {
@@ -1514,6 +1641,16 @@
       const fixedNotes = document.getElementById('s-fixedNotes').value;
       const showTotal = document.getElementById('s-showTotal').checked;
 
+      // جمع الملاحظات الثابتة لكل نوع
+      const typeFixedNotes = {};
+      Object.keys(TYPES).forEach(key => {
+        const t = TYPES[key];
+        if (t.kind === 'quote') {
+          const noteInput = document.getElementById('type-note-' + key);
+          typeFixedNotes[key] = noteInput ? noteInput.value : '';
+        }
+      });
+
       const newSettings = {
         ...SETTINGS,
         companyLine1: document.getElementById('s-companyLine1').value,
@@ -1534,7 +1671,8 @@
         fixedNotes: fixedNotes,
         fixedFields: fixedFields,
         fixedValues: fixedValues,
-        showTotal: showTotal
+        showTotal: showTotal,
+        typeFixedNotes: typeFixedNotes
       };
       
       await saveSettings(newSettings);
