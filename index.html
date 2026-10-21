@@ -249,166 +249,6 @@
       .doc-sheet { box-shadow: none; border: none; max-width: 100%; }
       @page { size: A4; margin: 8mm; }
     }
-
-    /* ============================================
-       🧮 CALCULATOR — Pro Edition (Light & Fast)
-       ============================================ */
-    #calc-fab {
-      position: fixed;
-      bottom: 22px;
-      left: 22px;
-      width: 58px;
-      height: 58px;
-      border-radius: 50%;
-      background: #fff;
-      border: 2px solid #F97316;
-      cursor: pointer;
-      z-index: 9998;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform .2s, box-shadow .2s, background .2s;
-      box-shadow: 0 4px 14px rgba(11,31,77,.3);
-      padding: 0;
-      overflow: hidden;
-      font-family: 'Tajawal', sans-serif;
-    }
-    #calc-fab img {
-      width: 75%;
-      height: 75%;
-      object-fit: contain;
-      display: block;
-      pointer-events: none;
-      transition: filter .2s;
-    }
-    #calc-fab:hover {
-      transform: translateY(-3px) scale(1.05);
-      box-shadow: 0 8px 22px rgba(249,115,22,.45);
-      background: #F97316;
-    }
-    #calc-fab:hover img {
-      filter: brightness(0) invert(1);
-    }
-    #calc-fab:active { transform: scale(.95); }
-    #calc-fab.active {
-      background: linear-gradient(135deg, #F97316, #fb8c3c);
-      transform: rotate(90deg);
-    }
-    #calc-fab.active img { display: none; }
-    #calc-fab .calc-close-icon {
-      display: none;
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-      line-height: 1;
-    }
-    #calc-fab.active .calc-close-icon { display: block; }
-
-    #calc-panel {
-      position: fixed; bottom: 92px; left: 22px; width: 300px;
-      background: #fff; border: 1px solid #E3E7EE; border-radius: 16px;
-      box-shadow: 0 16px 40px rgba(11,31,77,.22); z-index: 9999;
-      font-family: 'Tajawal', sans-serif; overflow: hidden;
-      opacity: 0; transform: translateY(16px) scale(.96); pointer-events: none;
-      transition: opacity .2s, transform .2s; will-change: transform, opacity;
-    }
-    #calc-panel.open { opacity: 1; transform: translateY(0) scale(1); pointer-events: auto; }
-
-    .calc-header {
-      background: linear-gradient(135deg, #0B1F4D, #132a63); color: #fff;
-      padding: 11px 14px; display: flex; align-items: center; justify-content: space-between;
-      cursor: move; user-select: none;
-    }
-    .calc-header .title { font-size: 14px; font-weight: 900; display: flex; align-items: center; gap: 7px; letter-spacing: .3px; }
-    .calc-header .title::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: #F97316; box-shadow: 0 0 8px #F97316; }
-    .calc-header .close-btn {
-      background: rgba(255,255,255,.14); color: #fff; width: 26px; height: 26px;
-      border-radius: 7px; font-size: 13px; display: flex; align-items: center;
-      justify-content: center; transition: background .15s, transform .25s;
-      border: none; cursor: pointer; font-family: 'Tajawal', sans-serif;
-    }
-    .calc-header .close-btn:hover { background: #F97316; transform: rotate(90deg); }
-
-    .calc-display {
-      padding: 18px; background: #fafbfd; border-bottom: 2px solid #E3E7EE;
-      text-align: left; direction: ltr; min-height: 78px;
-      display: flex; flex-direction: column; justify-content: center;
-    }
-    .calc-display .expr {
-      font-size: 13px; color: #7A8296; min-height: 17px; font-weight: 500;
-      word-break: break-all; font-family: 'Courier New', monospace; letter-spacing: .3px;
-    }
-    .calc-display .result {
-      font-size: 30px; font-weight: 900; color: #0B1F4D; word-break: break-all;
-      line-height: 1.1; margin-top: 2px; font-family: 'Courier New', monospace; letter-spacing: -.3px;
-    }
-
-    .calc-keys { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 10px; background: #fff; }
-    .calc-keys button {
-      position: relative; padding: 14px 0; border-radius: 11px; font-size: 18px;
-      font-weight: 800; background: #f5f7fb; color: #1C2333;
-      transition: background .12s, transform .12s, color .12s;
-      border: 1px solid transparent; cursor: pointer; font-family: 'Tajawal', sans-serif; user-select: none;
-    }
-    .calc-keys button:hover { background: #e9edf7; transform: translateY(-1px); }
-    .calc-keys button:active { transform: scale(.95); background: #dde4f0; }
-    .calc-keys .op { background: #eef1f8; color: #0B1F4D; font-weight: 900; }
-    .calc-keys .op:hover { background: #0B1F4D; color: #fff; }
-    .calc-keys .eq { background: #F97316; color: #fff; font-weight: 900; box-shadow: 0 3px 10px rgba(249,115,22,.3); }
-    .calc-keys .eq:hover { background: #fb8c3c; box-shadow: 0 5px 14px rgba(249,115,22,.45); }
-    .calc-keys .eq:active { background: #e06512; }
-    .calc-keys .clear { color: #E0433A; background: #fdf3f2; font-weight: 900; }
-    .calc-keys .clear:hover { background: #E0433A; color: #fff; }
-    .calc-keys .clear:active { background: #c9332b; }
-
-    .calc-tax-bar { display: flex; gap: 6px; padding: 0 10px 10px; background: #fff; }
-    .calc-tax-bar .tax-btn {
-      flex: 1; padding: 13px 0; border-radius: 11px; font-size: 14px; font-weight: 900;
-      background: linear-gradient(135deg, #1E9E5A, #17834a); color: #fff; cursor: pointer;
-      transition: transform .15s, box-shadow .15s; font-family: 'Tajawal', sans-serif;
-      border: none; box-shadow: 0 3px 10px rgba(30,158,90,.3); letter-spacing: .3px;
-    }
-    .calc-tax-bar .tax-btn:hover { transform: translateY(-1px); box-shadow: 0 5px 14px rgba(30,158,90,.5); }
-    .calc-tax-bar .tax-btn:active { transform: scale(.97); }
-    .calc-tax-bar .settings-btn {
-      width: 44px; height: 44px; border-radius: 11px; background: #eef1f8; color: #0B1F4D;
-      font-size: 18px; cursor: pointer; transition: background .15s, transform .25s, color .15s;
-      border: none; display: flex; align-items: center; justify-content: center;
-      font-family: 'Tajawal', sans-serif; line-height: 1;
-    }
-    .calc-tax-bar .settings-btn:hover { background: #0B1F4D; color: #fff; }
-    .calc-tax-bar .settings-btn.active { background: #F97316; color: #fff; transform: rotate(90deg); }
-
-    .calc-tax-settings {
-      display: none; align-items: center; gap: 8px; padding: 10px 14px;
-      background: #fafbfd; border-top: 1px solid #E3E7EE;
-    }
-    .calc-tax-settings.open { display: flex; }
-    .calc-tax-settings label { font-size: 13px; font-weight: 900; color: #0B1F4D; white-space: nowrap; }
-    .calc-tax-settings input {
-      flex: 1; padding: 8px 10px; border: 1.5px solid #E3E7EE; border-radius: 8px;
-      font-size: 14px; font-weight: 900; text-align: center; color: #0B1F4D;
-      background: #fff; font-family: 'Tajawal', sans-serif; direction: ltr;
-      transition: border-color .15s; min-width: 0;
-    }
-    .calc-tax-settings input:focus { outline: none; border-color: #F97316; }
-    .calc-tax-settings .unit { font-size: 15px; font-weight: 900; color: #F97316; }
-
-    #calc-toast {
-      position: absolute; bottom: 16px; left: 50%;
-      transform: translateX(-50%) translateY(20px); background: #0B1F4D; color: #fff;
-      padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 800;
-      opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none;
-      z-index: 10; white-space: nowrap; box-shadow: 0 4px 12px rgba(11,31,77,.3);
-    }
-    #calc-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-    @media (max-width: 480px) {
-      #calc-panel { width: calc(100vw - 28px); left: 14px; bottom: 84px; }
-      #calc-fab { width: 52px; height: 52px; bottom: 18px; left: 18px; }
-      .calc-display .result { font-size: 26px; }
-      .calc-keys button { padding: 12px 0; font-size: 17px; }
-    }
   </style>
 </head>
 <body>
@@ -430,322 +270,12 @@
 <div id="app"></div>
 <div id="toast"></div>
 
-<!-- ============================================
-     🧮 Calculator UI (with new logo)
-     ============================================ -->
-<button id="calc-fab" title="آلة حاسبة (Ctrl+K)" aria-label="فتح الآلة الحاسبة">
-  <img src="https://i.ibb.co/BHvtnV6m/Picsart-26-09-10-14-08-08-541.png" alt="آلة حاسبة">
-  <span class="calc-close-icon">✕</span>
-</button>
-
-<div id="calc-panel" dir="ltr" role="dialog" aria-label="آلة حاسبة">
-  <div class="calc-header" id="calc-drag-handle">
-    <span class="title">حساب</span>
-    <button class="close-btn" id="calc-close" title="إغلاق" aria-label="إغلاق">✕</button>
-  </div>
-
-  <div class="calc-display">
-    <div class="expr" id="calc-expr"></div>
-    <div class="result" id="calc-result">0</div>
-  </div>
-
-  <div class="calc-keys">
-    <button class="clear" data-key="C" aria-label="مسح الكل">C</button>
-    <button class="clear" data-key="⌫" aria-label="مسح حرف">⌫</button>
-    <button class="op" data-key="%" aria-label="نسبة مئوية">%</button>
-    <button class="op" data-key="÷" aria-label="قسمة">÷</button>
-
-    <button data-key="7">7</button>
-    <button data-key="8">8</button>
-    <button data-key="9">9</button>
-    <button class="op" data-key="×" aria-label="ضرب">×</button>
-
-    <button data-key="4">4</button>
-    <button data-key="5">5</button>
-    <button data-key="6">6</button>
-    <button class="op" data-key="-" aria-label="طرح">−</button>
-
-    <button data-key="1">1</button>
-    <button data-key="2">2</button>
-    <button data-key="3">3</button>
-    <button class="op" data-key="+" aria-label="جمع">+</button>
-
-    <button data-key="0">0</button>
-    <button data-key=".">.</button>
-    <button class="eq" data-key="=" style="grid-column: span 2;" aria-label="يساوي">=</button>
-  </div>
-
-  <div class="calc-tax-bar">
-    <button class="tax-btn" id="calc-tax-btn">💰 ضريبة 15%</button>
-    <button class="settings-btn" id="calc-tax-settings-btn" title="تعديل نسبة الضريبة" aria-label="تعديل نسبة الضريبة">⚙️</button>
-  </div>
-
-  <div class="calc-tax-settings" id="calc-tax-settings">
-    <label>النسبة:</label>
-    <input type="number" id="calc-tax-input" value="15" min="0" max="100" step="0.5">
-    <span class="unit">%</span>
-  </div>
-
-  <div id="calc-toast"></div>
-</div>
-
-<!-- ============================================
-     🧮 Calculator Logic
-     ============================================ -->
-<script>
-(function() {
-  'use strict';
-
-  const fab        = document.getElementById('calc-fab');
-  const panel      = document.getElementById('calc-panel');
-  const exprEl     = document.getElementById('calc-expr');
-  const resEl      = document.getElementById('calc-result');
-  const handle     = document.getElementById('calc-drag-handle');
-  const taxBtn     = document.getElementById('calc-tax-btn');
-  const taxSetBtn  = document.getElementById('calc-tax-settings-btn');
-  const taxSetBox  = document.getElementById('calc-tax-settings');
-  const taxInput   = document.getElementById('calc-tax-input');
-  const toastEl    = document.getElementById('calc-toast');
-
-  let current  = '0';
-  let previous = null;
-  let operator = null;
-  let justEval = false;
-  let taxRate  = 15;
-
-  let toastTimer;
-  function showToast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toastEl.classList.remove('show'), 1400);
-  }
-
-  function openCalc() {
-    panel.classList.add('open');
-    fab.classList.add('active');
-  }
-  function closeCalc() {
-    panel.classList.remove('open');
-    fab.classList.remove('active');
-    taxSetBox.classList.remove('open');
-    taxSetBtn.classList.remove('active');
-  }
-  function toggleCalc() {
-    if (panel.classList.contains('open')) closeCalc(); else openCalc();
-  }
-
-  fab.addEventListener('click', toggleCalc);
-  document.getElementById('calc-close').addEventListener('click', closeCalc);
-
-  document.addEventListener('keydown', (e) => {
-    if (e.ctrlKey && e.key.toLowerCase() === 'k') {
-      e.preventDefault();
-      toggleCalc();
-      return;
-    }
-    if (e.key === 'Escape' && panel.classList.contains('open')) {
-      if (taxSetBox.classList.contains('open')) {
-        taxSetBox.classList.remove('open');
-        taxSetBtn.classList.remove('active');
-      } else {
-        closeCalc();
-      }
-    }
-  });
-
-  // === السحب ===
-  let isDragging = false, dragX = 0, dragY = 0, panelX = 0, panelY = 0;
-
-  function startDrag(clientX, clientY) {
-    const r = panel.getBoundingClientRect();
-    isDragging = true;
-    dragX = clientX; dragY = clientY;
-    panelX = r.left; panelY = r.top;
-    panel.style.transition = 'none';
-    panel.style.left = panelX + 'px';
-    panel.style.top  = panelY + 'px';
-    panel.style.bottom = 'auto';
-    panel.style.transform = 'none';
-  }
-  function doDrag(clientX, clientY) {
-    if (!isDragging) return;
-    panel.style.left = (panelX + clientX - dragX) + 'px';
-    panel.style.top  = (panelY + clientY - dragY) + 'px';
-  }
-  function stopDrag() {
-    if (!isDragging) return;
-    isDragging = false;
-    panel.style.transition = '';
-  }
-
-  handle.addEventListener('mousedown', (e) => {
-    if (e.target.closest('button')) return;
-    e.preventDefault();
-    startDrag(e.clientX, e.clientY);
-    document.body.style.userSelect = 'none';
-  });
-  document.addEventListener('mousemove', (e) => doDrag(e.clientX, e.clientY));
-  document.addEventListener('mouseup', () => { stopDrag(); document.body.style.userSelect = ''; });
-
-  handle.addEventListener('touchstart', (e) => {
-    if (e.target.closest('button')) return;
-    const t = e.touches[0];
-    startDrag(t.clientX, t.clientY);
-  }, { passive: true });
-  document.addEventListener('touchmove', (e) => {
-    if (!isDragging) return;
-    const t = e.touches[0];
-    doDrag(t.clientX, t.clientY);
-  }, { passive: true });
-  document.addEventListener('touchend', stopDrag);
-
-  // === أدوات ===
-  function safeEval(expr) {
-    if (!/^[\d+\-×÷%.() ]+$/.test(expr)) return NaN;
-    try {
-      const val = Function('"use strict"; return (' + expr.replace(/×/g,'*').replace(/÷/g,'/') + ')')();
-      return (typeof val === 'number' && isFinite(val)) ? val : NaN;
-    } catch { return NaN; }
-  }
-  function fmt(n) {
-    if (!isFinite(n)) return 'خطأ';
-    return (Math.round(n * 1e10) / 1e10).toString();
-  }
-  function updateDisplay() {
-    resEl.textContent  = current;
-    exprEl.textContent = (previous !== null && operator) ? previous + ' ' + operator : '';
-  }
-
-  function inputDigit(d) {
-    if (justEval) { current = '0'; justEval = false; }
-    if (d === '.' && current.includes('.')) return;
-    current = (current === '0' && d !== '.') ? d : current + d;
-    updateDisplay();
-  }
-  function inputOperator(op) {
-    if (operator && previous !== null && !justEval) {
-      const r = safeEval(previous + operator + current);
-      if (isNaN(r)) { current = 'خطأ'; updateDisplay(); return; }
-      previous = fmt(r);
-      current  = previous;
-    } else {
-      previous = current;
-    }
-    operator = op;
-    justEval = false;
-    current  = '0';
-    updateDisplay();
-  }
-  function evaluate() {
-    if (!operator || previous === null) return;
-    const r = safeEval(previous + operator + current);
-    if (isNaN(r)) { current = 'خطأ'; updateDisplay(); return; }
-    current = fmt(r);
-    previous = null;
-    operator = null;
-    justEval = true;
-    updateDisplay();
-  }
-  function clearAll() {
-    current = '0'; previous = null; operator = null; justEval = false;
-    updateDisplay();
-  }
-  function backspace() {
-    if (justEval) { current = '0'; justEval = false; }
-    else current = current.length <= 1 ? '0' : current.slice(0, -1);
-    updateDisplay();
-  }
-  function percent() {
-    current = fmt((parseFloat(current) || 0) / 100);
-    updateDisplay();
-  }
-  function applyTax() {
-    const n = parseFloat(current);
-    if (isNaN(n)) return;
-    current = fmt(n * (1 + taxRate / 100));
-    justEval = true;
-    updateDisplay();
-    showToast('✅ +' + taxRate + '% → ' + current);
-  }
-
-  // === ربط الأزرار ===
-  const keysContainer = document.querySelector('.calc-keys');
-  keysContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('button[data-key]');
-    if (!btn) return;
-    const k = btn.dataset.key;
-    if (/^\d$/.test(k) || k === '.') inputDigit(k);
-    else if (['+','-','×','÷'].includes(k)) inputOperator(k);
-    else if (k === '=') evaluate();
-    else if (k === 'C') clearAll();
-    else if (k === '⌫') backspace();
-    else if (k === '%') percent();
-  });
-
-  // === الضريبة ===
-  taxBtn.addEventListener('click', applyTax);
-
-  taxSetBtn.addEventListener('click', () => {
-    taxSetBox.classList.toggle('open');
-    taxSetBtn.classList.toggle('active');
-    if (taxSetBox.classList.contains('open')) {
-      taxInput.focus();
-      taxInput.select();
-    }
-  });
-
-  function updateTaxRate() {
-    let val = parseFloat(taxInput.value);
-    if (isNaN(val) || val < 0) val = 0;
-    if (val > 100) val = 100;
-    taxRate = val;
-    taxBtn.textContent = '💰 ضريبة ' + (Number.isInteger(taxRate) ? taxRate : taxRate.toFixed(2)) + '%';
-  }
-  taxInput.addEventListener('input', updateTaxRate);
-  taxInput.addEventListener('change', () => taxInput.value = taxRate);
-  taxInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      taxSetBox.classList.remove('open');
-      taxSetBtn.classList.remove('active');
-      updateTaxRate();
-    }
-  });
-
-  // === لوحة المفاتيح ===
-  document.addEventListener('keydown', (e) => {
-    if (!panel.classList.contains('open')) return;
-    const tag = document.activeElement.tagName;
-    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
-
-    const k = e.key;
-    let action = null;
-
-    if (/^\d$/.test(k) || k === '.') action = () => inputDigit(k);
-    else if (k === '+') action = () => inputOperator('+');
-    else if (k === '-') action = () => inputOperator('-');
-    else if (k === '*') action = () => inputOperator('×');
-    else if (k === '/') action = () => inputOperator('÷');
-    else if (k === '%') action = () => percent();
-    else if (k === 'Enter' || k === '=') action = evaluate;
-    else if (k === 'Backspace') action = backspace;
-
-    if (action) { e.preventDefault(); action(); }
-  });
-
-  updateDisplay();
-  console.log('🧮 Calculator ready — Ctrl+K to toggle');
-})();
-</script>
-
-<!-- ============================================
-     📄 MAIN APP LOGIC (Firebase + Router + Render)
-     ============================================ -->
 <script type="module">
+  // Import Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, remove, child } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
+  // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAdUXus0SNdhHrhg5wDYnK4QIziElakMTw",
     authDomain: "sorouh-al-thabat-company.firebaseapp.com",
@@ -757,9 +287,11 @@
     measurementId: "G-TCC3GP1BF5"
   };
 
+  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
+  // ============================= DATA LAYER =============================
   const DEFAULT_SETTINGS = {
     companyLine1: 'صروح الثبات',
     companyLine2: 'الخرسانة الجاهزة',
@@ -801,8 +333,10 @@
       location2: ''
     },
     showTotal: true,
+    // تخزين الملاحظات الثابتة لكل نوع
     typeFixedNotes: {
       concrete: '🔔 عرض سعر الخرسانة الجاهزة ساري لمدة أسبوع.\nيرجى التأكد من تجهيز الموقع.',
+      concrete_full: '🔔 قائمة أسعار الخرسانة الجاهزة سارية لمدة أسبوع.\nالأسعار شاملة الضريبة 15% وقابلة للتغيير حسب الكمية.',
       interlock: '🔔 عرض سعر الإنتر لوك ساري لمدة 10 أيام.\nيتم التسليم حسب الكمية المطلوبة.',
       block: '🔔 عرض سعر البلوك ساري لمدة أسبوع.\nالأسعار تشمل التوصيل للموقع.',
       general: '🔔 عرض سعر مواد البناء ساري لمدة أسبوع.\nالأسعار قابلة للتغيير حسب الكمية.',
@@ -816,6 +350,7 @@
     if (isNaN(n) || !isFinite(n)) return 0;
     return Math.round(n * 100) / 100;
   }
+
   function safeNumber(value) {
     const num = parseFloat(value);
     if (isNaN(num) || !isFinite(num)) return 0;
@@ -825,16 +360,21 @@
   let SETTINGS = { ...DEFAULT_SETTINGS };
   let DOCS = [];
 
+  // Firebase references
   const settingsRef = ref(db, 'settings');
   const docsRef = ref(db, 'documents');
   const metaRef = ref(db, 'meta');
 
+  // Load settings from Firebase
   async function loadSettings() {
     try {
       const snapshot = await get(settingsRef);
       if (snapshot.exists()) {
         SETTINGS = { ...DEFAULT_SETTINGS, ...snapshot.val() };
-        if (!SETTINGS.typeFixedNotes) SETTINGS.typeFixedNotes = { ...DEFAULT_SETTINGS.typeFixedNotes };
+        // التأكد من وجود typeFixedNotes
+        if (!SETTINGS.typeFixedNotes) {
+          SETTINGS.typeFixedNotes = { ...DEFAULT_SETTINGS.typeFixedNotes };
+        }
       } else {
         SETTINGS = { ...DEFAULT_SETTINGS };
         await set(settingsRef, SETTINGS);
@@ -845,6 +385,7 @@
     }
   }
 
+  // Save settings to Firebase
   async function saveSettings(s) {
     try {
       await set(settingsRef, s);
@@ -855,6 +396,7 @@
     }
   }
 
+  // Load documents from Firebase with real-time listener
   function loadDocs() {
     onValue(docsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -864,20 +406,30 @@
       } else {
         DOCS = [];
       }
+      
       const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) loadingScreen.style.display = 'none';
+      if (loadingScreen) {
+        loadingScreen.style.display = 'none';
+      }
+      
       const hash = location.hash.replace('#/', '') || 'dashboard';
-      if (hash === 'dashboard' || hash === 'archive') render();
+      if (hash === 'dashboard' || hash === 'archive') {
+        render();
+      }
     }, (error) => {
       console.error('Error loading documents:', error);
       const loadingScreen = document.getElementById('loading-screen');
-      if (loadingScreen) loadingScreen.innerHTML = '<div style="color:red;font-weight:700;">❌ خطأ في تحميل البيانات</div>';
+      if (loadingScreen) {
+        loadingScreen.innerHTML = '<div style="color:red;font-weight:700;">❌ خطأ في تحميل البيانات</div>';
+      }
     });
   }
 
+  // Save document to Firebase
   async function saveDoc(doc) {
     try {
-      await set(ref(db, `documents/${doc.id}`), doc);
+      const docRef = ref(db, `documents/${doc.id}`);
+      await set(docRef, doc);
       return true;
     } catch (error) {
       console.error('Error saving document:', error);
@@ -886,9 +438,11 @@
     }
   }
 
+  // Delete document from Firebase
   async function deleteDoc(id) {
     try {
-      await remove(ref(db, `documents/${id}`));
+      const docRef = ref(db, `documents/${id}`);
+      await remove(docRef);
       return true;
     } catch (error) {
       console.error('Error deleting document:', error);
@@ -897,19 +451,24 @@
     }
   }
 
+  // Get next document number safely
   async function getNextDocNumber() {
     try {
       const snapshot = await get(child(metaRef, 'nextNumber'));
-      if (snapshot.exists()) return snapshot.val();
-      const startNum = SETTINGS.startNumber || 1;
-      await set(child(metaRef, 'nextNumber'), startNum);
-      return startNum;
+      if (snapshot.exists()) {
+        return snapshot.val();
+      } else {
+        const startNum = SETTINGS.startNumber || 1;
+        await set(child(metaRef, 'nextNumber'), startNum);
+        return startNum;
+      }
     } catch (error) {
       console.error('Error getting next number:', error);
       return SETTINGS.startNumber || 1;
     }
   }
 
+  // Commit document number (increment)
   async function commitDocNumber() {
     try {
       const currentNum = await getNextDocNumber();
@@ -925,8 +484,15 @@
     const n = SETTINGS.nextNumber || SETTINGS.startNumber || 1;
     return 'Q-' + SETTINGS.year + '-' + String(n).padStart(3, '0');
   }
-  function uid() { return 'd' + Date.now() + Math.random().toString(36).slice(2, 7); }
-  function todayStr() { return new Date().toLocaleDateString('en-GB'); }
+
+  function uid() {
+    return 'd' + Date.now() + Math.random().toString(36).slice(2, 7);
+  }
+
+  function todayStr() {
+    return new Date().toLocaleDateString('en-GB');
+  }
+
   function money(n) {
     const num = safeNumber(n);
     return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -943,9 +509,14 @@
   function getWhatsAppLink(doc) {
     let contactNumber = doc.contact || '';
     contactNumber = contactNumber.replace(/[\s\-\(\)]/g, '');
-    if (!contactNumber) return null;
-    if (contactNumber.startsWith('0')) contactNumber = '966' + contactNumber.substring(1);
-    else if (!contactNumber.startsWith('966')) contactNumber = '966' + contactNumber;
+    if (!contactNumber) {
+      return null;
+    }
+    if (contactNumber.startsWith('0')) {
+      contactNumber = '966' + contactNumber.substring(1);
+    } else if (!contactNumber.startsWith('966')) {
+      contactNumber = '966' + contactNumber;
+    }
     return `https://wa.me/${contactNumber}`;
   }
 
@@ -953,24 +524,28 @@
     num = Math.floor(Number(num) || 0);
     if (num === 0) return 'صفر ريال سعودي فقط لا غير';
     const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر',
-      'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+      'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'
+    ];
     const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
     const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
 
     function threeDigits(n) {
       let s = '';
-      const h = Math.floor(n / 100), r = n % 100;
+      const h = Math.floor(n / 100),
+        r = n % 100;
       if (h > 0) s += hundreds[h];
       if (r > 0) {
         if (s) s += ' و';
         if (r < 20) s += ones[r];
         else {
-          const t = Math.floor(r / 10), o = r % 10;
+          const t = Math.floor(r / 10),
+            o = r % 10;
           s += (o > 0 ? ones[o] + ' و' : '') + tens[t];
         }
       }
       return s;
     }
+
     function group(n, s, d, p) {
       if (n === 0) return '';
       if (n === 1) return s;
@@ -978,7 +553,9 @@
       if (n >= 3 && n <= 10) return threeDigits(n) + ' ' + p;
       return threeDigits(n) + ' ' + s;
     }
-    const m = Math.floor(num / 1000000), th = Math.floor((num % 1000000) / 1000), rest = num % 1000;
+    const m = Math.floor(num / 1000000),
+      th = Math.floor((num % 1000000) / 1000),
+      rest = num % 1000;
     let parts = [];
     if (m > 0) parts.push(group(m, 'مليون', 'مليونان', 'ملايين'));
     if (th > 0) parts.push(group(th, 'ألف', 'ألفان', 'آلاف'));
@@ -989,6 +566,8 @@
   const TYPES = {
     concrete: { key: 'concrete', title: 'عرض سعر خرسانة جاهزة', badge: 'خرسانة جاهزة', itemLabel: 'نوع الخرسانة', icon: '🚛',
       desc: 'خرسانة جاهزة بمقاومات وأنواع أسمنت مختلفة', kind: 'quote', isConcrete: true },
+    concrete_full: { key: 'concrete_full', title: 'عرض سعر خرسانة شامل', badge: 'خرسانة شامل', itemLabel: 'رمز الخرسانة', icon: '🚛',
+      desc: 'قائمة أسعار خرسانة (OPC / SRC) شاملة وغير شاملة الضريبة', kind: 'quote', isConcreteFull: true },
     interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
       desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
     block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
@@ -1003,6 +582,7 @@
       desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
 
+  // ============================= ROUTER =============================
   function go(r) { location.hash = r; }
   window.addEventListener('hashchange', render);
   window.addEventListener('DOMContentLoaded', async () => {
@@ -1017,12 +597,16 @@
     const parts = hash.split('/');
     document.querySelectorAll('#nav button').forEach(b => b.classList.remove('active'));
     const app = document.getElementById('app');
-    if (parts[0] === 'dashboard') { setActive('dashboard'); app.innerHTML = renderDashboard(); bindDashboard(); }
-    else if (parts[0] === 'archive') { setActive('archive'); app.innerHTML = renderArchive(); bindArchive(); }
-    else if (parts[0] === 'settings') { setActive('settings'); app.innerHTML = renderSettings(); bindSettings(); }
-    else if (parts[0] === 'form') { app.innerHTML = renderForm(parts[1], parts[2]); bindForm(parts[1], parts[2]); }
-    else if (parts[0] === 'view') { app.innerHTML = renderViewPage(parts[1]); bindViewPage(parts[1]); }
-    else { app.innerHTML = renderDashboard(); bindDashboard(); }
+    if (parts[0] === 'dashboard') { setActive('dashboard');
+      app.innerHTML = renderDashboard();
+      bindDashboard(); } else if (parts[0] === 'archive') { setActive('archive');
+      app.innerHTML = renderArchive();
+      bindArchive(); } else if (parts[0] === 'settings') { setActive('settings');
+      app.innerHTML = renderSettings();
+      bindSettings(); } else if (parts[0] === 'form') { app.innerHTML = renderForm(parts[1], parts[2]);
+      bindForm(parts[1], parts[2]); } else if (parts[0] === 'view') { app.innerHTML = renderViewPage(parts[1]);
+      bindViewPage(parts[1]); } else { app.innerHTML = renderDashboard();
+      bindDashboard(); }
     window.scrollTo(0, 0);
   }
 
@@ -1035,6 +619,7 @@
     if (b) go('#/' + b.dataset.r);
   });
 
+  // ============================= DASHBOARD =============================
   function renderDashboard() {
     const total = DOCS.length,
       quotes = DOCS.filter(d => TYPES[d.type] && TYPES[d.type].kind === 'quote').length,
@@ -1046,20 +631,37 @@
   }
 
   function bindDashboard() {
-    document.querySelectorAll('.doc-card').forEach(c => c.addEventListener('click', () => go('#/form/' + c.dataset.new + '/new')));
+    document.querySelectorAll('.doc-card').forEach(c => c.addEventListener('click', () => go('#/form/' + c.dataset.new +
+      '/new')));
   }
 
+  // ============================= FORM =============================
   function blankDoc(type) {
     const t = TYPES[type];
     const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
+
     const base = {
-      id: uid(), type, number: nextDocNumber(), createdAt: Date.now(), status: 'pending',
-      date: todayStr(), showNumber: true, showTotal: true, showBank: true
+      id: uid(),
+      type,
+      number: nextDocNumber(),
+      createdAt: Date.now(),
+      status: 'pending',
+      date: todayStr(),
+      showNumber: true,
+      showTotal: true,
+      showBank: true
     };
+
     if (t.kind === 'quote') {
       let extraFields = {};
-      if (t.isPrecast) extraFields = { size: '', unitPriceWithoutTax: 0, unitPriceWithTax: 0 };
+      if (t.isPrecast) {
+        extraFields = {
+          size: '',
+          unitPriceWithoutTax: 0,
+          unitPriceWithTax: 0
+        };
+      }
       return {
         ...base,
         customerName: '',
@@ -1073,8 +675,10 @@
         workDescription: fixedFields.workDescription ? (fixedVals.workDescription || '') : '',
         preparedBy: fixedFields.preparedBy ? (fixedVals.preparedBy || '') : '',
         location2: fixedFields.location2 ? (fixedVals.location2 || '') : '',
-        priceTerms: '', deliveryTerms: '', notes: '',
-        items: [emptyItem(t.isPrecast)],
+        priceTerms: '',
+        deliveryTerms: '',
+        notes: '',
+        items: [emptyItem(t)],
         ...extraFields
       };
     }
@@ -1082,8 +686,21 @@
       notes: '', receiverName: '', receiverDate: todayStr(), payerName: '', payerDate: todayStr() };
   }
 
-  function emptyItem(isPrecast = false) {
-    if (isPrecast) return { id: uid(), desc: '', size: '', qty: 1, unitPriceWithoutTax: 0, unitPriceWithTax: 0, totalWithTax: 0 };
+  function emptyItem(t) {
+    if (t.isPrecast) {
+      return { id: uid(), desc: '', size: '', qty: 1, unitPriceWithoutTax: 0, unitPriceWithTax: 0, totalWithTax: 0 };
+    }
+    if (t.isConcreteFull) {
+      return { 
+        id: uid(), 
+        code: '', 
+        cementContent: '', 
+        priceWithTaxOPC: 0, 
+        priceWithTaxSRC: 0, 
+        priceWithoutTaxOPC: 0, 
+        priceWithoutTaxSRC: 0 
+      };
+    }
     return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
   }
 
@@ -1113,7 +730,7 @@
     const showBank = doc.showBank !== undefined ? doc.showBank : true;
     const toggleBankText = showBank ? '🏦 إخفاء بيانات البنك' : '🏦 إظهار بيانات البنك';
     const toggleBankClass = showBank ? 'btn-toggle-number showing' : 'btn-toggle-number';
-
+    
     return `<h1 class="page-title">${t.title}</h1><p class="page-sub">رقم المستند: <b style="color:var(--orange)">${doc.number}</b> — ${id==='new'?'مستند جديد':'تعديل'}</p>
   <div class="form-wrap"><div id="form-panels">${t.kind==='quote'?quoteFormPanels(t,window._currentDoc):receiptFormPanels(window._currentDoc)}</div>
   <div><div class="panel" style="padding:14px;"><h4>معاينة حية</h4><div id="preview">${t.kind==='quote'?quotePreview(t,window._currentDoc):receiptPreview(window._currentDoc)}</div></div></div></div>
@@ -1127,13 +744,74 @@
   function quoteFormPanels(t, doc) {
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
     const fixedLabel = (fieldKey) => fixedFields[fieldKey] ? ' <span style="color:var(--green);font-size:11px;">🟢 ثابت</span>' : '';
+    
     let qtyLabel = 'الكمية';
     let priceLabel = 'سعر الوحدة قبل الضريبة';
     let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     let sizeLabel = '';
-    if (t.isBlock) { priceLabel = 'سعر الحبة قبل الضريبة'; priceWithTaxLabel = 'سعر الحبة بعد الضريبة'; }
-    if (t.isConcrete) { qtyLabel = 'الكمية متر مكعب'; priceLabel = 'سعر المتر قبل الضريبة'; priceWithTaxLabel = 'سعر المتر شامل الضريبة'; }
-    else if (t.isPrecast) { qtyLabel = 'الكمية'; priceLabel = 'سعر الوحدة قبل الضريبة'; sizeLabel = 'المقاس'; priceWithTaxLabel = 'سعر الوحدة بعد الضريبة'; }
+    
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
+    
+    if (t.isConcrete) {
+      qtyLabel = 'الكمية متر مكعب';
+      priceLabel = 'سعر المتر قبل الضريبة';
+      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+    }
+
+    let itemsTableHTML = '';
+
+    if (t.isConcreteFull) {
+      itemsTableHTML = `
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:26px;">م</th>
+              <th>رمز الخرسانة</th>
+              <th>محتوى الأسمنت (CEMENT)</th>
+              <th>سعر OPC شامل الضريبة</th>
+              <th>سعر SRC شامل الضريبة</th>
+              <th>سعر OPC غير شامل</th>
+              <th>سعر SRC غير شامل</th>
+              <th style="width:30px;"></th>
+            </tr>
+          </thead>
+          <tbody id="items-body">
+            ${doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('')}
+          </tbody>
+        </table>
+        <button class="add-row-btn" id="add-row">+ إضافة صف</button>
+      `;
+    } else {
+      itemsTableHTML = `
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th style="width:26px;">م</th>
+              <th>${t.itemLabel}</th>
+              ${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}
+              <th style="width:70px;">${qtyLabel}</th>
+              <th style="width:100px;">${priceLabel}</th>
+              <th style="width:110px;">${priceWithTaxLabel}</th>
+              <th style="width:90px;">الضريبة</th>
+              <th style="width:100px;">الإجمالي شامل الضريبة</th>
+              <th style="width:30px;"></th>
+            </tr>
+          </thead>
+          <tbody id="items-body">
+            ${doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('')}
+          </tbody>
+        </table>
+        <button class="add-row-btn" id="add-row">+ إضافة صف</button>
+      `;
+    }
 
     return `<div class="panel"><h4>بيانات العميل</h4>
     <div class="field"><label>تاريخ العرض</label><input data-f="date" value="${doc.date}"></div>
@@ -1144,7 +822,7 @@
     <div class="field"><label>الموقع${fixedLabel('location')}</label><input data-f="location" value="${doc.location}"></div></div>
   <div class="panel"><h4>تفاصيل العرض</h4>
     <div class="field"><label>المشروع${fixedLabel('project')}</label><input data-f="project" value="${doc.project}"></div>
-    ${!t.isPrecast ? `<div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>` : ''}
+    ${!t.isPrecast && !t.isConcreteFull ? `<div class="field"><label>${t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge}${fixedLabel('materialType')}</label><input data-f="materialType" value="${doc.materialType}"></div>` : ''}
     <div class="field"><label>الضريبة (%)${fixedLabel('taxPercent')}</label><input data-f="taxPercent" type="number" value="${doc.taxPercent}"></div>
     <div class="field"><label>وصف الأعمال${fixedLabel('workDescription')}</label><textarea data-f="workDescription">${doc.workDescription}</textarea></div>
     <div class="field"><label>مقدم العرض${fixedLabel('preparedBy')}</label><input data-f="preparedBy" value="${doc.preparedBy}"></div>
@@ -1152,9 +830,8 @@
     ${t.terms?`<div class="field"><label>شروط الأسعار</label><textarea data-f="priceTerms">${doc.priceTerms}</textarea></div><div class="field"><label>شروط التسليم</label><textarea data-f="deliveryTerms">${doc.deliveryTerms}</textarea></div>`:''}
     <div class="field"><label>ملاحظات إضافية</label><textarea data-f="notes">${doc.notes}</textarea></div></div>
   <div class="panel" style="grid-column:1/-1;"><h4>بنود العرض ${t.priceUnitNote?'<span style="color:var(--muted);font-weight:400;font-size:12px;">('+t.priceUnitNote+')</span>':''}</h4>
-    <table class="items-table"><thead><tr><th style="width:26px;">م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}<th style="width:70px;">${qtyLabel}</th><th style="width:100px;">${priceLabel}</th><th style="width:110px;">${priceWithTaxLabel}</th><th style="width:90px;">الضريبة</th><th style="width:100px;">الإجمالي شامل الضريبة</th><th style="width:30px;"></th></tr></thead>
-    <tbody id="items-body">${doc.items.map((it,i)=>itemRow(it,i, t, doc.taxPercent)).join('')}</tbody></table>
-    <button class="add-row-btn" id="add-row">+ إضافة صف</button></div>
+    ${itemsTableHTML}
+  </div>
   <div class="actions-bar" style="grid-column:1/-1;">
     <button class="btn-primary" id="save-doc">💾 حفظ في الأرشيف</button>
     <button class="btn-pdf" id="download-pdf-form">📥 تحميل PDF</button>
@@ -1164,9 +841,27 @@
 
   function itemRow(it, i, t, taxPercent) {
     const tax = safeNumber(taxPercent);
+    
+    if (t.isConcreteFull) {
+      return `<tr data-id="${it.id}">
+        <td>${i+1}</td>
+        <td><input data-if="code" value="${it.code||''}" style="text-align:center;font-weight:700;"></td>
+        <td><input data-if="cementContent" value="${it.cementContent||''}" style="text-align:center;"></td>
+        <td><input data-if="priceWithTaxOPC" type="text" value="${it.priceWithTaxOPC || ''}" class="price-opc-with" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+        <td><input data-if="priceWithTaxSRC" type="text" value="${it.priceWithTaxSRC || ''}" class="price-src-with" style="text-align:center;color:var(--orange);font-weight:700;"></td>
+        <td><input data-if="priceWithoutTaxOPC" type="text" value="${it.priceWithoutTaxOPC || ''}" class="price-opc-without" style="text-align:center;"></td>
+        <td><input data-if="priceWithoutTaxSRC" type="text" value="${it.priceWithoutTaxSRC || ''}" class="price-src-without" style="text-align:center;"></td>
+        <td><button class="rm" data-rm="${it.id}">×</button></td>
+      </tr>`;
+    }
+
     let priceLabel = 'سعر الوحدة قبل الضريبة';
     let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
-    if (t.isBlock) { priceLabel = 'سعر الحبة قبل الضريبة'; priceWithTaxLabel = 'سعر الحبة بعد الضريبة'; }
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
+    
     if (t.isPrecast) {
       const qty = safeNumber(it.qty);
       const unitPriceWithoutTax = safeNumber(it.unitPriceWithoutTax);
@@ -1174,6 +869,7 @@
       const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
       const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
       const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+      
       return `<tr data-id="${it.id}">
         <td>${i+1}</td>
         <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
@@ -1186,12 +882,14 @@
         <td><button class="rm" data-rm="${it.id}">×</button></td>
       </tr>`;
     }
+    
     const qty = safeNumber(it.qty);
     const price = safeNumber(it.price);
     const priceWithTax = safeNumber(it.priceWithTax);
     const totalBeforeTax = roundToTwo(qty * price);
     const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
     const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+    
     return `<tr data-id="${it.id}">
       <td>${i+1}</td>
       <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
@@ -1227,13 +925,29 @@
   }
 
   function computeTotals(doc) {
-    let s = 0, v = 0;
+    let s = 0,
+      v = 0;
     const t = TYPES[doc.type];
+    if (!t || t.kind !== 'quote') return { subtotal: 0, vat: 0, grand: 0 };
+    
     const tax = safeNumber(doc.taxPercent || 15);
+    
+    if (t.isConcreteFull) {
+      // للعرض الشامل، لا يوجد إجمالي واحد، لكن سنحسب مجموع الأسعار المعروضة كمرجع (غير مستخدم)
+      return { subtotal: 0, vat: 0, grand: 0 };
+    }
+
     doc.items.forEach(it => {
       let totalBeforeTax = 0;
-      if (t.isPrecast) totalBeforeTax = roundToTwo(safeNumber(it.qty) * safeNumber(it.unitPriceWithoutTax));
-      else totalBeforeTax = roundToTwo(safeNumber(it.qty) * safeNumber(it.price));
+      if (t.isPrecast) {
+        const qty = safeNumber(it.qty);
+        const unitPriceWithoutTax = safeNumber(it.unitPriceWithoutTax);
+        totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
+      } else {
+        const price = safeNumber(it.price);
+        const qty = safeNumber(it.qty);
+        totalBeforeTax = roundToTwo(qty * price);
+      }
       s += totalBeforeTax;
       v += roundToTwo(totalBeforeTax * (tax / 100));
     });
@@ -1249,14 +963,32 @@
     const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
     const numberDisplay = showNumber ? doc.number : '—';
     const showBank = doc.showBank !== undefined ? doc.showBank : true;
-    const typeFixedNotes = SETTINGS.typeFixedNotes && SETTINGS.typeFixedNotes[t.key] ? SETTINGS.typeFixedNotes[t.key] : '';
+    
+    // جلب الملاحظات الثابتة الخاصة بهذا النوع
+    const typeFixedNotes = SETTINGS.typeFixedNotes && SETTINGS.typeFixedNotes[t.key] 
+      ? SETTINGS.typeFixedNotes[t.key] 
+      : '';
+    
     let qtyLabel = 'الكمية';
     let priceLabel = 'سعر الوحدة قبل الضريبة';
     let priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
     let sizeLabel = '';
-    if (t.isBlock) { priceLabel = 'سعر الحبة قبل الضريبة'; priceWithTaxLabel = 'سعر الحبة بعد الضريبة'; }
-    if (t.isConcrete) { qtyLabel = 'الكمية متر مكعب'; priceLabel = 'سعر المتر قبل الضريبة'; priceWithTaxLabel = 'سعر المتر شامل الضريبة'; }
-    else if (t.isPrecast) { qtyLabel = 'الكمية'; priceLabel = 'سعر الوحدة قبل الضريبة'; sizeLabel = 'المقاس'; priceWithTaxLabel = 'سعر الوحدة بعد الضريبة'; }
+    
+    if (t.isBlock) {
+      priceLabel = 'سعر الحبة قبل الضريبة';
+      priceWithTaxLabel = 'سعر الحبة بعد الضريبة';
+    }
+    
+    if (t.isConcrete) {
+      qtyLabel = 'الكمية متر مكعب';
+      priceLabel = 'سعر المتر قبل الضريبة';
+      priceWithTaxLabel = 'سعر المتر شامل الضريبة';
+    } else if (t.isPrecast) {
+      qtyLabel = 'الكمية';
+      priceLabel = 'سعر الوحدة قبل الضريبة';
+      sizeLabel = 'المقاس';
+      priceWithTaxLabel = 'سعر الوحدة بعد الضريبة';
+    }
 
     function infoLineWithGreen(k, v, fieldKey) {
       const isGreen = fixedFields[fieldKey] === true;
@@ -1265,10 +997,57 @@
     }
 
     const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
+
+    // تقسيم الملاحظات الثابتة إلى سطور منفصلة
     const fixedNotesLines = typeFixedNotes ? typeFixedNotes.split('\n').filter(line => line.trim()) : [];
     const fixedNotesHTML = fixedNotesLines.length > 0 
       ? `<div class="notes-box" style="padding-bottom:6px;"><b>📝 ملاحظات:</b><br>${fixedNotesLines.map(line => `<span style="display:block;padding:2px 0;">${line}</span>`).join('')}</div>`
       : '';
+
+    let tableHeader = '';
+    let tableBody = '';
+
+    if (t.isConcreteFull) {
+      tableHeader = `<tr><th>م</th><th>رمز الخرسانة</th><th>محتوى الأسمنت (CEMENT)</th><th>سعر OPC شامل الضريبة</th><th>سعر SRC شامل الضريبة</th><th>سعر OPC غير شامل</th><th>سعر SRC غير شامل</th></tr>`;
+      tableBody = doc.items.map((it, i) => {
+        return `<tr>
+          <td>${i+1}</td>
+          <td style="font-weight:700;">${it.code || '—'}</td>
+          <td>${it.cementContent || '—'}</td>
+          <td style="color:var(--orange);font-weight:700;">${money(it.priceWithTaxOPC)}</td>
+          <td style="color:var(--orange);font-weight:700;">${money(it.priceWithTaxSRC)}</td>
+          <td>${money(it.priceWithoutTaxOPC)}</td>
+          <td>${money(it.priceWithoutTaxSRC)}</td>
+        </tr>`;
+      }).join('');
+    } else {
+      tableHeader = `<tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th><th>${priceWithTaxLabel}</th><th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr>`;
+      tableBody = doc.items.map((it,i)=>{
+        const tax = safeNumber(doc.taxPercent || 15);
+        let totalBeforeTax = 0;
+        let price = 0;
+        let priceWithTax = 0;
+        let qty = 0;
+        let size = '';
+        
+        if (t.isPrecast) {
+          qty = safeNumber(it.qty);
+          price = safeNumber(it.unitPriceWithoutTax);
+          size = it.size || '—';
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = safeNumber(it.unitPriceWithTax) || roundToTwo(price * (1 + (tax / 100)));
+        } else {
+          qty = safeNumber(it.qty);
+          price = safeNumber(it.price);
+          totalBeforeTax = roundToTwo(qty * price);
+          priceWithTax = safeNumber(it.priceWithTax) || roundToTwo(price * (1 + (tax / 100)));
+        }
+        const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
+        const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
+        
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td><td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td><td>${money(taxAmount)}</td><td>${money(totalWithTax)}</td></tr>`;
+      }).join('');
+    }
 
     return `<div class="doc-sheet">
   ${watermarkHTML}
@@ -1300,7 +1079,7 @@
     </div>
     <div class="info-box"><h5>تفاصيل العرض</h5>
       ${infoLineWithGreen('المشروع', doc.project, 'project')}
-      ${!t.isPrecast ? infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType') : ''}
+      ${!t.isPrecast && !t.isConcreteFull ? infoLineWithGreen(t.itemLabel==='البيان'?'نوع المواد':'نوع '+t.badge, doc.materialType, 'materialType') : ''}
       ${infoLineWithGreen('الضريبة', (doc.taxPercent||15)+'%', 'taxPercent')}
       ${infoLineWithGreen('وصف الأعمال', doc.workDescription, 'workDescription')}
       ${infoLineWithGreen('مقدم العرض', doc.preparedBy, 'preparedBy')}
@@ -1309,29 +1088,11 @@
   </div>
   <div class="doc-table-wrap">
     <table class="doc-table">
-      <thead><tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th><th>${priceWithTaxLabel}</th><th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr></thead>
-      <tbody>${doc.items.map((it,i)=>{
-        const tax = safeNumber(doc.taxPercent || 15);
-        let totalBeforeTax = 0, price = 0, priceWithTax = 0, qty = 0, size = '';
-        if (t.isPrecast) {
-          qty = safeNumber(it.qty);
-          price = safeNumber(it.unitPriceWithoutTax);
-          size = it.size || '—';
-          totalBeforeTax = roundToTwo(qty * price);
-          priceWithTax = safeNumber(it.unitPriceWithTax) || roundToTwo(price * (1 + (tax / 100)));
-        } else {
-          qty = safeNumber(it.qty);
-          price = safeNumber(it.price);
-          totalBeforeTax = roundToTwo(qty * price);
-          priceWithTax = safeNumber(it.priceWithTax) || roundToTwo(price * (1 + (tax / 100)));
-        }
-        const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
-        const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
-        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td><td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td><td>${money(taxAmount)}</td><td>${money(totalWithTax)}</td></tr>`;
-      }).join('')}</tbody>
+      <thead>${tableHeader}</thead>
+      <tbody>${tableBody}</tbody>
     </table>
   </div>
-  <div class="total-bar ${totalHiddenClass}"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>
+  ${!t.isConcreteFull ? `<div class="total-bar ${totalHiddenClass}"><span>الإجمالي شامل الضريبة (${doc.taxPercent||15}%)</span><span class="amt">${money(tot.grand)} ريال</span></div>` : ''}
   ${(t.terms&&(doc.priceTerms||doc.deliveryTerms))?`<div class="notes-box" style="margin-top:14px;"><b>شروط التنفيذ</b><ul>${doc.priceTerms?'<li>'+doc.priceTerms+'</li>':''}${doc.deliveryTerms?'<li>'+doc.deliveryTerms+'</li>':''}</ul></div>`:''}
   ${fixedNotesHTML}
   ${showBank ? bankBox() : ''}
@@ -1422,13 +1183,34 @@
       document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     }
 
+    // ========== حساب ثنائي الاتجاه محسن ==========
     function calculateItem(item, taxPercent, triggeredField) {
       const tax = safeNumber(taxPercent);
+      
+      if (t.isConcreteFull) {
+        // الحساب هنا خاص بـ OPC و SRC
+        if (triggeredField === 'priceWithoutTaxOPC') {
+          let valWithout = safeNumber(item.priceWithoutTaxOPC);
+          item.priceWithTaxOPC = roundToTwo(valWithout * (1 + (tax / 100)));
+        } else if (triggeredField === 'priceWithTaxOPC') {
+          let valWith = safeNumber(item.priceWithTaxOPC);
+          item.priceWithoutTaxOPC = roundToTwo(valWith / (1 + (tax / 100)));
+        } else if (triggeredField === 'priceWithoutTaxSRC') {
+          let valWithout = safeNumber(item.priceWithoutTaxSRC);
+          item.priceWithTaxSRC = roundToTwo(valWithout * (1 + (tax / 100)));
+        } else if (triggeredField === 'priceWithTaxSRC') {
+          let valWith = safeNumber(item.priceWithTaxSRC);
+          item.priceWithoutTaxSRC = roundToTwo(valWith / (1 + (tax / 100)));
+        }
+        return {};
+      }
+
       if (t.isPrecast) {
         let qty = safeNumber(item.qty);
         let unitPriceWithoutTax = safeNumber(item.unitPriceWithoutTax);
         let unitPriceWithTax = safeNumber(item.unitPriceWithTax);
         let totalWithTax = safeNumber(item.totalWithTax);
+        
         if (triggeredField === 'qty' || triggeredField === 'unitPriceWithoutTax') {
           const totalBeforeTax = roundToTwo(qty * unitPriceWithoutTax);
           const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
@@ -1448,14 +1230,19 @@
             unitPriceWithTax = roundToTwo(unitPriceWithoutTax * (1 + (tax / 100)));
           }
         }
-        item.qty = qty; item.unitPriceWithoutTax = unitPriceWithoutTax;
-        item.unitPriceWithTax = unitPriceWithTax; item.totalWithTax = totalWithTax;
+        
+        item.qty = qty;
+        item.unitPriceWithoutTax = unitPriceWithoutTax;
+        item.unitPriceWithTax = unitPriceWithTax;
+        item.totalWithTax = totalWithTax;
+        
         return { unitPriceWithoutTax, unitPriceWithTax, totalWithTax };
       } else {
         let qty = safeNumber(item.qty);
         let price = safeNumber(item.price);
         let priceWithTax = safeNumber(item.priceWithTax);
         let totalWithTax = safeNumber(item.totalWithTax);
+        
         if (triggeredField === 'qty' || triggeredField === 'price') {
           const totalBeforeTax = roundToTwo(qty * price);
           const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
@@ -1475,13 +1262,35 @@
             priceWithTax = roundToTwo(price * (1 + (tax / 100)));
           }
         }
-        item.qty = qty; item.price = price;
-        item.priceWithTax = priceWithTax; item.totalWithTax = totalWithTax;
+        
+        item.qty = qty;
+        item.price = price;
+        item.priceWithTax = priceWithTax;
+        item.totalWithTax = totalWithTax;
+        
         return { price, priceWithTax, totalWithTax };
       }
     }
 
+    // ========== تحديث حقول الصف مع الحفاظ على التركيز ==========
     function updateRowFields(tr, item) {
+      if (t.isConcreteFull) {
+        const codeInput = tr.querySelector('[data-if="code"]');
+        const cementInput = tr.querySelector('[data-if="cementContent"]');
+        const opcWithInput = tr.querySelector('[data-if="priceWithTaxOPC"]');
+        const srcWithInput = tr.querySelector('[data-if="priceWithTaxSRC"]');
+        const opcWithoutInput = tr.querySelector('[data-if="priceWithoutTaxOPC"]');
+        const srcWithoutInput = tr.querySelector('[data-if="priceWithoutTaxSRC"]');
+        
+        if (codeInput && document.activeElement !== codeInput) codeInput.value = item.code || '';
+        if (cementInput && document.activeElement !== cementInput) cementInput.value = item.cementContent || '';
+        if (opcWithInput && document.activeElement !== opcWithInput) opcWithInput.value = item.priceWithTaxOPC || '';
+        if (srcWithInput && document.activeElement !== srcWithInput) srcWithInput.value = item.priceWithTaxSRC || '';
+        if (opcWithoutInput && document.activeElement !== opcWithoutInput) opcWithoutInput.value = item.priceWithoutTaxOPC || '';
+        if (srcWithoutInput && document.activeElement !== srcWithoutInput) srcWithoutInput.value = item.priceWithoutTaxSRC || '';
+        return;
+      }
+
       if (t.isPrecast) {
         const qtyInput = tr.querySelector('[data-if="qty"]');
         const priceInput = tr.querySelector('[data-if="unitPriceWithoutTax"]');
@@ -1489,6 +1298,7 @@
         const totalInput = tr.querySelector('[data-if="totalWithTax"]');
         const taxCells = tr.querySelectorAll('td');
         const taxCell = taxCells[6];
+        
         if (qtyInput && document.activeElement !== qtyInput) qtyInput.value = item.qty || '';
         if (priceInput && document.activeElement !== priceInput) priceInput.value = item.unitPriceWithoutTax || '';
         if (priceWithTaxInput && document.activeElement !== priceWithTaxInput) priceWithTaxInput.value = item.unitPriceWithTax || '';
@@ -1505,6 +1315,7 @@
         const totalInput = tr.querySelector('[data-if="totalWithTax"]');
         const taxCells = tr.querySelectorAll('td');
         const taxCell = taxCells[6];
+        
         if (qtyInput && document.activeElement !== qtyInput) qtyInput.value = item.qty || '';
         if (priceInput && document.activeElement !== priceInput) priceInput.value = item.price || '';
         if (priceWithTaxInput && document.activeElement !== priceWithTaxInput) priceWithTaxInput.value = item.priceWithTax || '';
@@ -1517,9 +1328,15 @@
       }
     }
 
+    // ========== معالج الإدخال المحسّن ==========
     document.getElementById('form-panels').addEventListener('input', function(e) {
       const f = e.target.dataset.f;
-      if (f) { doc[f] = e.target.value; refreshPreview(); return; }
+      if (f) {
+        doc[f] = e.target.value;
+        refreshPreview();
+        return;
+      }
+      
       const ifld = e.target.dataset.if;
       if (ifld) {
         const tr = e.target.closest('tr');
@@ -1527,55 +1344,107 @@
         const itemId = tr.dataset.id;
         const item = doc.items.find(x => x.id === itemId);
         if (!item) return;
+        
         let val = e.target.value;
+        
+        if (t.isConcreteFull) {
+          if (['priceWithTaxOPC', 'priceWithTaxSRC', 'priceWithoutTaxOPC', 'priceWithoutTaxSRC'].includes(ifld)) {
+            if (val === '') {
+              item[ifld] = '';
+            } else {
+              const num = parseFloat(val);
+              if (!isNaN(num) && isFinite(num)) {
+                item[ifld] = num;
+              } else {
+                item[ifld] = val;
+              }
+            }
+          } else {
+            item[ifld] = val;
+          }
+          
+          if (['priceWithTaxOPC', 'priceWithTaxSRC', 'priceWithoutTaxOPC', 'priceWithoutTaxSRC'].includes(ifld)) {
+            const currentVal = item[ifld];
+            if (currentVal !== '' && currentVal !== null && currentVal !== undefined) {
+              const numVal = parseFloat(currentVal);
+              if (!isNaN(numVal) && isFinite(numVal)) {
+                item[ifld] = numVal;
+                calculateItem(item, safeNumber(doc.taxPercent || 15), ifld);
+              }
+            }
+          }
+          updateRowFields(tr, item);
+          refreshPreview();
+          return;
+        }
+        
         if (ifld === 'qty' || ifld === 'price' || ifld === 'priceWithTax' || 
             ifld === 'totalWithTax' || ifld === 'unitPriceWithoutTax' || 
             ifld === 'unitPriceWithTax') {
-          if (val === '') item[ifld] = '';
-          else {
+          if (val === '') {
+            item[ifld] = '';
+          } else {
             const num = parseFloat(val);
-            if (!isNaN(num) && isFinite(num)) item[ifld] = num;
-            else item[ifld] = val;
+            if (!isNaN(num) && isFinite(num)) {
+              item[ifld] = num;
+            } else {
+              item[ifld] = val;
+            }
           }
-        } else item[ifld] = val;
+        } else {
+          item[ifld] = val;
+        }
+        
         const taxPercent = safeNumber(doc.taxPercent || 15);
+        const triggeredField = ifld;
+        
         if (['qty', 'price', 'priceWithTax', 'totalWithTax', 'unitPriceWithoutTax', 'unitPriceWithTax'].includes(ifld)) {
           const currentVal = item[ifld];
           if (currentVal !== '' && currentVal !== null && currentVal !== undefined) {
             const numVal = parseFloat(currentVal);
             if (!isNaN(numVal) && isFinite(numVal)) {
               item[ifld] = numVal;
-              calculateItem(item, taxPercent, ifld);
+              calculateItem(item, taxPercent, triggeredField);
             }
           }
         }
+        
         updateRowFields(tr, item);
         refreshPreview();
       }
     });
 
+    // ========== معالج النقر على الأزرار ==========
     document.getElementById('form-panels').addEventListener('click', async e => {
       if (e.target.id === 'add-row') {
-        doc.items.push(emptyItem(t.isPrecast));
+        doc.items.push(emptyItem(t));
         document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
         refreshPreview();
       }
       const rmId = e.target.dataset.rm;
       if (rmId) {
         doc.items = doc.items.filter(x => x.id !== rmId);
-        if (!doc.items.length) doc.items.push(emptyItem(t.isPrecast));
+        if (!doc.items.length) doc.items.push(emptyItem(t));
         document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
         refreshPreview();
       }
       if (e.target.id === 'save-doc') {
         const success = await persistDoc(doc);
-        if (success) { toast('✅ تم الحفظ'); go('#/archive'); }
+        if (success) {
+          toast('✅ تم الحفظ');
+          go('#/archive');
+        }
       }
       if (e.target.id === 'save-print') {
         const success = await persistDoc(doc);
-        if (success) { toast('✅ تم الحفظ'); setTimeout(() => go('#/view/' + doc.id + '?print=1'), 150); }
+        if (success) {
+          toast('✅ تم الحفظ');
+          setTimeout(() => go('#/view/' + doc.id + '?print=1'), 150);
+        }
       }
-      if (e.target.id === 'cancel-form') go('#/dashboard');
+      if (e.target.id === 'cancel-form') {
+        go('#/dashboard');
+      }
 
       if (e.target.id === 'download-pdf-form') {
         refreshPreview();
@@ -1583,28 +1452,35 @@
         const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
         if (fileName === null) return;
         const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
+
         const btn = e.target;
         const originalText = btn.innerHTML;
         btn.innerHTML = '⏳ جاري التجهيز...';
         btn.disabled = true;
+
         const element = document.querySelector('#preview .doc-sheet');
         const opt = {
-          margin: [5, 5, 5, 5], filename: finalName + '.pdf',
+          margin: [5, 5, 5, 5],
+          filename: finalName + '.pdf',
           image: { type: 'jpeg', quality: 0.98 },
           html2canvas: { scale: 3, useCORS: true, letterRendering: true },
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
         };
+
         html2pdf().set(opt).from(element).save().then(() => {
-          btn.innerHTML = originalText; btn.disabled = false;
+          btn.innerHTML = originalText;
+          btn.disabled = false;
           toast('✅ تم تحميل: ' + finalName + '.pdf');
         }).catch(err => {
           console.error(err);
-          btn.innerHTML = originalText; btn.disabled = false;
+          btn.innerHTML = originalText;
+          btn.disabled = false;
           toast('❌ حدث خطأ أثناء إنشاء PDF');
         });
       }
     });
 
+    // ========== أزرار التحكم ==========
     const toggleBtn = document.getElementById('toggle-total-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', async function() {
@@ -1641,11 +1517,18 @@
       });
     }
 
+    // ========== تحديث عند تغيير الضريبة ==========
     document.querySelector('[data-f="taxPercent"]')?.addEventListener('change', function() {
       doc.taxPercent = safeNumber(this.value);
       doc.items.forEach(item => {
-        if (t.isPrecast) calculateItem(item, doc.taxPercent, 'unitPriceWithoutTax');
-        else calculateItem(item, doc.taxPercent, 'price');
+        if (t.isConcreteFull) {
+          calculateItem(item, doc.taxPercent, 'priceWithoutTaxOPC');
+          calculateItem(item, doc.taxPercent, 'priceWithoutTaxSRC');
+        } else if (t.isPrecast) {
+          calculateItem(item, doc.taxPercent, 'unitPriceWithoutTax');
+        } else {
+          calculateItem(item, doc.taxPercent, 'price');
+        }
       });
       document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
       refreshPreview();
@@ -1654,10 +1537,13 @@
 
   async function persistDoc(doc) {
     const isNew = !DOCS.find(d => d.id === doc.id);
-    if (isNew) await commitDocNumber();
+    if (isNew) {
+      await commitDocNumber();
+    }
     return await saveDoc(doc);
   }
 
+  // ============================= VIEW PAGE =============================
   function renderViewPage(id) {
     const doc = DOCS.find(d => d.id === id);
     if (!doc) return '<p>غير موجود</p>';
@@ -1665,7 +1551,7 @@
       html = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     const whatsappLink = getWhatsAppLink(doc);
     const hasContact = doc.contact && doc.contact.replace(/[\s\-\(\)]/g, '').length > 0;
-
+    
     return `<div class="actions-bar" style="margin-bottom:16px;">
     <button class="btn-pdf" id="do-download-pdf">📥 تحميل PDF</button>
     <button class="btn-secondary" id="do-print">🖨️ طباعة مباشرة</button>
@@ -1684,16 +1570,22 @@
       const fileName = prompt('أدخل اسم ملف PDF:', defaultName);
       if (fileName === null) return;
       const finalName = (fileName.trim() || defaultName).replace(/[\\/:*?"<>|]/g, '-');
-      const btn = document.getElementById('do-download-pdf'), orig = btn.innerHTML;
-      btn.innerHTML = '⏳ جاري التجهيز...'; btn.disabled = true;
+
+      const btn = document.getElementById('do-download-pdf'),
+        orig = btn.innerHTML;
+      btn.innerHTML = '⏳ جاري التجهيز...';
+      btn.disabled = true;
       const element = document.querySelector('.doc-sheet');
       const opt = { margin: [5, 5, 5, 5], filename: finalName + '.pdf', image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 3, useCORS: true, letterRendering: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
+        html2canvas: { scale: 3, useCORS: true, letterRendering: true }, jsPDF: { unit: 'mm', format: 'a4',
+          orientation: 'portrait' } };
       html2pdf().set(opt).from(element).save().then(() => {
-        btn.innerHTML = orig; btn.disabled = false;
+        btn.innerHTML = orig;
+        btn.disabled = false;
         toast('✅ تم تحميل: ' + finalName + '.pdf');
       }).catch(() => {
-        btn.innerHTML = orig; btn.disabled = false;
+        btn.innerHTML = orig;
+        btn.disabled = false;
         toast('❌ خطأ');
       });
     });
@@ -1702,7 +1594,10 @@
     document.getElementById('do-edit').addEventListener('click', () => go('#/form/' + doc.type + '/' + doc.id));
     document.getElementById('do-duplicate').addEventListener('click', async () => {
       const c = JSON.parse(JSON.stringify(doc));
-      c.id = uid(); c.number = nextDocNumber(); c.date = todayStr(); c.status = 'pending';
+      c.id = uid();
+      c.number = nextDocNumber();
+      c.date = todayStr();
+      c.status = 'pending';
       await commitDocNumber();
       await saveDoc(c);
       toast('✅ نسخة جديدة: ' + c.number);
@@ -1712,6 +1607,7 @@
     if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
   }
 
+  // ============================= ARCHIVE =============================
   function renderArchive() {
     if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
     return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
@@ -1738,7 +1634,9 @@
 
   function statusPill(d) {
     if (TYPES[d.type].kind !== 'quote') return '<span class="pill approved">مكتمل</span>';
-    const m = { pending: ['قيد الانتظار', 'pending'], approved: ['تمت الموافقة', 'approved'], rejected: ['مرفوض', 'rejected'] };
+    const m = { pending: ['قيد الانتظار', 'pending'], approved: ['تمت الموافقة', 'approved'], rejected: ['مرفوض',
+        'rejected'
+      ] };
     const [l, c] = m[d.status || 'pending'];
     return `<select class="pill ${c}" data-status="${d.id}" style="border:none;background:transparent;font-weight:700;">${Object.entries(m).map(([k,v])=>`<option value="${k}" ${d.status===k?'selected':''}>${v[0]}</option>`).join('')}</select>`;
   }
@@ -1754,7 +1652,8 @@
         const t = TYPES[d.type];
         if (!t) return false;
         const n = t.kind === 'quote' ? (d.customerName || '') : (d.receivedFrom || '');
-        return (!q || d.number.toLowerCase().includes(q) || n.toLowerCase().includes(q) || t.title.toLowerCase().includes(q)) && (!ty || d.type === ty);
+        return (!q || d.number.toLowerCase().includes(q) || n.toLowerCase().includes(q) || t.title.toLowerCase()
+          .includes(q)) && (!ty || d.type === ty);
       });
       document.getElementById('archive-body').innerHTML = archiveRows(f);
       bindArchiveRowActions();
@@ -1768,15 +1667,22 @@
     document.querySelectorAll('[data-del]').forEach(b => b.onclick = async () => {
       if (confirm('تأكيد الحذف؟')) {
         const success = await deleteDoc(b.dataset.del);
-        if (success) toast('🗑️ تم الحذف');
+        if (success) {
+          toast('🗑️ تم الحذف');
+        }
       }
     });
     document.querySelectorAll('[data-status]').forEach(s => s.onchange = async e => {
       const d = DOCS.find(x => x.id === s.dataset.status);
-      if (d) { d.status = e.target.value; await saveDoc(d); toast('تم التحديث'); }
+      if (d) {
+        d.status = e.target.value;
+        await saveDoc(d);
+        toast('تم التحديث');
+      }
     });
   }
 
+  // ============================= SETTINGS =============================
   function renderSettings() {
     const s = SETTINGS;
     const fixedFields = s.fixedFields || DEFAULT_SETTINGS.fixedFields;
@@ -1800,6 +1706,7 @@
         <input id="fv-${fieldKey}" type="${type}" value="${val}" placeholder="أدخل القيمة الثابتة..."></div>`;
     }
 
+    // إنشاء حقول الملاحظات الثابتة لكل نوع
     let typeNotesHTML = '';
     Object.keys(TYPES).forEach(key => {
       const t = TYPES[key];
@@ -1809,7 +1716,8 @@
           <div style="margin-bottom:10px;border:1px solid var(--border);border-radius:8px;padding:10px;">
             <label style="font-weight:700;font-size:13px;color:var(--navy);">${t.icon} ${t.title}</label>
             <textarea id="type-note-${key}" rows="2" style="width:100%;margin-top:5px;padding:8px;border:1px solid var(--border);border-radius:6px;font-size:13px;background:#fbfcfe;color:var(--text);">${noteValue}</textarea>
-          </div>`;
+          </div>
+        `;
       }
     });
 
@@ -1887,7 +1795,8 @@
     document.getElementById('save-settings').addEventListener('click', async () => {
       const fixedFields = {};
       const fieldKeys = ['location', 'taxNumberClient', 'paymentMethod', 'project', 'materialType', 'taxPercent',
-        'workDescription', 'preparedBy', 'location2'];
+        'workDescription', 'preparedBy', 'location2'
+      ];
       fieldKeys.forEach(key => {
         const checkbox = document.getElementById('ff-' + key);
         fixedFields[key] = checkbox ? checkbox.checked : false;
@@ -1903,6 +1812,7 @@
       const fixedNotes = document.getElementById('s-fixedNotes').value;
       const showTotal = document.getElementById('s-showTotal').checked;
 
+      // جمع الملاحظات الثابتة لكل نوع
       const typeFixedNotes = {};
       Object.keys(TYPES).forEach(key => {
         const t = TYPES[key];
@@ -1935,7 +1845,7 @@
         showTotal: showTotal,
         typeFixedNotes: typeFixedNotes
       };
-
+      
       await saveSettings(newSettings);
       toast('✅ تم حفظ جميع الإعدادات');
     });
