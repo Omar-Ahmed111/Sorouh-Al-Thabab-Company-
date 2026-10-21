@@ -271,11 +271,9 @@
 <div id="toast"></div>
 
 <script type="module">
-  // Import Firebase
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
   import { getDatabase, ref, set, get, onValue, remove, child } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-  // Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyAdUXus0SNdhHrhg5wDYnK4QIziElakMTw",
     authDomain: "sorouh-al-thabat-company.firebaseapp.com",
@@ -287,11 +285,9 @@
     measurementId: "G-TCC3GP1BF5"
   };
 
-  // Initialize Firebase
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // ============================= DATA LAYER =============================
   const DEFAULT_SETTINGS = {
     companyLine1: 'صروح الثبات',
     companyLine2: 'الخرسانة الجاهزة',
@@ -333,11 +329,10 @@
       location2: ''
     },
     showTotal: true,
-    // تخزين الملاحظات الثابتة لكل نوع
     typeFixedNotes: {
       concrete: '🔔 عرض سعر الخرسانة الجاهزة ساري لمدة أسبوع.\nيرجى التأكد من تجهيز الموقع.',
       concrete_full: '🔔 قائمة أسعار الخرسانة الجاهزة سارية لمدة أسبوع.\nالأسعار شاملة الضريبة 15% وقابلة للتغيير حسب الكمية.',
-      interlock: '🔔 عرض سعر الإنتر لوك ساري لمدة 10 أيام.\nيتم التسليم حسب الكمية المطلوبة.',
+      interlock: ' عرض سعر الإنتر لوك ساري لمدة 10 أيام.\nيتم التسليم حسب الكمية المطلوبة.',
       block: '🔔 عرض سعر البلوك ساري لمدة أسبوع.\nالأسعار تشمل التوصيل للموقع.',
       general: '🔔 عرض سعر مواد البناء ساري لمدة أسبوع.\nالأسعار قابلة للتغيير حسب الكمية.',
       claim: '🔔 المطالبة المالية صالحة لمدة 30 يوماً من تاريخ الإصدار.',
@@ -360,18 +355,15 @@
   let SETTINGS = { ...DEFAULT_SETTINGS };
   let DOCS = [];
 
-  // Firebase references
   const settingsRef = ref(db, 'settings');
   const docsRef = ref(db, 'documents');
   const metaRef = ref(db, 'meta');
 
-  // Load settings from Firebase
   async function loadSettings() {
     try {
       const snapshot = await get(settingsRef);
       if (snapshot.exists()) {
         SETTINGS = { ...DEFAULT_SETTINGS, ...snapshot.val() };
-        // التأكد من وجود typeFixedNotes
         if (!SETTINGS.typeFixedNotes) {
           SETTINGS.typeFixedNotes = { ...DEFAULT_SETTINGS.typeFixedNotes };
         }
@@ -385,7 +377,6 @@
     }
   }
 
-  // Save settings to Firebase
   async function saveSettings(s) {
     try {
       await set(settingsRef, s);
@@ -396,7 +387,6 @@
     }
   }
 
-  // Load documents from Firebase with real-time listener
   function loadDocs() {
     onValue(docsRef, (snapshot) => {
       if (snapshot.exists()) {
@@ -425,7 +415,6 @@
     });
   }
 
-  // Save document to Firebase
   async function saveDoc(doc) {
     try {
       const docRef = ref(db, `documents/${doc.id}`);
@@ -438,7 +427,6 @@
     }
   }
 
-  // Delete document from Firebase
   async function deleteDoc(id) {
     try {
       const docRef = ref(db, `documents/${id}`);
@@ -451,7 +439,6 @@
     }
   }
 
-  // Get next document number safely
   async function getNextDocNumber() {
     try {
       const snapshot = await get(child(metaRef, 'nextNumber'));
@@ -468,7 +455,6 @@
     }
   }
 
-  // Commit document number (increment)
   async function commitDocNumber() {
     try {
       const currentNum = await getNextDocNumber();
@@ -570,19 +556,18 @@
       desc: 'قائمة أسعار خرسانة (OPC / SRC) شاملة وغير شاملة الضريبة', kind: 'quote', isConcreteFull: true },
     interlock: { key: 'interlock', title: 'عرض سعر إنتر لوك', badge: 'إنتر لوك', itemLabel: 'الوصف', icon: '🧱',
       desc: 'أشكال إنتر لوك متنوعة', kind: 'quote', simpleTable: true, terms: true },
-    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '🟫', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
+    block: { key: 'block', title: 'عرض سعر بلوك', badge: 'بلوك', itemLabel: 'نوع البلوك', icon: '', desc: 'بلوك عادي وعازل بمقاسات مختلفة',
       kind: 'quote', simpleTable: true, terms: true, priceUnitNote: 'لكل 1000 حبة', isBlock: true },
     general: { key: 'general', title: 'عرض سعر مواد بناء', badge: 'مواد بناء عامة', itemLabel: 'البيان', icon: '🏗️',
       desc: 'حديد، رمل، أسمنت، وأخشاب', kind: 'quote' },
     claim: { key: 'claim', title: 'مطالبة مالية', badge: 'مطالبة مالية', itemLabel: 'البيان', icon: '📄', desc: 'نفس قالب عرض السعر بعنوان مطالبة',
       kind: 'quote' },
-    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ مع بيانات السداد',
+    receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '', desc: 'إيصال قبض مبلغ مع بيانات السداد',
       kind: 'receipt' },
     precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', itemLabel: 'البيان', icon: '🏗️',
       desc: 'مواد أسمنتية مسبقة الصب - Precast', kind: 'quote', isPrecast: true, terms: true }
   };
 
-  // ============================= ROUTER =============================
   function go(r) { location.hash = r; }
   window.addEventListener('hashchange', render);
   window.addEventListener('DOMContentLoaded', async () => {
@@ -619,7 +604,6 @@
     if (b) go('#/' + b.dataset.r);
   });
 
-  // ============================= DASHBOARD =============================
   function renderDashboard() {
     const total = DOCS.length,
       quotes = DOCS.filter(d => TYPES[d.type] && TYPES[d.type].kind === 'quote').length,
@@ -635,7 +619,6 @@
       '/new')));
   }
 
-  // ============================= FORM =============================
   function blankDoc(type) {
     const t = TYPES[type];
     const fixedVals = SETTINGS.fixedValues || DEFAULT_SETTINGS.fixedValues;
@@ -722,10 +705,10 @@
     const doc = getDoc(type, id);
     window._currentDoc = JSON.parse(JSON.stringify(doc));
     const showTotal = doc.showTotal !== undefined ? doc.showTotal : true;
-    const toggleBtnText = showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
+    const toggleBtnText = showTotal ? '🔽 إخفاء الإجمالي' : ' إظهار الإجمالي';
     const toggleBtnClass = showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
     const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
-    const toggleNumText = showNumber ? '🔢 إخفاء رقم العرض' : '🔢 إظهار رقم العرض';
+    const toggleNumText = showNumber ? ' إخفاء رقم العرض' : '🔢 إظهار رقم العرض';
     const toggleNumClass = showNumber ? 'btn-toggle-number showing' : 'btn-toggle-number';
     const showBank = doc.showBank !== undefined ? doc.showBank : true;
     const toggleBankText = showBank ? '🏦 إخفاء بيانات البنك' : '🏦 إظهار بيانات البنك';
@@ -818,7 +801,7 @@
     <div class="field"><label>اسم العميل${fixedLabel('customerName')}</label><input data-f="customerName" value="${doc.customerName}" placeholder="اسم العميل أو المنشأة"></div>
     <div class="field"><label>جهة الاتصال${fixedLabel('contact')}</label><input data-f="contact" value="${doc.contact}"></div>
     <div class="field"><label>الرقم الضريبي للعميل${fixedLabel('taxNumberClient')}</label><input data-f="taxNumberClient" value="${doc.taxNumberClient}"></div>
-    <div class="field"><label>طريقة الدفع${fixedLabel('paymentMethod')}</label><input data-f="paymentMethod" value="${doc.paymentMethod}"></div>
+    <div class="field"><label>طريقة الدفع${fixedLabel('paymentMethod')}</label><select data-f="paymentMethod"><option value="تحويل بنكي" ${doc.paymentMethod==='تحويل بنكي'?'selected':''}>تحويل بنكي</option><option value="نقدي" ${doc.paymentMethod==='نقدي'?'selected':''}>نقدي</option><option value="شيك" ${doc.paymentMethod==='شيك'?'selected':''}>شيك</option></select></div>
     <div class="field"><label>الموقع${fixedLabel('location')}</label><input data-f="location" value="${doc.location}"></div></div>
   <div class="panel"><h4>تفاصيل العرض</h4>
     <div class="field"><label>المشروع${fixedLabel('project')}</label><input data-f="project" value="${doc.project}"></div>
@@ -924,6 +907,53 @@
     <button class="btn-ghost" id="cancel-form">إلغاء</button></div>`;
   }
 
+  function recalcConcreteFull(doc, triggeredItem, triggeredField, taxPercent) {
+    const tax = safeNumber(taxPercent) || 15;
+    const factor = 1 + (tax / 100);
+    const items = doc.items;
+    const idx = items.findIndex(x => x.id === triggeredItem.id);
+    if (idx === -1) return;
+
+    const isWithTax = triggeredField.includes('WithTax');
+    const isOPC = triggeredField.includes('OPC');
+    const baseVal = safeNumber(triggeredItem[triggeredField]);
+    if (baseVal <= 0) return;
+
+    const baseColumn = {};
+    items.forEach((it, i) => {
+      baseColumn[it.id] = roundToTwo(baseVal + (i - idx) * 10);
+    });
+
+    items.forEach((it) => {
+      const base = baseColumn[it.id];
+      let opcWithTax, srcWithTax, opcWithoutTax, srcWithoutTax;
+
+      if (isWithTax) {
+        if (isOPC) { opcWithTax = base; srcWithTax = roundToTwo(base + 5); }
+        else { srcWithTax = base; opcWithTax = roundToTwo(base - 5); }
+        opcWithoutTax = roundToTwo(opcWithTax / factor);
+        srcWithoutTax = roundToTwo(srcWithTax / factor);
+      } else {
+        if (isOPC) { opcWithoutTax = base; srcWithoutTax = roundToTwo(base + 5); }
+        else { srcWithoutTax = base; opcWithoutTax = roundToTwo(base - 5); }
+        opcWithTax = roundToTwo(opcWithoutTax * factor);
+        srcWithTax = roundToTwo(srcWithoutTax * factor);
+      }
+
+      if (it.id === triggeredItem.id) {
+        if (triggeredField === 'priceWithTaxOPC') opcWithTax = baseVal;
+        if (triggeredField === 'priceWithTaxSRC') srcWithTax = baseVal;
+        if (triggeredField === 'priceWithoutTaxOPC') opcWithoutTax = baseVal;
+        if (triggeredField === 'priceWithoutTaxSRC') srcWithoutTax = baseVal;
+      }
+
+      it.priceWithTaxOPC = opcWithTax;
+      it.priceWithTaxSRC = srcWithTax;
+      it.priceWithoutTaxOPC = opcWithoutTax;
+      it.priceWithoutTaxSRC = srcWithoutTax;
+    });
+  }
+
   function computeTotals(doc) {
     let s = 0,
       v = 0;
@@ -933,7 +963,6 @@
     const tax = safeNumber(doc.taxPercent || 15);
     
     if (t.isConcreteFull) {
-      // للعرض الشامل، لا يوجد إجمالي واحد، لكن سنحسب مجموع الأسعار المعروضة كمرجع (غير مستخدم)
       return { subtotal: 0, vat: 0, grand: 0 };
     }
 
@@ -957,14 +986,12 @@
   function quotePreview(t, doc) {
     const tot = computeTotals(doc);
     const fixedFields = SETTINGS.fixedFields || DEFAULT_SETTINGS.fixedFields;
-    const fixedNotes = doc.notes || SETTINGS.fixedNotes || DEFAULT_SETTINGS.fixedNotes;
     const showTotal = doc.showTotal !== undefined ? doc.showTotal : true;
     const totalHiddenClass = showTotal ? '' : 'hidden';
     const showNumber = doc.showNumber !== undefined ? doc.showNumber : true;
     const numberDisplay = showNumber ? doc.number : '—';
     const showBank = doc.showBank !== undefined ? doc.showBank : true;
     
-    // جلب الملاحظات الثابتة الخاصة بهذا النوع
     const typeFixedNotes = SETTINGS.typeFixedNotes && SETTINGS.typeFixedNotes[t.key] 
       ? SETTINGS.typeFixedNotes[t.key] 
       : '';
@@ -998,7 +1025,6 @@
 
     const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
 
-    // تقسيم الملاحظات الثابتة إلى سطور منفصلة
     const fixedNotesLines = typeFixedNotes ? typeFixedNotes.split('\n').filter(line => line.trim()) : [];
     const fixedNotesHTML = fixedNotesLines.length > 0 
       ? `<div class="notes-box" style="padding-bottom:6px;"><b>📝 ملاحظات:</b><br>${fixedNotesLines.map(line => `<span style="display:block;padding:2px 0;">${line}</span>`).join('')}</div>`
@@ -1096,7 +1122,6 @@
   ${(t.terms&&(doc.priceTerms||doc.deliveryTerms))?`<div class="notes-box" style="margin-top:14px;"><b>شروط التنفيذ</b><ul>${doc.priceTerms?'<li>'+doc.priceTerms+'</li>':''}${doc.deliveryTerms?'<li>'+doc.deliveryTerms+'</li>':''}</ul></div>`:''}
   ${fixedNotesHTML}
   ${showBank ? bankBox() : ''}
-  ${fixedNotes ? `<div class="notes-box" style="padding-bottom:6px;">${fixedNotes}</div>` : ''}
   ${footerBar()}</div>`;
   }
 
@@ -1170,7 +1195,7 @@
     return `<div class="doc-footer">
       <div class="quality">✔ ملتزمون بالجودة</div>
       <div class="contact-item">✉️ ${SETTINGS.email}</div>
-      <div class="contact-item">🌐 ${SETTINGS.website}</div>
+      <div class="contact-item"> ${SETTINGS.website}</div>
       <div class="contact-item">📞 ${SETTINGS.phone}</div>
     </div>`;
   }
@@ -1183,12 +1208,10 @@
       document.getElementById('preview').innerHTML = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
     }
 
-    // ========== حساب ثنائي الاتجاه محسن ==========
     function calculateItem(item, taxPercent, triggeredField) {
       const tax = safeNumber(taxPercent);
       
       if (t.isConcreteFull) {
-        // الحساب هنا خاص بـ OPC و SRC
         if (triggeredField === 'priceWithoutTaxOPC') {
           let valWithout = safeNumber(item.priceWithoutTaxOPC);
           item.priceWithTaxOPC = roundToTwo(valWithout * (1 + (tax / 100)));
@@ -1272,7 +1295,6 @@
       }
     }
 
-    // ========== تحديث حقول الصف مع الحفاظ على التركيز ==========
     function updateRowFields(tr, item) {
       if (t.isConcreteFull) {
         const codeInput = tr.querySelector('[data-if="code"]');
@@ -1328,7 +1350,6 @@
       }
     }
 
-    // ========== معالج الإدخال المحسّن ==========
     document.getElementById('form-panels').addEventListener('input', function(e) {
       const f = e.target.dataset.f;
       if (f) {
@@ -1355,6 +1376,13 @@
               const num = parseFloat(val);
               if (!isNaN(num) && isFinite(num)) {
                 item[ifld] = num;
+                recalcConcreteFull(doc, item, ifld, doc.taxPercent || 15);
+                document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
+                const newTr = document.querySelector(`tr[data-id="${item.id}"]`);
+                if (newTr) {
+                  const inp = newTr.querySelector(`[data-if="${ifld}"]`);
+                  if (inp) { inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length); }
+                }
               } else {
                 item[ifld] = val;
               }
@@ -1362,18 +1390,6 @@
           } else {
             item[ifld] = val;
           }
-          
-          if (['priceWithTaxOPC', 'priceWithTaxSRC', 'priceWithoutTaxOPC', 'priceWithoutTaxSRC'].includes(ifld)) {
-            const currentVal = item[ifld];
-            if (currentVal !== '' && currentVal !== null && currentVal !== undefined) {
-              const numVal = parseFloat(currentVal);
-              if (!isNaN(numVal) && isFinite(numVal)) {
-                item[ifld] = numVal;
-                calculateItem(item, safeNumber(doc.taxPercent || 15), ifld);
-              }
-            }
-          }
-          updateRowFields(tr, item);
           refreshPreview();
           return;
         }
@@ -1414,7 +1430,6 @@
       }
     });
 
-    // ========== معالج النقر على الأزرار ==========
     document.getElementById('form-panels').addEventListener('click', async e => {
       if (e.target.id === 'add-row') {
         doc.items.push(emptyItem(t));
@@ -1455,7 +1470,7 @@
 
         const btn = e.target;
         const originalText = btn.innerHTML;
-        btn.innerHTML = '⏳ جاري التجهيز...';
+        btn.innerHTML = ' جاري التجهيز...';
         btn.disabled = true;
 
         const element = document.querySelector('#preview .doc-sheet');
@@ -1480,13 +1495,12 @@
       }
     });
 
-    // ========== أزرار التحكم ==========
     const toggleBtn = document.getElementById('toggle-total-btn');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', async function() {
         doc.showTotal = !doc.showTotal;
         await saveDoc(doc);
-        this.textContent = doc.showTotal ? '🔽 إخفاء الإجمالي' : '🔼 إظهار الإجمالي';
+        this.textContent = doc.showTotal ? ' إخفاء الإجمالي' : ' إظهار الإجمالي';
         this.className = doc.showTotal ? 'btn-toggle-total showing' : 'btn-toggle-total';
         refreshPreview();
         toast(doc.showTotal ? '✅ تم إظهار الإجمالي' : '✅ تم إخفاء الإجمالي');
@@ -1510,40 +1524,99 @@
       toggleBankBtn.addEventListener('click', async function() {
         doc.showBank = !doc.showBank;
         await saveDoc(doc);
-        this.textContent = doc.showBank ? '🏦 إخفاء بيانات البنك' : '🏦 إظهار بيانات البنك';
+        this.textContent = doc.showBank ? '🏦 إخفاء بيانات البنك' : ' إظهار بيانات البنك';
         this.className = doc.showBank ? 'btn-toggle-number showing' : 'btn-toggle-number';
         refreshPreview();
         toast(doc.showBank ? '✅ تم إظهار البنك' : '✅ تم إخفاء البنك');
       });
     }
 
-    // ========== تحديث عند تغيير الضريبة ==========
     document.querySelector('[data-f="taxPercent"]')?.addEventListener('change', function() {
       doc.taxPercent = safeNumber(this.value);
-      doc.items.forEach(item => {
-        if (t.isConcreteFull) {
-          calculateItem(item, doc.taxPercent, 'priceWithoutTaxOPC');
-          calculateItem(item, doc.taxPercent, 'priceWithoutTaxSRC');
-        } else if (t.isPrecast) {
-          calculateItem(item, doc.taxPercent, 'unitPriceWithoutTax');
-        } else {
-          calculateItem(item, doc.taxPercent, 'price');
-        }
-      });
+      if (t.isConcreteFull) {
+        doc.items.forEach(item => {
+          if (safeNumber(item.priceWithoutTaxOPC) > 0) recalcConcreteFull(doc, item, 'priceWithoutTaxOPC', doc.taxPercent);
+          else if (safeNumber(item.priceWithTaxOPC) > 0) recalcConcreteFull(doc, item, 'priceWithTaxOPC', doc.taxPercent);
+        });
+      } else {
+        doc.items.forEach(item => {
+          if (t.isPrecast) calculateItem(item, doc.taxPercent, 'unitPriceWithoutTax');
+          else calculateItem(item, doc.taxPercent, 'price');
+        });
+      }
       document.getElementById('items-body').innerHTML = doc.items.map((it, i) => itemRow(it, i, t, doc.taxPercent)).join('');
       refreshPreview();
     });
   }
 
-  async function persistDoc(doc) {
-    const isNew = !DOCS.find(d => d.id === doc.id);
-    if (isNew) {
-      await commitDocNumber();
-    }
-    return await saveDoc(doc);
+  async function createAutoReceipt(quoteDoc) {
+    const totals = computeTotals(quoteDoc);
+    const receipt = {
+      id: uid(),
+      type: 'receipt',
+      number: quoteDoc.number,
+      createdAt: Date.now(),
+      status: 'approved',
+      date: quoteDoc.date,
+      showNumber: true,
+      showTotal: true,
+      showBank: true,
+      receivedFrom: quoteDoc.customerName || '',
+      amount: totals.grand,
+      amountFor: quoteDoc.workDescription || ('دفعة عن عرض سعر ' + quoteDoc.number),
+      paymentMethod: 'نقدي',
+      txnRef: '',
+      bankName: '',
+      notes: '',
+      receiverName: SETTINGS.companyLine1 || 'صروح الثبات',
+      receiverDate: quoteDoc.date,
+      payerName: quoteDoc.customerName || '',
+      payerDate: quoteDoc.date,
+      linkedQuoteNumber: quoteDoc.number,
+      linkedQuoteId: quoteDoc.id
+    };
+    await saveDoc(receipt);
+    return receipt;
   }
 
-  // ============================= VIEW PAGE =============================
+  async function deleteLinkedReceipt(quoteDoc) {
+    const linked = DOCS.find(d => d.type === 'receipt' && d.linkedQuoteId === quoteDoc.id);
+    if (linked) {
+      await deleteDoc(linked.id);
+      return true;
+    }
+    return false;
+  }
+
+  async function persistDoc(doc) {
+    const isNew = !DOCS.find(d => d.id === doc.id);
+    if (isNew) await commitDocNumber();
+    
+    const success = await saveDoc(doc);
+    if (!success) return false;
+
+    if (TYPES[doc.type] && TYPES[doc.type].kind === 'quote') {
+      const isCash = doc.paymentMethod === 'نقدي';
+      const existingReceipt = DOCS.find(d => d.type === 'receipt' && d.linkedQuoteId === doc.id);
+      
+      if (isCash && !existingReceipt) {
+        await createAutoReceipt(doc);
+        toast('✅ تم حفظ العرض وإنشاء سند استلام');
+      } else if (isCash && existingReceipt) {
+        const totals = computeTotals(doc);
+        existingReceipt.receivedFrom = doc.customerName || '';
+        existingReceipt.amount = totals.grand;
+        existingReceipt.amountFor = doc.workDescription || ('دفعة عن عرض سعر ' + doc.number);
+        existingReceipt.payerName = doc.customerName || '';
+        await saveDoc(existingReceipt);
+      } else if (!isCash && existingReceipt) {
+        await deleteDoc(existingReceipt.id);
+        toast('✅ تم حفظ العرض وحذف السند المرتبط');
+      }
+    }
+    return true;
+  }
+
   function renderViewPage(id) {
     const doc = DOCS.find(d => d.id === id);
     if (!doc) return '<p>غير موجود</p>';
@@ -1552,11 +1625,20 @@
     const whatsappLink = getWhatsAppLink(doc);
     const hasContact = doc.contact && doc.contact.replace(/[\s\-\(\)]/g, '').length > 0;
     
+    let receiptBtn = '';
+    if (t.kind === 'quote' && doc.paymentMethod === 'نقدي') {
+      const linkedReceipt = DOCS.find(d => d.type === 'receipt' && d.linkedQuoteId === doc.id);
+      if (linkedReceipt) {
+        receiptBtn = `<button class="btn-primary" id="go-to-receipt">📄 سند استلام</button>`;
+      }
+    }
+    
     return `<div class="actions-bar" style="margin-bottom:16px;">
     <button class="btn-pdf" id="do-download-pdf">📥 تحميل PDF</button>
     <button class="btn-secondary" id="do-print">🖨️ طباعة مباشرة</button>
     <button class="btn-ghost" id="do-edit">✏️ تعديل</button>
     <button class="btn-ghost" id="do-duplicate">🧾 نسخ</button>
+    ${receiptBtn}
     ${hasContact ? `<a href="${whatsappLink}" target="_blank" class="btn-whatsapp">💬 واتساب</a>` : `<span class="btn-whatsapp disabled" style="padding:11px 20px;border-radius:9px;display:inline-flex;align-items:center;gap:6px;background:#ccc;color:#666;cursor:not-allowed;">💬 لا يوجد رقم</span>`}
     <button class="btn-ghost" id="back-archive">↩ رجوع</button></div>
   <div id="print-area">${html}</div>`;
@@ -1564,6 +1646,7 @@
 
   function bindViewPage(id) {
     const doc = DOCS.find(d => d.id === id);
+    if (!doc) return;
 
     document.getElementById('do-download-pdf').addEventListener('click', () => {
       const defaultName = doc.number + ' - ' + (doc.customerName || doc.receivedFrom || 'مستند');
@@ -1604,10 +1687,19 @@
       go('#/form/' + c.type + '/' + c.id);
     });
     document.getElementById('back-archive').addEventListener('click', () => go('#/archive'));
+    
+    const goToReceiptBtn = document.getElementById('go-to-receipt');
+    if (goToReceiptBtn) {
+      goToReceiptBtn.addEventListener('click', () => {
+        const linkedReceipt = DOCS.find(d => d.type === 'receipt' && d.linkedQuoteId === doc.id);
+        if (linkedReceipt) go('#/view/' + linkedReceipt.id);
+        else toast('❌ السند غير موجود');
+      });
+    }
+    
     if (location.hash.includes('print=1')) setTimeout(() => window.print(), 300);
   }
 
-  // ============================= ARCHIVE =============================
   function renderArchive() {
     if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
     return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
@@ -1682,7 +1774,6 @@
     });
   }
 
-  // ============================= SETTINGS =============================
   function renderSettings() {
     const s = SETTINGS;
     const fixedFields = s.fixedFields || DEFAULT_SETTINGS.fixedFields;
@@ -1706,7 +1797,6 @@
         <input id="fv-${fieldKey}" type="${type}" value="${val}" placeholder="أدخل القيمة الثابتة..."></div>`;
     }
 
-    // إنشاء حقول الملاحظات الثابتة لكل نوع
     let typeNotesHTML = '';
     Object.keys(TYPES).forEach(key => {
       const t = TYPES[key];
@@ -1812,7 +1902,6 @@
       const fixedNotes = document.getElementById('s-fixedNotes').value;
       const showTotal = document.getElementById('s-showTotal').checked;
 
-      // جمع الملاحظات الثابتة لكل نوع
       const typeFixedNotes = {};
       Object.keys(TYPES).forEach(key => {
         const t = TYPES[key];
