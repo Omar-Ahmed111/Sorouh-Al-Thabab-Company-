@@ -684,6 +684,9 @@
         priceWithoutTaxSRC: 0 
       };
     }
+    if (t.isBlock) {
+      return { id: uid(), desc: '', size: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
+    }
     return { id: uid(), desc: '', unit: '', qty: 1, price: 0, priceWithTax: 0, totalWithTax: 0 };
   }
 
@@ -779,7 +782,7 @@
             <tr>
               <th style="width:26px;">م</th>
               <th>${t.itemLabel}</th>
-              ${t.isPrecast ? `<th style="width:80px;">${sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}
+              ${(t.isPrecast || t.isBlock) ? `<th style="width:80px;">${t.isBlock ? 'المقاس' : sizeLabel}</th>` : `<th style="width:80px;">الوحدة</th>`}
               <th style="width:70px;">${qtyLabel}</th>
               <th style="width:100px;">${priceLabel}</th>
               <th style="width:110px;">${priceWithTaxLabel}</th>
@@ -876,7 +879,7 @@
     return `<tr data-id="${it.id}">
       <td>${i+1}</td>
       <td><input data-if="desc" value="${it.desc||''}" style="text-align:right;"></td>
-      <td><input data-if="unit" value="${it.unit||''}"></td>
+      ${(t.isBlock) ? `<td><input data-if="size" value="${it.size||''}" style="text-align:center;" placeholder="مثال: 20×40×20"></td>` : `<td><input data-if="unit" value="${it.unit||''}"></td>`}
       <td><input data-if="qty" type="text" value="${qty || ''}" class="item-qty" style="text-align:center;"></td>
       <td><input data-if="price" type="text" value="${price || ''}" class="item-price" style="text-align:center;"></td>
       <td><input data-if="priceWithTax" type="text" value="${priceWithTax || ''}" class="item-price-with-tax" style="text-align:center;color:var(--orange);font-weight:700;"></td>
@@ -1047,7 +1050,7 @@
         </tr>`;
       }).join('');
     } else {
-      tableHeader = `<tr><th>م</th><th>${t.itemLabel}</th>${t.isPrecast ? `<th>${sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th><th>${priceWithTaxLabel}</th><th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr>`;
+      tableHeader = `<tr><th>م</th><th>${t.itemLabel}</th>${(t.isPrecast || t.isBlock) ? `<th>${t.isBlock ? 'المقاس' : sizeLabel}</th>` : `<th>الوحدة</th>`}<th>${qtyLabel}</th><th>${priceLabel}</th><th>${priceWithTaxLabel}</th><th>الضريبة</th><th>الإجمالي شامل الضريبة</th></tr>`;
       tableBody = doc.items.map((it,i)=>{
         const tax = safeNumber(doc.taxPercent || 15);
         let totalBeforeTax = 0;
@@ -1071,7 +1074,7 @@
         const taxAmount = roundToTwo(totalBeforeTax * (tax / 100));
         const totalWithTax = roundToTwo(totalBeforeTax + taxAmount);
         
-        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${t.isPrecast ? `<td>${size}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td><td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td><td>${money(taxAmount)}</td><td>${money(totalWithTax)}</td></tr>`;
+        return `<tr><td>${i+1}</td><td>${it.desc||'—'}</td>${(t.isPrecast || t.isBlock) ? `<td>${t.isPrecast ? size : (it.size||'—')}</td>` : `<td>${it.unit||'—'}</td>`}<td>${qty||0}</td><td>${money(price)}</td><td style="color:var(--orange);font-weight:700;">${money(priceWithTax)}</td><td>${money(taxAmount)}</td><td>${money(totalWithTax)}</td></tr>`;
       }).join('');
     }
 
