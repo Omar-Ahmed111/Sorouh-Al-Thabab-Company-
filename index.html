@@ -197,8 +197,15 @@
     .receipt-amount-box .v { font-weight: 900; color: var(--navy); font-size: 17px; }
     .receipt-words { margin: 0 26px 12px; font-size: 14px; color: var(--muted); position: relative; z-index: 2; }
 
-    .archive-toolbar { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
-    .archive-toolbar input { flex: 1; min-width: 220px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 9px; font-size: 14px; }
+    .archive-toolbar { display: flex; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+    .archive-toolbar input, .archive-toolbar select { padding: 10px 14px; border: 1px solid var(--border); border-radius: 9px; font-size: 14px; background: #fff; }
+    .archive-toolbar input[type="text"] { flex: 1; min-width: 220px; }
+    .archive-toolbar .filter-group { display: flex; flex-direction: column; gap: 3px; }
+    .archive-toolbar .filter-group label { font-size: 11px; color: var(--muted); font-weight: 700; }
+    .archive-toolbar .btn-clear-filters { background: var(--bg); color: var(--navy); border: 1px solid var(--border); padding: 10px 16px; border-radius: 9px; font-weight: 700; font-size: 13px; }
+    .archive-toolbar .btn-clear-filters:hover { background: #e2e7f4; }
+    .archive-results-info { color: var(--muted); font-size: 13px; margin-bottom: 14px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid var(--border); display: inline-block; }
+    .archive-results-info b { color: var(--navy); }
     table.archive-table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 12px; overflow: hidden; }
     table.archive-table th { background: var(--navy); color: #fff; padding: 11px 10px; font-size: 13px; text-align: right; }
     table.archive-table td { padding: 10px; border-bottom: 1px solid var(--border); font-size: 13px; }
@@ -404,6 +411,22 @@
   const docsRef = ref(db, 'documents');
   const metaRef = ref(db, 'meta');
 
+  function docNumberSortKey(num) {
+    const m = String(num || '').match(/(\d+)-(\d+)$/);
+    if (!m) return { year: 0, seq: 0 };
+    return { year: parseInt(m[1], 10) || 0, seq: parseInt(m[2], 10) || 0 };
+  }
+
+  function sortDocsByNumber(docs) {
+    return docs.sort((a, b) => {
+      const A = docNumberSortKey(a.number);
+      const B = docNumberSortKey(b.number);
+      if (A.year !== B.year) return B.year - A.year;
+      if (A.seq !== B.seq) return B.seq - A.seq;
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    });
+  }
+
   async function loadSettings() {
     try {
       const snapshot = await get(settingsRef);
@@ -437,7 +460,7 @@
       if (snapshot.exists()) {
         const docsData = snapshot.val();
         DOCS = Object.keys(docsData).map(key => ({ ...docsData[key], id: key }));
-        DOCS.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        sortDocsByNumber(DOCS);
       } else {
         DOCS = [];
       }
@@ -1172,7 +1195,6 @@
       }).join('');
     }
 
-    // Discount display
     const discountHTML = tot.discount > 0 ? `
       <div class="discount-line">
         <span class="reason">🏷️ خصم${doc.discountReason ? ': ' + doc.discountReason : ''}</span>
@@ -1772,7 +1794,6 @@
       }
     }
 
-    // Execution order button
     let execBtn = '';
     if (t.kind === 'quote' && doc.status === 'approved') {
       const hasExec = doc.executionOrder && doc.executionOrder.updatedAt;
@@ -1862,8 +1883,34 @@
 
   function renderArchive() {
     if (!DOCS.length) return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">المستندات المحفوظة</p><div class="empty-state"><div class="em">🗂️</div>لا توجد مستندات محفوظة.</div>`;
+    const typeOptions = Object.values(TYPES).map(t=>`<option value="${t.key}">${t.title}</option>`).join('');
     return `<h1 class="page-title">الأرشيف</h1><p class="page-sub">${DOCS.length} مستند</p>
-  <div class="archive-toolbar"><input id="search" placeholder="ابحث بالاسم، الرقم..."><select id="filter-type"><option value="">كل الأنواع</option>${Object.values(TYPES).map(t=>`<option value="${t.key}">${t.title}</option>`).join('')}</select></div>
+  <div class="archive-toolbar">
+    <input id="search" type="text" placeholder="🔍 ابحث بالاسم، الرقم، النوع...">
+    <div class="filter-group">
+      <label>النوع</label>
+      <select id="filter-type"><option value="">كل الأنواع</option>${typeOptions}</select>
+    </div>
+    <div class="filter-group">
+      <label>الحالة</label>
+      <select id="filter-status">
+        <option value="">كل الحالات</option>
+        <option value="pending">قيد الانتظار</option>
+        <option value="approved">تمت الموافقة</option>
+        <option value="rejected">مرفوض</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>من تاريخ</label>
+      <input id="filter-from" type="date">
+    </div>
+    <div class="filter-group">
+      <label>إلى تاريخ</label>
+      <input id="filter-to" type="date">
+    </div>
+    <button class="btn-clear-filters" id="clear-filters">🔄 مسح الفلاتر</button>
+  </div>
+  <div class="archive-results-info" id="results-info">عرض <b>${DOCS.length}</b> من <b>${DOCS.length}</b> مستند</div>
   <table class="archive-table"><thead><tr><th>الرقم</th><th>النوع</th><th>العميل</th><th>التاريخ</th><th>الحالة</th><th>الإجمالي</th><th></th></tr></thead><tbody id="archive-body">${archiveRows(DOCS)}</tbody></table>`;
   }
 
@@ -1876,7 +1923,6 @@
       const whatsappLink = getWhatsAppLink(d);
       const hasContact = d.contact && d.contact.replace(/[\s\-\(\)]/g, '').length > 0;
       
-      // Execution order button
       let execBtnHtml = '';
       if (t.kind === 'quote' && d.status === 'approved') {
         const hasExec = d.executionOrder && d.executionOrder.updatedAt;
@@ -1907,22 +1953,82 @@
   }
 
   function bindArchive() {
-    document.getElementById('search').addEventListener('input', filterArchive);
-    document.getElementById('filter-type').addEventListener('change', filterArchive);
+    const searchEl = document.getElementById('search');
+    const typeEl = document.getElementById('filter-type');
+    const statusEl = document.getElementById('filter-status');
+    const fromEl = document.getElementById('filter-from');
+    const toEl = document.getElementById('filter-to');
+    const clearBtn = document.getElementById('clear-filters');
+    const resultsInfo = document.getElementById('results-info');
 
-    function filterArchive() {
-      const q = document.getElementById('search').value.trim().toLowerCase(),
-        ty = document.getElementById('filter-type').value;
+    function parseDate(str) {
+      if (!str) return null;
+      const parts = str.split('/');
+      if (parts.length === 3) {
+        const d = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        const y = parseInt(parts[2], 10);
+        if (!isNaN(d) && !isNaN(m) && !isNaN(y)) return new Date(y, m - 1, d);
+      }
+      const iso = new Date(str);
+      if (!isNaN(iso.getTime())) return iso;
+      return null;
+    }
+
+    function applyFilters() {
+      const q = (searchEl.value || '').trim().toLowerCase();
+      const ty = typeEl.value;
+      const st = statusEl.value;
+      const fromRaw = fromEl.value;
+      const toRaw = toEl.value;
+      const fromDate = fromRaw ? new Date(fromRaw) : null;
+      const toDate = toRaw ? new Date(toRaw) : null;
+      if (toDate) toDate.setHours(23, 59, 59, 999);
+
       const f = DOCS.filter(d => {
         const t = TYPES[d.type];
         if (!t) return false;
-        const n = t.kind === 'quote' ? (d.customerName || '') : (d.receivedFrom || '');
-        return (!q || d.number.toLowerCase().includes(q) || n.toLowerCase().includes(q) || t.title.toLowerCase()
-          .includes(q)) && (!ty || d.type === ty);
+        const name = t.kind === 'quote' ? (d.customerName || '') : (d.receivedFrom || '');
+
+        if (q) {
+          const hay = (d.number + ' ' + name + ' ' + t.title + ' ' + (d.contact || '')).toLowerCase();
+          if (!hay.includes(q)) return false;
+        }
+        if (ty && d.type !== ty) return false;
+        if (st && t.kind === 'quote' && (d.status || 'pending') !== st) return false;
+        if (st && t.kind !== 'quote' && st !== 'approved') return false;
+
+        if (fromDate || toDate) {
+          const docDate = parseDate(d.date);
+          if (!docDate) return false;
+          if (fromDate && docDate < fromDate) return false;
+          if (toDate && docDate > toDate) return false;
+        }
+        return true;
       });
+
       document.getElementById('archive-body').innerHTML = archiveRows(f);
+      resultsInfo.innerHTML = `عرض <b>${f.length}</b> من <b>${DOCS.length}</b> مستند`;
       bindArchiveRowActions();
     }
+
+    [searchEl, typeEl, statusEl, fromEl, toEl].forEach(el => {
+      if (el) {
+        el.addEventListener('input', applyFilters);
+        el.addEventListener('change', applyFilters);
+      }
+    });
+
+    clearBtn.addEventListener('click', () => {
+      searchEl.value = '';
+      typeEl.value = '';
+      statusEl.value = '';
+      fromEl.value = '';
+      toEl.value = '';
+      applyFilters();
+      toast('🔄 تم مسح الفلاتر');
+    });
+
     bindArchiveRowActions();
   }
 
@@ -1943,14 +2049,12 @@
         d.status = e.target.value;
         await saveDoc(d);
         toast('تم التحديث');
-        // Re-render archive to update exec buttons
         if (location.hash.includes('archive')) {
           const body = document.getElementById('archive-body');
           if (body) { body.innerHTML = archiveRows(DOCS); bindArchiveRowActions(); }
         }
       }
     });
-    // Execution order buttons
     document.querySelectorAll('[data-exec-view]').forEach(b => b.onclick = () => go('#/execution/' + b.dataset.execView + '/view'));
     document.querySelectorAll('[data-exec-create]').forEach(b => b.onclick = () => go('#/execution/' + b.dataset.execCreate + '/edit'));
   }
@@ -2268,7 +2372,6 @@
       </div>`;
     }
 
-    // mode === 'view'
     return `<h1 class="page-title">📋 معاينة أمر التنفيذ</h1>
     <p class="page-sub">مرجع العرض: <b>${doc.number}</b> — ${doc.customerName || '—'}</p>
     <div class="actions-bar" style="margin-bottom:16px;">
@@ -2331,7 +2434,6 @@
       document.getElementById('exec-pdf').addEventListener('click', () => { collect(); refreshExecPreview(); downloadExecPdf(doc, '#execution-preview .exec-sheet'); });
       document.getElementById('exec-back').addEventListener('click', () => go('#/view/' + doc.id));
     } else {
-      // view mode
       document.getElementById('exec-pdf').addEventListener('click', () => downloadExecPdf(doc, '#print-area .exec-sheet'));
       document.getElementById('exec-print').addEventListener('click', () => window.print());
       document.getElementById('exec-edit').addEventListener('click', () => go('#/execution/' + doc.id + '/edit'));
