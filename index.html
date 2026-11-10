@@ -408,6 +408,8 @@ let SOUND_ENABLED = localStorage.getItem('surooh_sound') !== 'off';
 let clockInterval = null;
 let CURRENT_NEXT_NUMBER = '';
 let sessionWatchInterval = null;
+let ACTIVE_ROUTE = 'dashboard';
+let ACTIVE_PARAMS = {};
 
 const settingsRef = ref(db, 'settings');
 const docsRef = ref(db, 'documents');
@@ -536,18 +538,54 @@ async function loadSettings() {
   catch (error) { SETTINGS = { ...DEFAULT_SETTINGS }; }
 }
 async function saveSettings(s) { try { await set(settingsRef, s); SETTINGS = { ...s }; } catch (error) { toast('❌ خطأ في حفظ الإعدادات', 'error'); } }
-function loadDocs() { return new Promise((resolve) => { const t = setTimeout(resolve, 5000); onValue(docsRef, (snapshot) => { clearTimeout(t); if (snapshot.exists()) { const data = snapshot.val(); DOCS = Object.keys(data).map(key => ({ ...data[key], id: key })); sortDocsByNumber(DOCS); } else { DOCS = []; } resolve(); }, () => { clearTimeout(t); resolve(); }); }); }
+function loadDocs() { return new Promise((resolve) => { const t = setTimeout(resolve, 5000); onValue(docsRef, (snapshot) => { clearTimeout(t); if (snapshot.exists()) { const data = snapshot.val(); DOCS = Object.keys(data).map(key => ({ ...data[key], id: key })); sortDocsByNumber(DOCS); } else { DOCS = []; } resolve(); refreshSharedDataScreen(); }, (error) => { clearTimeout(t); console.error('documents listener:', error); resolve(); }); }); }
+function refreshSharedDataScreen() {
+  if (!CURRENT_USER) return;
+  // Never replace a form while someone is typing. Other data screens stay live.
+  try {
+    if (ACTIVE_ROUTE === 'dashboard') renderDashboard();
+    else if (ACTIVE_ROUTE === 'archive') renderArchive();
+    else if (ACTIVE_ROUTE === 'profile') renderProfile();
+    else if (ACTIVE_ROUTE === 'view' && ACTIVE_PARAMS.id) renderViewPage(ACTIVE_PARAMS.id);
+    else if (ACTIVE_ROUTE === 'execution' && ACTIVE_PARAMS.id) renderExecutionPage(ACTIVE_PARAMS.id, ACTIVE_PARAMS.mode);
+  } catch (e) { console.error('shared screen refresh:', e); }
+}
 function loadEmployees() { return new Promise((resolve) => { const t = setTimeout(resolve, 5000); onValue(employeesRef, (snapshot) => { clearTimeout(t); if (snapshot.exists()) { const e = snapshot.val(); EMPLOYEES = Object.keys(e).map(k => ({ ...e[k], id: k })); } else { EMPLOYEES = []; } resolve(); }, () => { clearTimeout(t); resolve(); }); }); }
-function loadActivity() { return new Promise((resolve) => { const t = setTimeout(resolve, 5000); onValue(activityRef, (snapshot) => { clearTimeout(t); if (snapshot.exists()) { const a = snapshot.val(); ACTIVITY = Object.keys(a).map(k => ({ ...a[k], id: k })); ACTIVITY.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); } else { ACTIVITY = []; } resolve(); }, () => { clearTimeout(t); resolve(); }); }); }
+function loadActivity() { return new Promise((resolve) => { const t = setTimeout(resolve, 5000); onValue(activityRef, (snapshot) => { clearTimeout(t); if (snapshot.exists()) { const a = snapshot.val(); ACTIVITY = Object.keys(a).map(k => ({ ...a[k], id: k })); ACTIVITY.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)); } else { ACTIVITY = []; } resolve(); refreshSharedDataScreen(); }, (error) => { clearTimeout(t); console.error('activity listener:', error); resolve(); }); }); }
 
 async function saveDoc(doc) { try { await set(ref(db, `documents/${doc.id}`), doc); return true; } catch (error) { toast('❌ خطأ في الحفظ', 'error'); return false; } }
 async function deleteDoc(id) { try { await remove(ref(db, `documents/${id}`)); return true; } catch (error) { toast('❌ خطأ في الحذف', 'error'); return false; } }
 async function commitDocNumber() {
+  // nextNumber stores the NEXT available sequence. The transaction increments it
+  // atomically, so two employees saving at the same moment cannot receive one number.
+  const start = Math.max(1, parseInt(SETTINGS.startNumber, 10) || 1);
+  const year = String(SETTINGS.year || new Date().getFullYear());
+  const highestExisting = DOCS.reduce((max, d) => {
+    const match = String(d.number || '').match(new RegExp('^Q-' + year + '-(\\d+)$'));
+    return match ? Math.max(max, parseInt(match[1], 10) || 0) : max;
+  }, start - 1);
   try {
-    const result = await runTransaction(child(metaRef, 'nextNumber'), (current) => { if (current === null || current === undefined) return SETTINGS.startNumber || 1; return current + 1; });
-    const committedNum = (result.snapshot.val() || (SETTINGS.startNumber || 1)) - 1;
-    SETTINGS.nextNumber = committedNum + 1; return committedNum;
-  } catch (error) { console.error('commitDocNumber error:', error); return SETTINGS.startNumber || 1; }
+    const result = await runTransaction(child(metaRef, 'nextNumber'), (current) => {
+      const nextAvailable = Math.max(
+        current === null || current === undefined ? start : (parseInt(current, 10) || start),
+        highestExisting + 1
+      );
+      return nextAvailable + 1;
+    });
+    if (!result.committed || !Number.isFinite(Number(result.snapshot.val()))) {
+      throw new Error('لم يتم اعتماد رقم المستند في قاعدة البيانات');
+    }
+    const allocated = Number(result.snapshot.val()) - 1;
+    SETTINGS.nextNumber = allocated + 1;
+    CURRENT_NEXT_NUMBER = 'Q-' + year + '-' + String(allocated + 1).padStart(3, '0');
+    const el = document.getElementById('next-number-display');
+    if (el) el.textContent = CURRENT_NEXT_NUMBER;
+    return allocated;
+  } catch (error) {
+    console.error('commitDocNumber error:', error);
+    toast('تعذر حجز رقم موحّد من قاعدة البيانات. لم يتم حفظ المستند لتجنب تكرار الرقم.', 'error');
+    throw error;
+  }
 }
 function nextDocNumber() { if (CURRENT_NEXT_NUMBER) return CURRENT_NEXT_NUMBER; const n = SETTINGS.nextNumber || SETTINGS.startNumber || 1; return 'Q-' + SETTINGS.year + '-' + String(n).padStart(3, '0'); }
 function uid() { return 'd' + Date.now() + Math.random().toString(36).slice(2, 7); }
@@ -577,7 +615,7 @@ const TYPES = {
   receipt: { key: 'receipt', title: 'سند استلام', badge: 'سند استلام', itemLabel: '', icon: '🧾', desc: 'إيصال قبض مبلغ', kind: 'receipt' },
   precast: { key: 'precast', title: 'مواد أسمنتية مسبقة الصب', badge: 'Precast', itemLabel: 'البيان', icon: '🏗️', desc: 'مواد أسمنتية مسبقة الصب', kind: 'quote', isPrecast: true, terms: true }
 };
-function canSeeDoc(d) { if (!d.createdBy) return true; return d.createdBy === CURRENT_USER.id; }
+function canSeeDoc(d) { return !!d; }
 
 /* ===== تطبيع الملاحظات المتعددة (توافق مع النسخ القديمة) ===== */
 function normalizeNotes(doc) {
@@ -649,6 +687,8 @@ async function logActivity(action, details, extra = {}) {
 
 function navigate(route, params = {}) {
   if (!CURRENT_USER) return;
+  ACTIVE_ROUTE = route;
+  ACTIVE_PARAMS = { ...params };
   startProgress(2500); const app = document.getElementById('app'); app.innerHTML = '';
   try {
     switch (route) {
@@ -933,7 +973,7 @@ function renderViewPage(id) {
   const html = t.kind === 'quote' ? quotePreview(t, doc) : receiptPreview(doc);
   const whatsappLink = getWhatsAppLink(doc);
   const hasContact = doc.contact && doc.contact.replace(/[\s\-\(\)]/g, '').length > 0;
-  const isMine = !doc.createdBy || doc.createdBy === CURRENT_USER.id;
+  const isMine = true;
   let receiptBtn = '';
   if (t.kind === 'quote' && doc.paymentMethod === 'نقدي') {
     const linkedReceipt = DOCS.find(d => d.type === 'receipt' && d.linkedQuoteId === doc.id);
@@ -978,7 +1018,7 @@ function renderForm(type, id) {
   } else {
     const existing = DOCS.find(d => d.id === id);
     if (!existing) { toast('❌ غير موجود', 'error'); navigate('archive'); return; }
-    if (existing.createdBy && existing.createdBy !== CURRENT_USER.id) { toast('❌ لا يمكنك التعديل', 'error'); navigate('archive'); return; }
+    
     const pwd = prompt('🔒 أدخل باسورد التعديل:');
     if (pwd === null) { navigate('archive'); return; }
     if (pwd !== (SETTINGS.editPassword || 'edit123')) { toast('❌ باسورد غير صحيح', 'error'); logActivity('security', `محاولة تعديل فاشلة ${existing.number}`); navigate('archive'); return; }
@@ -1274,7 +1314,12 @@ function bindForm(type, doc) {
 
 async function persistDoc(doc) {
   const isNew = !DOCS.find(d => d.id === doc.id);
-  if (isNew) { const committedNum = await commitDocNumber(); doc.number = 'Q-' + SETTINGS.year + '-' + String(committedNum).padStart(3, '0'); }
+  if (isNew) {
+    let committedNum;
+    try { committedNum = await commitDocNumber(); }
+    catch (error) { return false; }
+    doc.number = 'Q-' + SETTINGS.year + '-' + String(committedNum).padStart(3, '0');
+  }
   doc.updatedAt = Date.now(); doc.updatedBy = CURRENT_USER.id; doc.updatedByName = CURRENT_USER.name;
   if (!doc.createdBy) { doc.createdBy = CURRENT_USER.id; doc.createdByName = CURRENT_USER.name; }
   doc.notesList = (doc.notesList || []).filter(n => n && n.text && n.text.trim());
@@ -1316,11 +1361,11 @@ function renderDashboard() {
   const myPending = myQuotes.filter(d => d.status === 'pending' || !d.status);
   const myTotal = myQuotes.reduce((s, d) => s + computeTotals(d).grand, 0);
   const myRecentDocs = myDocs.slice(0, 5);
-  const myRecentActivity = ACTIVITY.filter(a => a.userId === CURRENT_USER.id).slice(0, 5);
+  const myRecentActivity = ACTIVITY.slice(0, 5);
   const typeCards = Object.values(TYPES).map(t => `<div class="doc-card" data-type="${t.key}"><div class="icon">${t.icon || '📄'}</div><h3>${escapeHtml(t.title)}</h3><p>${escapeHtml(t.desc)}</p><span class="go">إنشاء جديد ←</span></div>`).join('');
   app.innerHTML = `
     <div class="next-number-banner"><div class="next-number-content"><div class="next-number-label">📋 رقم العرض التالي</div><div class="next-number-value" id="next-number-display">${escapeHtml(CURRENT_NEXT_NUMBER || nextDocNumber())}</div></div><div class="next-number-actions"><button class="btn-secondary" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;" onclick="copyNextNumber()">📋 انسخ</button><button class="btn-primary" onclick="navigateTo('form',{type:'concrete',id:'new'})">➕ إنشاء عرض</button></div></div>
-    <div class="welcome-banner"><div class="welcome-content"><div class="welcome-title">أهلاً ${escapeHtml(CURRENT_USER.name)} 👋</div><div class="welcome-sub">${new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div></div><div class="welcome-stats"><div class="welcome-stat"><div class="welcome-stat-v">${myDocs.length}</div><div class="welcome-stat-l">مستنداتي</div></div><div class="welcome-stat"><div class="welcome-stat-v">${myApproved.length}</div><div class="welcome-stat-l">معتمدة</div></div><div class="welcome-stat"><div class="welcome-stat-v">${money(myTotal)}</div><div class="welcome-stat-l">إجمالي المبالغ</div></div></div></div>
+    <div class="welcome-banner"><div class="welcome-content"><div class="welcome-title">أهلاً ${escapeHtml(CURRENT_USER.name)} 👋</div><div class="welcome-sub">${new Date().toLocaleDateString('ar-SA', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</div></div><div class="welcome-stats"><div class="welcome-stat"><div class="welcome-stat-v">${myDocs.length}</div><div class="welcome-stat-l">كل المستندات</div></div><div class="welcome-stat"><div class="welcome-stat-v">${myApproved.length}</div><div class="welcome-stat-l">معتمدة</div></div><div class="welcome-stat"><div class="welcome-stat-v">${money(myTotal)}</div><div class="welcome-stat-l">إجمالي المبالغ</div></div></div></div>
     <div class="stats-grid">
       <div class="stat-card" style="--c:#F97316"><div class="stat-icon">📄</div><div class="stat-value">${myDocs.length}</div><div class="stat-label">إجمالي المستندات</div></div>
       <div class="stat-card" style="--c:#10b981"><div class="stat-icon">✅</div><div class="stat-value">${myApproved.length}</div><div class="stat-label">معتمدة</div></div>
@@ -1329,7 +1374,7 @@ function renderDashboard() {
     </div>
     <div class="panel"><h4>➕ إنشاء مستند جديد</h4><div class="grid">${typeCards}</div></div>
     ${myRecentDocs.length ? `<div class="panel"><h4>📄 آخر المستندات <button class="btn-ghost btn-sm" onclick="navigateTo('archive')">عرض الكل ←</button></h4><div style="overflow-x:auto"><table class="archive-table"><thead><tr><th>الرقم</th><th>النوع</th><th>العميل</th><th>التاريخ</th><th>بواسطة</th><th>الحالة</th><th>الإجمالي</th><th></th></tr></thead><tbody>${myRecentDocs.map(d => { const t = TYPES[d.type]; const name = t && t.kind === 'quote' ? (d.customerName || '—') : (d.receivedFrom || '—'); const total = t && t.kind === 'quote' ? money(computeTotals(d).grand) : money(d.amount || 0); return `<tr><td><b style="color:var(--orange)">${escapeHtml(d.number)}</b></td><td>${escapeHtml(t?.title || '—')}</td><td>${escapeHtml(name)}</td><td>${escapeHtml(d.date || '—')}</td><td><small>${escapeHtml(d.createdByName || '—')}</small></td><td>${statusPillStatic(d)}</td><td><b>${total} ر.س</b></td><td><button class="btn-ghost btn-sm" onclick="navigateTo('view',{id:'${d.id}'})">👁️</button></td></tr>`; }).join('')}</tbody></table></div></div>` : ''}
-    ${myRecentActivity.length ? `<div class="panel"><h4>📋 آخر نشاطاتي <button class="btn-ghost btn-sm" onclick="navigateTo('profile')">عرض الكل ←</button></h4><div class="timeline">${myRecentActivity.map(a => `<div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-header"><span class="timeline-name">${escapeHtml(a.userName)}</span><span class="timeline-time">${formatTimeAgo(a.timestamp)}</span></div><div class="timeline-action">${escapeHtml(a.details)}</div><button class="timeline-details-btn" onclick="showActivityDetails('${a.id}')">👁️ التفاصيل</button></div>`).join('')}</div></div>` : ''}
+    ${myRecentActivity.length ? `<div class="panel"><h4>📋 آخر نشاطات الموظفين <button class="btn-ghost btn-sm" onclick="navigateTo('profile')">عرض الكل ←</button></h4><div class="timeline">${myRecentActivity.map(a => `<div class="timeline-item"><div class="timeline-dot"></div><div class="timeline-header"><span class="timeline-name">${escapeHtml(a.userName)}</span><span class="timeline-time">${formatTimeAgo(a.timestamp)}</span></div><div class="timeline-action">${escapeHtml(a.details)}</div><button class="timeline-details-btn" onclick="showActivityDetails('${a.id}')">👁️ التفاصيل</button></div>`).join('')}</div></div>` : ''}
   `;
   app.querySelectorAll('.doc-card').forEach(card => { card.onclick = () => { playSound('click'); navigate('form', { type: card.dataset.type, id: 'new' }); }; });
 }
@@ -1372,7 +1417,7 @@ function archiveRows(list) {
     const total = t.kind === 'quote' ? money(computeTotals(d).grand) : money(d.amount || 0);
     const whatsappLink = getWhatsAppLink(d);
     const hasContact = d.contact && d.contact.replace(/[\s\-\(\)]/g, '').length > 0;
-    const isMine = !d.createdBy || d.createdBy === CURRENT_USER.id;
+    const isMine = true;
     const isQuote = t.kind === 'quote'; const st = d.status || 'pending';
     let execBtnHtml = '';
     if (isQuote && d.status === 'approved' && isMine) { const hasExec = d.executionOrder && d.executionOrder.updatedAt; execBtnHtml = hasExec ? `<button class="btn-exec" data-exec-view="${d.id}" title="معاينة أمر التنفيذ">📋</button>` : `<button class="btn-exec" data-exec-create="${d.id}" title="إنشاء أمر التنفيذ">📋</button>`; }
@@ -1424,7 +1469,7 @@ window.duplicateDoc = async function(id) {
 
 window.deleteDocEmployee = async function(id) {
   const d = DOCS.find(x => x.id === id); if (!d) { toast('غير موجود', 'error'); return; }
-  if (d.createdBy && d.createdBy !== CURRENT_USER.id) { toast('❌ لا يمكنك الحذف', 'error'); return; }
+  
   const pwd = prompt('🔒 أدخل باسورد الحذف:'); if (pwd === null) return;
   if (pwd !== (SETTINGS.deletePassword || 'delete123')) { toast('❌ باسورد غير صحيح', 'error'); await logActivity('security', `محاولة حذف فاشلة للمستند ${d.number}`); return; }
   if (!confirm(`تأكيد حذف ${d.number}؟`)) return;
