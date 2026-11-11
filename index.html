@@ -1289,11 +1289,11 @@ function bindForm(type, doc) {
     }
     if (e.target.id === 'save-doc') {
       startProgress(3000); const ok = await persistDoc(doc); finishProgress();
-      if (ok) { showSuccessCheck('تم حفظ المستند', 1800); setTimeout(() => navigate('archive'), 700); }
+      if (ok) { window._currentDoc = null; showSuccessCheck('تم حفظ المستند', 1800); setTimeout(() => navigate('archive'), 700); }
     }
     if (e.target.id === 'save-print') {
       startProgress(3000); const ok = await persistDoc(doc); finishProgress();
-      if (ok) { showSuccessCheck('تم الحفظ', 1500); setTimeout(() => navigate('view', { id: doc.id }), 900); }
+      if (ok) { window._currentDoc = null; showSuccessCheck('تم الحفظ', 1500); setTimeout(() => navigate('view', { id: doc.id }), 900); }
     }
     if (e.target.id === 'cancel-form') navigate('dashboard');
     if (e.target.id === 'download-pdf-form') {
