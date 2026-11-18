@@ -1626,11 +1626,11 @@ function buildExecutionDetails(doc) {
   if (t.isBlock) return items.map(it => `${safeNumber(it.qty) || 0} ${it.size || ''} ${it.desc || ''}`.trim()).join(' + ');
   return items.map(it => `${safeNumber(it.qty) || 0} ${it.unit || ''} ${it.desc || ''}`.trim()).join(' + ');
 }
-function getExecutionDefault(doc) { return { details: buildExecutionDetails(doc), pump: 'لا', deliveryAddress: doc.location2 || doc.location || '', deliveryTime: '', executionNotes: '', followupPerson: '', updatedAt: 0 }; }
+function getExecutionDefault(doc) { return { quoteNumber: doc.number || '', details: buildExecutionDetails(doc), pump: 'لا', deliveryAddress: doc.location2 || doc.location || '', deliveryTime: '', executionNotes: '', followupPerson: '', updatedAt: 0 }; }
 function executionPreview(doc, exec) {
   const watermarkHTML = `<div class="watermark"><img src="https://i.ibb.co/LDWsTJhH/Picsart-26-08-08-16-27-38-377.png" alt="علامة مائية"></div>`;
   return `<div class="exec-sheet">${watermarkHTML}
-    <div class="doc-header"><div class="logo-area"><img src="https://i.ibb.co/VYhvBfBB/IMG-20260725-WA0001.jpg" alt="logo" class="logo-img"></div><div class="company-info"><div class="tag">شركة</div><h1>${escapeHtml(SETTINGS.companyLine1)}<br><span>أمر تنفيذ طلب</span></h1><div class="slogan">${escapeHtml(SETTINGS.slogan)}</div></div><div class="badge-area"><div class="doc-badge" style="background:linear-gradient(135deg,#6d28d9,#5b21b6);border-color:#6d28d9;"><div class="t">مرجع العرض</div><div class="big" style="color:#fff;">${escapeHtml(doc.number)}</div></div></div></div>
+    <div class="doc-header"><div class="logo-area"><img src="https://i.ibb.co/VYhvBfBB/IMG-20260725-WA0001.jpg" alt="logo" class="logo-img"></div><div class="company-info"><div class="tag">شركة</div><h1>${escapeHtml(SETTINGS.companyLine1)}<br><span>أمر تنفيذ طلب</span></h1><div class="slogan">${escapeHtml(SETTINGS.slogan)}</div></div><div class="badge-area"><div class="doc-badge" style="background:linear-gradient(135deg,#6d28d9,#5b21b6);border-color:#6d28d9;"><div class="t">رقم العرض</div><div class="big" style="color:#fff;">${escapeHtml(exec.quoteNumber || doc.number || '—')}</div></div></div></div>
     <div class="doc-title-strip"><h2>أمر تنفيذ طلب</h2><div class="subtitle">تم إنشاؤه من عرض سعر معتمد</div></div>
     <div class="exec-body">
       <div class="exec-row"><div class="k">👤 اسم العميل</div><div class="v">${escapeHtml(doc.customerName || '—')}</div></div>
@@ -1656,8 +1656,9 @@ function renderExecutionPage(id, mode) {
   if (mode === 'edit') {
     document.getElementById('app').innerHTML = `
       <h1 class="page-title">📋 إنشاء / تعديل أمر التنفيذ</h1>
-      <p class="page-sub">مرجع العرض: <b style="color:var(--purple)">${escapeHtml(doc.number)}</b> — ${escapeHtml(doc.customerName || '—')}</p>
+      <p class="page-sub">رقم العرض: <b style="color:var(--purple)">${escapeHtml(exec.quoteNumber || doc.number)}</b> — ${escapeHtml(doc.customerName || '—')}</p>
       <div class="form-wrap"><div><div class="panel"><h4>بيانات أمر التنفيذ</h4>
+        <div class="field"><label>رقم العرض</label><input id="exec-quote-number" value="${escapeHtml(exec.quoteNumber || doc.number || '')}" placeholder="مثال: Q-125" dir="ltr"></div>
         <div class="field"><label>اسم العميل</label><input value="${escapeHtml(doc.customerName || '—')}" disabled style="background:var(--bg)"></div>
         <div class="field"><label>رقم هاتف المسؤول</label><input value="${escapeHtml(doc.contact || '—')}" disabled style="background:var(--bg)"></div>
         <div class="field"><label>تفاصيل الطلب</label><textarea id="exec-details" class="exec-text">${escapeHtml(exec.details || '')}</textarea></div>
@@ -1672,7 +1673,7 @@ function renderExecutionPage(id, mode) {
   } else {
     document.getElementById('app').innerHTML = `
       <h1 class="page-title">📋 معاينة أمر التنفيذ</h1>
-      <p class="page-sub">مرجع العرض: <b>${escapeHtml(doc.number)}</b> — ${escapeHtml(doc.customerName || '—')}</p>
+      <p class="page-sub">رقم العرض: <b>${escapeHtml(exec.quoteNumber || doc.number)}</b> — ${escapeHtml(doc.customerName || '—')}</p>
       <div class="actions-bar" style="margin-bottom:16px"><button class="btn-pdf" id="exec-pdf">📥 PDF</button><button class="btn-secondary" id="exec-print">🖨️ طباعة</button><button class="btn-ghost" id="exec-edit">✏️ تعديل</button><button class="btn-ghost" id="exec-copy">📋 نسخ النص</button><button class="btn-ghost" id="exec-back">↩ رجوع</button></div>
       <div id="print-area">${executionPreview(doc, exec)}</div>`;
     bindExecutionPage(doc, exec, 'view');
@@ -1681,6 +1682,7 @@ function renderExecutionPage(id, mode) {
 function bindExecutionPage(doc, exec, mode) {
   function collect() {
     if (mode === 'edit') {
+      exec.quoteNumber = document.getElementById('exec-quote-number').value.trim() || doc.number || '';
       exec.details = document.getElementById('exec-details').value;
       exec.pump = document.getElementById('exec-pump').value;
       exec.deliveryAddress = document.getElementById('exec-address').value;
@@ -1691,7 +1693,7 @@ function bindExecutionPage(doc, exec, mode) {
   }
   function refreshExecPreview() { const el = document.getElementById('execution-preview'); if (el) el.innerHTML = executionPreview(doc, exec); }
   if (mode === 'edit') {
-    ['exec-details', 'exec-pump', 'exec-address', 'exec-time', 'exec-notes', 'exec-followup'].forEach(id => { const el = document.getElementById(id); if (el) { el.addEventListener('input', () => { collect(); refreshExecPreview(); }); el.addEventListener('change', () => { collect(); refreshExecPreview(); }); } });
+    ['exec-quote-number', 'exec-details', 'exec-pump', 'exec-address', 'exec-time', 'exec-notes', 'exec-followup'].forEach(id => { const el = document.getElementById(id); if (el) { el.addEventListener('input', () => { collect(); refreshExecPreview(); }); el.addEventListener('change', () => { collect(); refreshExecPreview(); }); } });
     document.getElementById('exec-save').onclick = async () => { collect(); doc.executionOrder = { ...exec, updatedAt: Date.now() }; startProgress(3000); const ok = await saveDoc(doc); finishProgress(); if (ok) { await logActivity('update', `حفظ أمر تنفيذ ${doc.number}`, { entityType: 'quote', entityId: doc.id, entityNumber: doc.number }); showSuccessCheck('تم حفظ أمر التنفيذ', 1800); setTimeout(() => navigate('execution', { id: doc.id, mode: 'view' }), 700); } };
     document.getElementById('exec-copy').onclick = () => { collect(); copyExecutionText(doc, exec); };
     document.getElementById('exec-pdf').onclick = function() { collect(); refreshExecPreview(); setTimeout(() => { const element = document.querySelector('#execution-preview .exec-sheet'); exportPdf(element, 'أمر تنفيذ - ' + doc.number); }, 300); };
@@ -1704,7 +1706,7 @@ function bindExecutionPage(doc, exec, mode) {
     document.getElementById('exec-back').onclick = () => navigate('view', { id: doc.id });
   }
 }
-function executionText(doc, exec) { return ['📋 أمر تنفيذ طلب', '', `👤 اسم العميل: ${doc.customerName || '—'}`, `📞 رقم هاتف المسؤول: ${doc.contact || '—'}`, `📦 تفاصيل الطلب: ${exec.details || '—'}`, `🏗️ المضخة: ${exec.pump || 'لا'}`, `📍 عنوان التسليم: ${exec.deliveryAddress || '—'}`, `🕒 موعد التسليم: ${exec.deliveryTime || '—'}`, `📝 ملاحظات: ${exec.executionNotes || '—'}`, `👷 مسؤول المتابعة: ${exec.followupPerson || '—'}`].join('\n'); }
+function executionText(doc, exec) { return ['📋 أمر تنفيذ طلب', '', `🔢 رقم العرض: ${exec.quoteNumber || doc.number || '—'}`, `👤 اسم العميل: ${doc.customerName || '—'}`, `📞 رقم هاتف المسؤول: ${doc.contact || '—'}`, `📦 تفاصيل الطلب: ${exec.details || '—'}`, `🏗️ المضخة: ${exec.pump || 'لا'}`, `📍 عنوان التسليم: ${exec.deliveryAddress || '—'}`, `🕒 موعد التسليم: ${exec.deliveryTime || '—'}`, `📝 ملاحظات: ${exec.executionNotes || '—'}`, `👷 مسؤول المتابعة: ${exec.followupPerson || '—'}`].join('\n'); }
 function copyExecutionText(doc, exec) {
   const text = executionText(doc, exec);
   if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(() => showSuccessCheck('تم نسخ النص', 1200)).catch(() => fallbackCopy(text));
